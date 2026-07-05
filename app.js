@@ -1356,6 +1356,249 @@ const iqStyleProfiles = {
   },
 };
 
+const visualExampleLibrary = {
+  "Developing Reasoning Range": {
+    famous: [
+      { name: "Thomas Edison", note: "iteration and persistence", motif: "lamp" },
+      { name: "Walt Disney", note: "imaginative problem solving", motif: "spark" },
+    ],
+    fictional: [
+      { name: "Neville Longbottom", note: "growth through practice", motif: "leaf" },
+      { name: "Mulan", note: "learning under pressure", motif: "star" },
+    ],
+  },
+  "Balanced Reasoning Range": {
+    famous: [
+      { name: "Benjamin Franklin", note: "practical curiosity", motif: "bolt" },
+      { name: "Florence Nightingale", note: "clear applied thinking", motif: "lantern" },
+    ],
+    fictional: [
+      { name: "Hermione Granger", note: "studied logic", motif: "book" },
+      { name: "Chidi Anagonye", note: "careful reasoning", motif: "scale" },
+    ],
+  },
+  "Strong Reasoning Range": {
+    famous: [
+      { name: "Ada Lovelace", note: "abstract systems insight", motif: "gear" },
+      { name: "Alan Turing", note: "pattern and computation", motif: "grid" },
+    ],
+    fictional: [
+      { name: "Sherlock Holmes", note: "deductive precision", motif: "lens" },
+      { name: "Shuri", note: "inventive analysis", motif: "spark" },
+    ],
+  },
+  "Exceptional Sample Range": {
+    famous: [
+      { name: "Marie Curie", note: "disciplined discovery", motif: "atom" },
+      { name: "John von Neumann", note: "rare cognitive speed", motif: "matrix" },
+    ],
+    fictional: [
+      { name: "Ender Wiggin", note: "strategic abstraction", motif: "orbit" },
+      { name: "Beth Harmon", note: "deep pattern vision", motif: "chess" },
+    ],
+  },
+  "The Sage": {
+    famous: [
+      { name: "Socrates", note: "truth through questions", motif: "scroll" },
+      { name: "Hypatia", note: "calm intellectual depth", motif: "star" },
+    ],
+    fictional: [
+      { name: "Gandalf", note: "wise guide energy", motif: "lantern" },
+      { name: "Professor X", note: "strategic empathy", motif: "mind" },
+    ],
+  },
+  "The Catalyst": {
+    famous: [
+      { name: "Joan of Arc", note: "conviction under fire", motif: "flame" },
+      { name: "Amelia Earhart", note: "bold first movement", motif: "wing" },
+    ],
+    fictional: [
+      { name: "Katniss Everdeen", note: "spark of resistance", motif: "arrow" },
+      { name: "Daenerys Targaryen", note: "transforming vision", motif: "crown" },
+    ],
+  },
+  "The Guardian": {
+    famous: [
+      { name: "Harriet Tubman", note: "protective courage", motif: "path" },
+      { name: "Fred Rogers", note: "gentle steadiness", motif: "heart" },
+    ],
+    fictional: [
+      { name: "Samwise Gamgee", note: "devoted loyalty", motif: "leaf" },
+      { name: "Molly Weasley", note: "fierce care", motif: "home" },
+    ],
+  },
+  "The Explorer": {
+    famous: [
+      { name: "Ibn Battuta", note: "restless discovery", motif: "compass" },
+      { name: "Nellie Bly", note: "brave curiosity", motif: "map" },
+    ],
+    fictional: [
+      { name: "Moana", note: "called beyond the reef", motif: "wave" },
+      { name: "Arya Stark", note: "self-directed becoming", motif: "needle" },
+    ],
+  },
+  "ENFP-Style People Catalyst": {
+    famous: [
+      { name: "Oscar Wilde", note: "sparkling originality", motif: "quill" },
+      { name: "Walt Whitman", note: "expansive humanity", motif: "sun" },
+    ],
+    fictional: [
+      { name: "Leslie Knope", note: "enthusiastic connection", motif: "binder" },
+      { name: "Aang", note: "playful possibility", motif: "air" },
+    ],
+  },
+  "INTJ-Style Quiet Strategist": {
+    famous: [
+      { name: "Isaac Newton", note: "private systems thinking", motif: "apple" },
+      { name: "Nikola Tesla", note: "future-facing design", motif: "bolt" },
+    ],
+    fictional: [
+      { name: "Bruce Wayne", note: "long-range planning", motif: "mask" },
+      { name: "Beth Harmon", note: "silent calculation", motif: "chess" },
+    ],
+  },
+  "ISFJ-Style Steady Protector": {
+    famous: [
+      { name: "Florence Nightingale", note: "practical care", motif: "lantern" },
+      { name: "Rosa Parks", note: "quiet resolve", motif: "seat" },
+    ],
+    fictional: [
+      { name: "Samwise Gamgee", note: "steady loyalty", motif: "leaf" },
+      { name: "Molly Weasley", note: "home as strength", motif: "home" },
+    ],
+  },
+  "ENTJ-Style Decisive Director": {
+    famous: [
+      { name: "Cleopatra", note: "commanding strategy", motif: "crown" },
+      { name: "Napoleon Bonaparte", note: "decisive campaigns", motif: "flag" },
+    ],
+    fictional: [
+      { name: "Princess Leia", note: "mission leadership", motif: "star" },
+      { name: "Miranda Priestly", note: "executive force", motif: "diamond" },
+    ],
+  },
+  "Type Three: The Achiever": {
+    famous: [
+      { name: "Alexander Hamilton", note: "drive and output", motif: "quill" },
+      { name: "Muhammad Ali", note: "charisma and excellence", motif: "glove" },
+    ],
+    fictional: [
+      { name: "Jay Gatsby", note: "image and aspiration", motif: "glass" },
+      { name: "Rachel Berry", note: "spotlight hunger", motif: "stage" },
+    ],
+  },
+  "Type Six: The Loyalist": {
+    famous: [
+      { name: "George Washington", note: "duty and caution", motif: "shield" },
+      { name: "Harriet Tubman", note: "prepared courage", motif: "path" },
+    ],
+    fictional: [
+      { name: "Ron Weasley", note: "loyal worry", motif: "badge" },
+      { name: "Neville Longbottom", note: "courage after doubt", motif: "leaf" },
+    ],
+  },
+  "Type Nine: The Peacemaker": {
+    famous: [
+      { name: "Abraham Lincoln", note: "patient mediation", motif: "bridge" },
+      { name: "Audrey Hepburn", note: "gentle grace", motif: "flower" },
+    ],
+    fictional: [
+      { name: "Chidi Anagonye", note: "thoughtful harmony", motif: "scale" },
+      { name: "Uncle Iroh", note: "warm grounded wisdom", motif: "teacup" },
+    ],
+  },
+  "Type Four: The Individualist": {
+    famous: [
+      { name: "Frida Kahlo", note: "identity as art", motif: "flower" },
+      { name: "Prince", note: "singular expression", motif: "star" },
+    ],
+    fictional: [
+      { name: "Jo March", note: "self-authored life", motif: "book" },
+      { name: "Fleabag", note: "raw inner truth", motif: "mirror" },
+    ],
+  },
+  "Tyrion Lannister Match": {
+    famous: [
+      { name: "Benjamin Franklin", note: "wit and diplomacy", motif: "bolt" },
+      { name: "Oscar Wilde", note: "language as armor", motif: "quill" },
+    ],
+    fictional: [
+      { name: "Tyrion Lannister", note: "strategic truth-teller", motif: "goblet" },
+      { name: "Loki", note: "clever survivor", motif: "horns" },
+    ],
+  },
+  "Arya Stark Match": {
+    famous: [
+      { name: "Joan of Arc", note: "fierce conviction", motif: "flame" },
+      { name: "Amelia Earhart", note: "autonomous courage", motif: "wing" },
+    ],
+    fictional: [
+      { name: "Arya Stark", note: "independent survivor", motif: "needle" },
+      { name: "Mulan", note: "adaptive bravery", motif: "star" },
+    ],
+  },
+  "Jon Snow Match": {
+    famous: [
+      { name: "Ernest Shackleton", note: "crisis leadership", motif: "mountain" },
+      { name: "Abraham Lincoln", note: "moral steadiness", motif: "bridge" },
+    ],
+    fictional: [
+      { name: "Jon Snow", note: "reluctant protector", motif: "wolf" },
+      { name: "Steve Rogers", note: "duty before ego", motif: "shield" },
+    ],
+  },
+  "Daenerys Targaryen Match": {
+    famous: [
+      { name: "Cleopatra", note: "commanding presence", motif: "crown" },
+      { name: "Catherine the Great", note: "expansive rule", motif: "scepter" },
+    ],
+    fictional: [
+      { name: "Daenerys Targaryen", note: "visionary liberator", motif: "flame" },
+      { name: "Storm", note: "elemental command", motif: "cloud" },
+    ],
+  },
+  "The Engineer": {
+    famous: [
+      { name: "Katherine Johnson", note: "precision under pressure", motif: "orbit" },
+      { name: "Hedy Lamarr", note: "inventive systems", motif: "signal" },
+    ],
+    fictional: [
+      { name: "Naomi Nagata", note: "technical resilience", motif: "ship" },
+      { name: "Montgomery Scott", note: "problem-solving craft", motif: "gear" },
+    ],
+  },
+  "The Archivist": {
+    famous: [
+      { name: "Ida B. Wells", note: "truth in records", motif: "newspaper" },
+      { name: "Carl Sagan", note: "cosmic memory", motif: "orbit" },
+    ],
+    fictional: [
+      { name: "Obi-Wan Kenobi", note: "keeper of old truths", motif: "star" },
+      { name: "Hermione Granger", note: "research saves the day", motif: "book" },
+    ],
+  },
+  "The Sentinel": {
+    famous: [
+      { name: "Harriet Tubman", note: "protective resolve", motif: "path" },
+      { name: "Ernest Shackleton", note: "calm in danger", motif: "mountain" },
+    ],
+    fictional: [
+      { name: "Ellen Ripley", note: "protective courage", motif: "ship" },
+      { name: "Din Djarin", note: "honor and guardrails", motif: "helmet" },
+    ],
+  },
+  "The Outlier": {
+    famous: [
+      { name: "Galileo Galilei", note: "forbidden questions", motif: "telescope" },
+      { name: "Nellie Bly", note: "boundary-crossing courage", motif: "map" },
+    ],
+    fictional: [
+      { name: "Neo", note: "awakening beyond the rules", motif: "matrix" },
+      { name: "Katniss Everdeen", note: "refusal as spark", motif: "arrow" },
+    ],
+  },
+};
+
 const dom = {
   grid: document.querySelector("[data-test-grid]"),
   filters: document.querySelectorAll("[data-filter]"),
@@ -1376,11 +1619,15 @@ const dom = {
   closeButtons: document.querySelectorAll("[data-close-modal], [data-close-link]"),
   restart: document.querySelector("[data-restart-test]"),
   featuredStarts: document.querySelectorAll("[data-featured-start]"),
+  themeToggle: document.querySelector("[data-theme-toggle]"),
+  themeLabel: document.querySelector("[data-theme-label]"),
   resultTest: document.querySelector("[data-result-test]"),
   resultTitle: document.querySelector("[data-result-title]"),
   resultSummary: document.querySelector("[data-result-summary]"),
   resultScore: document.querySelector("[data-result-score]"),
   resultVisuals: document.querySelector("[data-result-visuals]"),
+  exampleShowcase: document.querySelector("[data-example-showcase]"),
+  resultStoryPanels: document.querySelector("[data-result-story-panels]"),
   resultStrengths: document.querySelector("[data-result-strengths]"),
   resultWeaknesses: document.querySelector("[data-result-weaknesses]"),
   resultSituations: document.querySelector("[data-result-situations]"),
@@ -1407,6 +1654,57 @@ const state = {
   lastMode: "core",
 };
 
+function setTheme(theme) {
+  const nextTheme = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = nextTheme;
+
+  if (dom.themeToggle) {
+    const isDark = nextTheme === "dark";
+    dom.themeToggle.setAttribute("aria-pressed", String(isDark));
+    dom.themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+  }
+
+  if (dom.themeLabel) {
+    dom.themeLabel.textContent = nextTheme === "dark" ? "Light" : "Dark";
+  }
+
+  try {
+    localStorage.setItem("psycheiq-theme", nextTheme);
+  } catch (error) {
+    // Theme preference is optional.
+  }
+}
+
+function initializeTheme() {
+  let savedTheme = "light";
+
+  try {
+    savedTheme = localStorage.getItem("psycheiq-theme") || document.documentElement.dataset.theme || "light";
+  } catch (error) {
+    savedTheme = document.documentElement.dataset.theme || "light";
+  }
+
+  setTheme(savedTheme);
+}
+
+function renderTestDoodle(test) {
+  const paths = {
+    Cognitive: "M28 64c0-20 15-36 36-36s36 16 36 36-15 36-36 36-36-16-36-36Zm21-13h30M49 64h30M49 77h20",
+    Psychology: "M32 78c12-32 52-32 64 0M41 55c0-12 10-22 23-22s23 10 23 22c0 13-10 23-23 23S41 68 41 55Z",
+    "Pop Culture": "M34 82 46 36h36l12 46-30-18-30 18Zm30-46v28",
+    "Coming Soon": "M32 80h64M42 80V46l22-16 22 16v34M52 62h24",
+  };
+  const path = paths[test.category] || paths.Psychology;
+
+  return `
+    <svg class="card-doodle" viewBox="0 0 128 112" aria-hidden="true">
+      <rect x="10" y="10" width="108" height="92" rx="22" />
+      <path d="${path}" />
+      <circle cx="98" cy="26" r="8" />
+    </svg>
+  `;
+}
+
 function renderTests(filter = "all") {
   const visibleTests = tests.filter((test) => {
     if (filter === "all") return true;
@@ -1423,6 +1721,7 @@ function renderTests(filter = "all") {
               <span class="test-symbol" aria-hidden="true">${test.symbol}</span>
               <span class="status-pill">${test.status}</span>
             </div>
+            ${renderTestDoodle(test)}
             <h3>${test.title}</h3>
             <p>${test.description}</p>
           </div>
@@ -1770,6 +2069,149 @@ function renderProfileVisuals(analytics) {
   `;
 }
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => {
+    const entities = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "\"": "&quot;",
+      "'": "&#039;",
+    };
+    return entities[character];
+  });
+}
+
+function hashString(value) {
+  return [...value].reduce((hash, character) => hash + character.charCodeAt(0), 0);
+}
+
+function initials(name) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
+function firstSentence(text) {
+  const match = String(text).match(/^[^.!?]+[.!?]/);
+  return match ? match[0] : text;
+}
+
+function renderAvatarSvg(person, index, kind) {
+  const palettes = [
+    ["#8ee3d6", "#0f766e", "#d9534f"],
+    ["#f6c66a", "#b7791f", "#6d5bd0"],
+    ["#9fb8ff", "#334e7d", "#d9534f"],
+    ["#ffa7a1", "#9a3d3a", "#0f766e"],
+  ];
+  const palette = palettes[(hashString(person.name) + index) % palettes.length];
+  const badge = escapeHtml((person.motif || initials(person.name)).slice(0, 2).toUpperCase());
+  const hairPath =
+    kind === "fictional"
+      ? "M34 31c4-14 24-18 36-8 11 9 13 23 9 34-9-10-18-15-32-13-8 1-14-3-20-9Z"
+      : "M29 37c2-18 16-27 34-24 17 3 27 15 27 34-16-9-33-10-61-10Z";
+
+  return `
+    <svg class="portrait-svg" viewBox="0 0 120 120" role="img" aria-label="Stylized caricature of ${escapeHtml(person.name)}">
+      <rect x="5" y="5" width="110" height="110" rx="24" fill="${palette[0]}" opacity=".22"/>
+      <circle cx="60" cy="56" r="34" fill="#fbfcfb"/>
+      <path d="${hairPath}" fill="${palette[1]}"/>
+      <circle cx="48" cy="58" r="4" fill="#13211f"/>
+      <circle cx="72" cy="58" r="4" fill="#13211f"/>
+      <path d="M48 76c7 7 18 7 25 0" fill="none" stroke="${palette[2]}" stroke-width="4" stroke-linecap="round"/>
+      <path d="M24 108c4-22 21-34 36-34s32 12 36 34Z" fill="${palette[1]}"/>
+      <circle cx="92" cy="28" r="18" fill="${palette[2]}"/>
+      <text x="92" y="33" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="800">${badge}</text>
+    </svg>
+  `;
+}
+
+function renderExampleCard(person, kind, index) {
+  return `
+    <article class="example-card ${kind}">
+      ${renderAvatarSvg(person, index, kind)}
+      <div>
+        <p class="mini-label">${kind === "famous" ? "Historical" : "Fictional"}</p>
+        <h4>${escapeHtml(person.name)}</h4>
+        <p>${escapeHtml(person.note)}</p>
+      </div>
+    </article>
+  `;
+}
+
+function renderExampleShowcase(profile) {
+  const examples =
+    visualExampleLibrary[profile.title] ||
+    {
+      famous: [
+        { name: "Benjamin Franklin", note: "curious practical intelligence", motif: "bolt" },
+        { name: "Florence Nightingale", note: "clear applied care", motif: "lamp" },
+      ],
+      fictional: [
+        { name: "Hermione Granger", note: "studied pattern recognition", motif: "book" },
+        { name: "Steve Rogers", note: "values under pressure", motif: "shield" },
+      ],
+    };
+
+  dom.exampleShowcase.innerHTML = `
+    <div class="showcase-heading">
+      <div>
+        <p class="mini-label">Visual Match Board</p>
+        <h4>Two historical echoes and two fictional archetypes</h4>
+      </div>
+      <p>These are stylized symbolic matches, not official portraits or endorsements.</p>
+    </div>
+    <div class="example-grid">
+      ${examples.famous.map((person, index) => renderExampleCard(person, "famous", index)).join("")}
+      ${examples.fictional.map((person, index) => renderExampleCard(person, "fictional", index + 2)).join("")}
+    </div>
+  `;
+}
+
+function renderSpotIllustration(type) {
+  const icons = {
+    map: "M20 82 42 70l25 10 33-15v-55L67 25 42 15 20 27Z M42 15v55 M67 25v55",
+    spark: "M60 14l8 29 28 8-28 9-8 30-9-30-28-9 28-8Z",
+    bridge: "M18 78c18-34 66-34 84 0M20 78h80M34 78V60M60 78V48M86 78V60",
+  };
+  const path = icons[type] || icons.spark;
+
+  return `
+    <svg class="spot-illustration" viewBox="0 0 120 100" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="84" rx="20" />
+      <path d="${path}" />
+      <circle cx="92" cy="24" r="8" />
+    </svg>
+  `;
+}
+
+function renderResultStoryPanels(profile) {
+  const topStrength = profile.strengths?.[0] || "your natural pattern";
+  const firstWatchout = profile.weaknesses?.[0] || "overusing the pattern";
+
+  dom.resultStoryPanels.innerHTML = `
+    <article>
+      ${renderSpotIllustration("map")}
+      <h4>What This Looks Like</h4>
+      <p>${escapeHtml(firstSentence(profile.summary))} Day to day, ${escapeHtml(profile.situations)}</p>
+    </article>
+    <article>
+      ${renderSpotIllustration("spark")}
+      <h4>Growth Edge</h4>
+      <p>Your strongest advantage is ${escapeHtml(topStrength.toLowerCase())}. The thing to watch is ${escapeHtml(firstWatchout.toLowerCase())}, especially when stress makes the pattern louder than usual.</p>
+    </article>
+    <article>
+      ${renderSpotIllustration("bridge")}
+      <h4>With Other People</h4>
+      <p>${escapeHtml(profile.relationships)} The best use of this result is not to box you in, but to help others understand how to meet you well.</p>
+    </article>
+  `;
+}
+
 function renderResultVisuals(profile) {
   if (!profile.analytics) {
     dom.resultVisuals.innerHTML = "";
@@ -1789,6 +2231,8 @@ function unlockResult(mode) {
   dom.resultSummary.textContent = profile.summary;
   dom.resultScore.textContent = mode === "member" ? `${profile.score} | All tests unlocked` : profile.score;
   renderResultVisuals(profile);
+  renderExampleShowcase(profile);
+  renderResultStoryPanels(profile);
   renderList(dom.resultStrengths, profile.strengths);
   renderList(dom.resultWeaknesses, profile.weaknesses);
   dom.resultSituations.textContent = profile.situations;
@@ -1870,6 +2314,13 @@ dom.requestForm.addEventListener("submit", (event) => {
   input.value = "";
 });
 
+if (dom.themeToggle) {
+  dom.themeToggle.addEventListener("click", () => {
+    const currentTheme = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+    setTheme(currentTheme === "dark" ? "light" : "dark");
+  });
+}
+
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
   closeModal();
@@ -1884,4 +2335,5 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+initializeTheme();
 renderTests();

@@ -15,6 +15,13 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icon.svg" />
     <link rel="apple-touch-icon" href="assets/icon.svg" />
+    <script>
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem("psycheiq-theme") || "light";
+      } catch (error) {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -41,6 +48,12 @@
         <a href="#faq">FAQ</a>
       </nav>
       <div class="header-actions">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark mode" aria-pressed="false">
+          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+            <path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z" />
+          </svg>
+          <span data-theme-label>Dark</span>
+        </button>
         <button class="text-button" type="button" data-open-login>Log In</button>
         <a class="button button-small" href="#tests">Start Test</a>
       </div>
@@ -368,6 +381,8 @@
             </div>
             <div class="result-score" data-result-score></div>
             <div class="result-visuals" data-result-visuals aria-label="Result charts and visual aids"></div>
+            <div class="example-showcase" data-example-showcase aria-label="Famous and fictional example board"></div>
+            <div class="result-story-panels" data-result-story-panels aria-label="Illustrated result explanations"></div>
             <div class="result-grid">
               <article>
                 <h4>Strengths</h4>
