@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PsycheIQ | Psychology Tests, IQ, Archetypes, MBTI, Enneagram</title>
+    <meta
+      name="description"
+      content="A psychology-first assessment site with IQ, archetype, MBTI-style, Enneagram, and pop culture personality tests."
+    />
+    <meta name="theme-color" content="#0b4f4a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="PsycheIQ" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="assets/icon-192.png" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header" data-header>
+      <a class="brand" href="#top" aria-label="PsycheIQ home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 48" focusable="false">
+            <path
+              d="M22 36c-8 0-14-6-14-14S14 8 22 8c2-4 8-5 12-2 4-3 11-2 13 4 6 1 10 6 10 12 0 8-6 14-14 14H22Z"
+              class="logo-brain"
+            />
+            <path d="M15 21c5-7 12-10 20-10s15 3 20 10c-5 8-12 12-20 12S20 29 15 21Z" class="logo-eye" />
+            <circle cx="35" cy="21" r="6" class="logo-iris" />
+            <circle cx="35" cy="21" r="2.4" class="logo-pupil" />
+            <path d="M18 8 12 2M46 8l6-6M35 5V0" class="logo-rays" />
+          </svg>
+        </span>
+        <span>PsycheIQ</span>
+      </a>
+      <nav class="main-nav" aria-label="Primary navigation">
+        <a href="#tests">Tests</a>
+        <a href="#reports">Reports</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="header-actions">
+        <button class="text-button" type="button" data-open-login>Log In</button>
+        <a class="button button-small" href="#tests">Start Test</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero-section" aria-labelledby="hero-title">
+        <div class="hero-visual" aria-hidden="true">
+          <img src="assets/psyche-hero.png" alt="" />
+        </div>
+        <div class="hero-content">
+          <p class="eyebrow">Psychology-first self-discovery</p>
+          <h1 id="hero-title">Know your mind. Then meet the version of you behind the score.</h1>
+          <p class="hero-copy">
+            Start with IQ, personality type, archetypes, Enneagram, or fan-favorite character matches. Each
+            result opens into practical strengths, blind spots, relationships, parenting, and famous or fictional
+            lookalikes.
+          </p>
+          <div class="hero-actions" aria-label="Hero actions">
+            <a class="button" href="#tests">Browse Tests</a>
+            <button class="button button-quiet" type="button" data-featured-start>Try Featured Test</button>
+          </div>
+        </div>
+        <aside class="hero-launcher" aria-label="Featured assessment">
+          <p class="mini-label">Featured</p>
+          <h2>Archetype Map</h2>
+          <p>Six minutes to find your dominant inner pattern and how it shows up under pressure.</p>
+          <div class="launcher-stats" aria-label="Assessment details">
+            <span>6 min</span>
+            <span>24 prompts</span>
+            <span>$1 report</span>
+          </div>
+          <button class="button button-full" type="button" data-start-test="archetype">Start Archetype Test</button>
+        </aside>
+      </section>
+
+      <section class="media-strip" aria-label="Editorial disclaimer">
+        <p>
+          Independent assessment concept inspired by modern test sites. Pop culture references are for fan-style
+          entertainment and are not affiliated with their owners.
+        </p>
+      </section>
+
+      <section class="process-section" aria-labelledby="process-title">
+        <div class="section-heading">
+          <p class="eyebrow">How It Works</p>
+          <h2 id="process-title">A fast path from curiosity to a useful report</h2>
+        </div>
+        <div class="process-grid">
+          <article>
+            <span class="step-number">1</span>
+            <h3>Choose a lens</h3>
+            <p>Pick cognition, personality, motivation, relationships, or a pop-culture match.</p>
+          </article>
+          <article>
+            <span class="step-number">2</span>
+            <h3>Answer with instinct</h3>
+            <p>Short prompts adapt the tone of the final report around how you actually decide.</p>
+          </article>
+          <article>
+            <span class="step-number">3</span>
+            <h3>Unlock the readout</h3>
+            <p>The $1 report gives one practical profile. The monthly plan opens the full test library and saved results.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="tests-section" id="tests" aria-labelledby="tests-title">
+        <div class="section-heading wide">
+          <p class="eyebrow">Available Tests</p>
+          <h2 id="tests-title">Choose the part of yourself you want to decode first</h2>
+          <p>
+            The catalog starts with psychology staples and leaves room for fast-moving culture tests as new shows,
+            fandoms, and trends take over the group chat.
+          </p>
+        </div>
+
+        <div class="filter-row" role="group" aria-label="Filter tests">
+          <button class="filter-button active" type="button" data-filter="all">All</button>
+          <button class="filter-button" type="button" data-filter="Psychology">Psychology</button>
+          <button class="filter-button" type="button" data-filter="Cognitive">Cognitive</button>
+          <button class="filter-button" type="button" data-filter="Pop Culture">Pop Culture</button>
+          <button class="filter-button" type="button" data-filter="Coming Soon">Coming Soon</button>
+        </div>
+
+        <div class="test-grid" data-test-grid></div>
+      </section>
+
+      <section class="reports-section" id="reports" aria-labelledby="reports-title">
+        <div class="report-demo">
+          <div>
+            <p class="eyebrow">What You Unlock</p>
+            <h2 id="reports-title">Reports that read like a smart friend and a useful coach</h2>
+            <p>
+              Each profile is built for self-understanding, not labels. The core report focuses on everyday behavior,
+              while monthly access turns the whole test library into a saved profile system.
+            </p>
+          </div>
+          <div class="report-columns" aria-label="Report benefits">
+            <article>
+              <h3>$1 Core Report</h3>
+              <ul>
+                <li>Strengths and natural advantages</li>
+                <li>Weak spots and stress tells</li>
+                <li>Work, friendship, romance, and parenting notes</li>
+                <li>Famous and fictional comparison set</li>
+              </ul>
+            </article>
+            <article>
+              <h3>$12.99 Monthly Access</h3>
+              <ul>
+                <li>Unlimited tests and retakes</li>
+                <li>Unlimited access to every unlocked result</li>
+                <li>Expanded report sections where available</li>
+                <li>Saved profile library across test categories</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="growth-section" aria-labelledby="growth-title">
+        <div class="section-heading">
+          <p class="eyebrow">Always Expanding</p>
+          <h2 id="growth-title">A test library that can move with culture</h2>
+        </div>
+        <div class="growth-layout">
+          <article>
+            <h3>Next in the queue</h3>
+            <div class="drop-list">
+              <span>Attachment Style</span>
+              <span>Career Drivers</span>
+              <span>Friend Group Role</span>
+              <span>Prestige Sci-Fi Survival Type</span>
+            </div>
+          </article>
+          <form class="request-form" data-request-form>
+            <label for="test-request">Request a future test</label>
+            <div>
+              <input id="test-request" name="test-request" type="text" placeholder="e.g. Which team leader type am I?" />
+              <button class="button" type="submit">Add</button>
+            </div>
+            <p data-request-output aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+
+      <section class="pricing-section" id="pricing" aria-labelledby="pricing-title">
+        <div class="section-heading wide">
+          <p class="eyebrow">Explore Plans</p>
+          <h2 id="pricing-title">Pay only when the result is ready</h2>
+          <p>
+            Keep the quiz playful up front, then put the full result page behind a low-friction unlock with an optional
+            monthly all-access plan.
+          </p>
+        </div>
+        <div class="pricing-grid">
+          <article class="price-card">
+            <p class="mini-label">Core Unlock</p>
+            <h3>$1</h3>
+            <p>One complete result page for the test you just finished.</p>
+            <ul>
+              <li>Type result and summary</li>
+              <li>Strengths and weaknesses</li>
+              <li>Relationship and parenthood notes</li>
+              <li>Famous and fictional examples</li>
+            </ul>
+            <button class="button button-full" type="button" data-featured-start>Start and Unlock</button>
+          </article>
+          <article class="price-card featured-price">
+            <p class="mini-label">Monthly Access</p>
+            <h3>$12.99/mo</h3>
+            <p>Unlimited testing and result access for people who want the full personality library.</p>
+            <ul>
+              <li>All current tests and new releases</li>
+              <li>Unlimited retakes and saved reports</li>
+              <li>Expanded insights for every supported test</li>
+              <li>Account library for comparing results over time</li>
+            </ul>
+            <button class="button button-full" type="button" data-featured-start>Preview Membership</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="reviews-section" aria-labelledby="reviews-title">
+        <div class="section-heading">
+          <p class="eyebrow">Community</p>
+          <h2 id="reviews-title">Built for repeat discovery</h2>
+        </div>
+        <div class="review-grid">
+          <article>
+            <p>
+              "The relationship section was the part that actually made me send the result to someone."
+            </p>
+            <span>Personality Type user</span>
+          </article>
+          <article>
+            <p>
+              "The character match made it fun, but the strengths and blind spots made it useful."
+            </p>
+            <span>Pop culture test user</span>
+          </article>
+          <article>
+            <p>
+              "Short enough to finish, detailed enough to feel worth unlocking."
+            </p>
+            <span>IQ Snapshot user</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="faq-section" id="faq" aria-labelledby="faq-title">
+        <div class="section-heading">
+          <p class="eyebrow">FAQ</p>
+          <h2 id="faq-title">Useful answers before launch</h2>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary>Are these clinical assessments?</summary>
+            <p>
+              No. The site is designed for education and entertainment. It should not be used as a substitute for a
+              professional evaluation.
+            </p>
+          </details>
+          <details>
+            <summary>Can people retake tests?</summary>
+            <p>
+              Yes. The product is structured around a growing account library, so retakes and new tests can keep the
+              experience fresh.
+            </p>
+          </details>
+          <details>
+            <summary>What happens after the $1 unlock?</summary>
+            <p>
+              Users see the result page with strengths, challenges, situational notes, relationship patterns, parenting
+              tendencies, and example matches.
+            </p>
+          </details>
+          <details>
+            <summary>What should be connected before going live?</summary>
+            <p>
+              A payment provider, user accounts, email receipts, privacy pages, and a backend for saving assessments
+              should be added before real customers use it.
+            </p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <a class="brand" href="#top" aria-label="PsycheIQ home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 48" focusable="false">
+              <path
+                d="M22 36c-8 0-14-6-14-14S14 8 22 8c2-4 8-5 12-2 4-3 11-2 13 4 6 1 10 6 10 12 0 8-6 14-14 14H22Z"
+                class="logo-brain"
+              />
+              <path d="M15 21c5-7 12-10 20-10s15 3 20 10c-5 8-12 12-20 12S20 29 15 21Z" class="logo-eye" />
+              <circle cx="35" cy="21" r="6" class="logo-iris" />
+              <circle cx="35" cy="21" r="2.4" class="logo-pupil" />
+              <path d="M18 8 12 2M46 8l6-6M35 5V0" class="logo-rays" />
+            </svg>
+          </span>
+          <span>PsycheIQ</span>
+        </a>
+        <p>
+          Psychology and pop-culture assessments for self-discovery, entertainment, and personal development.
+        </p>
+      </div>
+      <nav aria-label="Footer links">
+        <a href="#tests">Tests</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">Help</a>
+        <a href="#top">Privacy</a>
+      </nav>
+      <p class="legal">
+        Copyright 2026 PsycheIQ. Fan-style references are unaffiliated. Results are educational and entertainment
+        content only.
+      </p>
+    </footer>
+
+    <div class="modal" data-modal hidden>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button class="modal-close" type="button" data-close-modal aria-label="Close assessment">x</button>
+        <div class="modal-layout">
+          <aside class="modal-sidebar">
+            <p class="mini-label" data-modal-category>Psychology</p>
+            <h2 id="modal-title" data-modal-title>Assessment</h2>
+            <p data-modal-description></p>
+            <div class="progress-track" aria-label="Assessment progress">
+              <span data-progress-bar></span>
+            </div>
+            <p class="progress-copy" data-progress-copy>Question 1 of 5</p>
+          </aside>
+          <section class="quiz-panel" data-quiz-panel>
+            <div class="question-block">
+              <p class="mini-label" data-question-kicker>Quick read</p>
+              <h3 data-question-text></h3>
+            </div>
+            <div class="answer-list" data-answer-list></div>
+          </section>
+          <section class="paywall-panel" data-paywall-panel hidden>
+            <p class="mini-label">Result Ready</p>
+            <h3>Your profile is waiting behind the report unlock.</h3>
+            <p>
+              The quick quiz is complete. Unlock the result page for strengths, weak spots, situations, relationships,
+              parenting notes, and matching examples. Or choose monthly access for every test and saved result.
+            </p>
+            <div class="locked-preview" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="unlock-actions">
+              <button class="button" type="button" data-unlock-core>Unlock $1 Report</button>
+              <button class="button button-quiet" type="button" data-unlock-deep>Go Unlimited $12.99/mo</button>
+            </div>
+          </section>
+          <section class="result-panel" data-result-panel hidden>
+            <div class="result-topline">
+              <p class="mini-label" data-result-test></p>
+              <h3 data-result-title></h3>
+              <p data-result-summary></p>
+            </div>
+            <div class="result-score" data-result-score></div>
+            <div class="result-visuals" data-result-visuals aria-label="Result charts and visual aids"></div>
+            <div class="result-grid">
+              <article>
+                <h4>Strengths</h4>
+                <ul data-result-strengths></ul>
+              </article>
+              <article>
+                <h4>Watchouts</h4>
+                <ul data-result-weaknesses></ul>
+              </article>
+              <article>
+                <h4>In Situations</h4>
+                <p data-result-situations></p>
+              </article>
+              <article>
+                <h4>Relationships</h4>
+                <p data-result-relationships></p>
+              </article>
+              <article>
+                <h4>As Parents</h4>
+                <p data-result-parenting></p>
+              </article>
+              <article>
+                <h4>Examples</h4>
+                <p data-result-examples></p>
+              </article>
+            </div>
+            <div class="deep-dive" data-deep-dive hidden>
+              <h4>Monthly Member Expansion</h4>
+              <p data-result-deep></p>
+            </div>
+            <div class="result-actions">
+              <button class="button button-quiet" type="button" data-restart-test>Retake</button>
+              <a class="button" href="#tests" data-close-link>Explore More Tests</a>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-popover" data-login hidden>
+      <div>
+        <button class="modal-close" type="button" data-close-login aria-label="Close login">x</button>
+        <p class="mini-label">Account Preview</p>
+        <h2>Save tests, retake profiles, and keep unlocked reports together.</h2>
+        <form>
+          <label>
+            Email
+            <input type="email" placeholder="you@example.com" />
+          </label>
+          <button class="button button-full" type="button">Continue</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
