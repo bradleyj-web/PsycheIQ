@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+  <title id="title">PsycheIQ assessment dashboard art</title>
+  <desc id="desc">A psychology dashboard, neural network points, and a profile outline.</desc>
+  <rect width="1920" height="1080" fill="#081210"/>
+  <g stroke="#8ee3d6" stroke-opacity=".12" stroke-width="1">
+    <path d="M0 80h1920M0 160h1920M0 240h1920M0 320h1920M0 400h1920M0 480h1920M0 560h1920M0 640h1920M0 720h1920M0 800h1920M0 880h1920M0 960h1920M0 1040h1920"/>
+    <path d="M80 0v1080M160 0v1080M240 0v1080M320 0v1080M400 0v1080M480 0v1080M560 0v1080M640 0v1080M720 0v1080M800 0v1080M880 0v1080M960 0v1080M1040 0v1080M1120 0v1080M1200 0v1080M1280 0v1080M1360 0v1080M1440 0v1080M1520 0v1080M1600 0v1080M1680 0v1080M1760 0v1080M1840 0v1080"/>
+  </g>
+  <g stroke="#8ee3d6" stroke-opacity=".34" stroke-width="1.4">
+    <path d="M882 174 967 118 1018 313 900 458 965 536 1034 384 1105 424M1410 118 1544 190 1669 86M1684 246 1726 348 1776 379M812 720 908 875 1014 922 1128 896 1324 1004M1510 544 1560 646 1646 792 1768 774M1212 90 1218 234 1180 206"/>
+  </g>
+  <g fill="#8ee3d6" fill-opacity=".78">
+    <circle cx="882" cy="174" r="7"/><circle cx="967" cy="118" r="9"/><circle cx="1018" cy="313" r="8"/><circle cx="900" cy="458" r="8"/><circle cx="965" cy="536" r="6"/><circle cx="1034" cy="384" r="8"/><circle cx="1105" cy="424" r="8"/>
+    <circle cx="1410" cy="118" r="7"/><circle cx="1544" cy="190" r="8"/><circle cx="1669" cy="86" r="9"/><circle cx="1684" cy="246" r="5"/><circle cx="1726" cy="348" r="7"/><circle cx="1776" cy="379" r="8"/>
+    <circle cx="812" cy="720" r="7"/><circle cx="908" cy="875" r="8"/><circle cx="1014" cy="922" r="5"/><circle cx="1128" cy="896" r="7"/><circle cx="1324" cy="1004" r="5"/>
+    <circle cx="1510" cy="544" r="6"/><circle cx="1560" cy="646" r="8"/><circle cx="1646" cy="792" r="8"/><circle cx="1768" cy="774" r="5"/>
+    <circle cx="1212" cy="90" r="7"/><circle cx="1218" cy="234" r="7"/><circle cx="1180" cy="206" r="6"/>
+  </g>
+  <path d="M320 295C211 430 260 675 410 760c200 92 332-130 248-290-30-160-203-250-338-175Z" fill="none" stroke="#fbfcfb" stroke-opacity=".48" stroke-width="5"/>
+  <path d="M385 424c46-62 150-57 184 6 38 75-37 132-108 120M484 457c-83 16-94 117-1 138 52 12 94-5 128-41M447 553c44-72 135-35 124 59" fill="none" stroke="#8ee3d6" stroke-opacity=".62" stroke-width="4"/>
+  <path d="M486 350 560 430 520 560" fill="none" stroke="#fbfcfb" stroke-opacity=".65" stroke-width="3"/>
+  <circle cx="486" cy="350" r="10" fill="#8ee3d6"/><circle cx="560" cy="430" r="10" fill="#d9534f"/><circle cx="520" cy="560" r="10" fill="#b7791f"/>
+  <g>
+    <rect x="1110" y="250" width="560" height="430" rx="22" fill="#fbfcfb" fill-opacity=".86" stroke="#ffffff" stroke-opacity=".62" stroke-width="2"/>
+    <path d="M1214 378a96 96 0 1 1 69 144" fill="none" stroke="#0f766e" stroke-width="12"/>
+    <path d="M1206 414a98 98 0 0 0 69 103" fill="none" stroke="#d9534f" stroke-width="10"/>
+    <path d="M1312 517a96 96 0 0 0 80-61" fill="none" stroke="#b7791f" stroke-width="10"/>
+    <circle cx="1300" cy="426" r="32" fill="#ffffff"/>
+    <g fill="#0f766e">
+      <rect x="1420" y="293" width="82" height="16"/><rect x="1420" y="341" width="99" height="16"/><rect x="1420" y="389" width="118" height="16"/><rect x="1420" y="437" width="136" height="16"/><rect x="1420" y="485" width="154" height="16"/>
+    </g>
+    <g fill="#13211f" fill-opacity=".18">
+      <rect x="1502" y="293" width="88" height="16"/><rect x="1519" y="341" width="71" height="16"/><rect x="1538" y="389" width="52" height="16"/><rect x="1556" y="437" width="34" height="16"/><rect x="1574" y="485" width="16" height="16"/>
+    </g>
+    <rect x="1010" y="580" width="360" height="250" rx="22" fill="#edf4f1" fill-opacity=".72" stroke="#ffffff" stroke-opacity=".44" stroke-width="2"/>
+    <g fill="#6d5bd0">
+      <circle cx="1094" cy="675" r="14"/><circle cx="1166" cy="674" r="14"/><circle cx="1238" cy="688" r="14"/><circle cx="1310" cy="664" r="14"/>
+    </g>
+    <path d="M1094 675h72l72 13 72-24" fill="none" stroke="#13211f" stroke-opacity=".42" stroke-width="3"/>
+  </g>
+</svg>
