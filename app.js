@@ -2602,6 +2602,14 @@ function configureAssessmentCatalog() {
 
 configureAssessmentCatalog();
 
+const FOUNDERS_PROMO_CODE = "PSYCHEIQ";
+const CHECKOUT_RETURN_PARAM = "psycheiq_checkout";
+// Paste live checkout URLs here after creating the $1 report and $12.99/mo products.
+const PAYMENT_LINKS = {
+  core: "",
+  member: "",
+};
+
 const dom = {
   grid: document.querySelector("[data-test-grid]"),
   filters: document.querySelectorAll("[data-filter]"),
@@ -2620,6 +2628,8 @@ const dom = {
   prevQuestion: document.querySelector("[data-prev-question]"),
   unlockCore: document.querySelector("[data-unlock-core]"),
   unlockDeep: document.querySelector("[data-unlock-deep]"),
+  promoForm: document.querySelector("[data-promo-form]"),
+  paywallMessage: document.querySelector("[data-paywall-message]"),
   closeButtons: document.querySelectorAll("[data-close-modal], [data-close-link]"),
   restart: document.querySelector("[data-restart-test]"),
   featuredStarts: document.querySelectorAll("[data-featured-start]"),
@@ -2672,6 +2682,8 @@ const state = {
 const storageKeys = {
   account: "psycheiq-account",
   results: "psycheiq-results",
+  access: "psycheiq-access",
+  pendingCheckout: "psycheiq-pending-checkout",
 };
 
 function readJsonStorage(key, fallback) {
@@ -2692,8 +2704,91 @@ function writeJsonStorage(key, value) {
   }
 }
 
+function removeStorageItem(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch (error) {
+    // Optional cleanup only.
+  }
+}
+
 function getSavedResults() {
   return readJsonStorage(storageKeys.results, []);
+}
+
+function defaultAccessState() {
+  return {
+    member: false,
+    memberSource: "",
+    memberGrantedAt: "",
+    coreUnlocks: {},
+  };
+}
+
+function getAccessState() {
+  return {
+    ...defaultAccessState(),
+    ...readJsonStorage(storageKeys.access, {}),
+  };
+}
+
+function writeAccessState(access) {
+  writeJsonStorage(storageKeys.access, {
+    ...defaultAccessState(),
+    ...access,
+  });
+}
+
+function setPaywallMessage(message, tone = "neutral") {
+  if (!dom.paywallMessage) return;
+  dom.paywallMessage.textContent = message;
+  dom.paywallMessage.dataset.tone = tone;
+}
+
+function hasMemberAccess() {
+  return Boolean(getAccessState().member);
+}
+
+function hasCoreAccess(testId = state.activeTest?.id) {
+  if (!testId) return false;
+  const access = getAccessState();
+  return Boolean(access.member || access.coreUnlocks?.[testId]);
+}
+
+function grantAccess(mode, source = "checkout") {
+  const access = getAccessState();
+  const now = new Date().toISOString();
+
+  if (mode === "member") {
+    writeAccessState({
+      ...access,
+      member: true,
+      memberSource: source,
+      memberGrantedAt: access.memberGrantedAt || now,
+    });
+    return;
+  }
+
+  if (!state.activeTest) return;
+  writeAccessState({
+    ...access,
+    coreUnlocks: {
+      ...(access.coreUnlocks || {}),
+      [state.activeTest.id]: {
+        source,
+        grantedAt: now,
+      },
+    },
+  });
+}
+
+function normalizePromoCode(value) {
+  return String(value || "").trim().toUpperCase().replace(/\s+/g, "");
+}
+
+function resetPaywallControls() {
+  if (dom.promoForm) dom.promoForm.reset();
+  setPaywallMessage("Enter a Founders code or choose a checkout option to unlock this result.");
 }
 
 function saveAccount(account) {
@@ -3019,9 +3114,125 @@ function goToPreviousQuestion() {
   renderQuestion();
 }
 
+function savePendingCheckout(mode) {
+  if (!state.activeTest) return false;
+
+  return writeJsonStorage(storageKeys.pendingCheckout, {
+    mode,
+    testId: state.activeTest.id,
+    answerHistory: state.answerHistory,
+    createdAt: new Date().toISOString(),
+  });
+}
+
+function checkoutUrlFor(mode) {
+  return PAYMENT_LINKS[mode] || "";
+}
+
+function requestPaidUnlock(mode) {
+  if (!state.activeTest) return;
+
+  if (mode === "member" && hasMemberAccess()) {
+    unlockResult("member");
+    return;
+  }
+
+  if (mode === "core" && hasCoreAccess()) {
+    unlockResult("core");
+    return;
+  }
+
+  savePendingCheckout(mode);
+  const checkoutUrl = checkoutUrlFor(mode);
+
+  if (!checkoutUrl) {
+    const amount = mode === "member" ? "$12.99/mo" : "$1";
+    setPaywallMessage(
+      `${amount} checkout is ready, but no live payment link is connected yet. Add your Stripe payment link in app.js, or use the Founders code.`,
+      "warning"
+    );
+    return;
+  }
+
+  window.location.href = checkoutUrl;
+}
+
+function applyPromoUnlock(code) {
+  if (normalizePromoCode(code) !== FOUNDERS_PROMO_CODE) {
+    setPaywallMessage("That promo code is not active. Check the spelling and try again.", "error");
+    return;
+  }
+
+  grantAccess("member", "founders");
+  setPaywallMessage("Founders access applied. Unlimited results are unlocked on this device.", "success");
+  unlockResult("member");
+}
+
+function accessMessageForMode(mode) {
+  if (state.account) return `Signed in as ${state.account.email}. You can email or save this result.`;
+
+  if (mode === "member") {
+    const source = getAccessState().memberSource;
+    return source === "founders"
+      ? "Founders access is active on this device. Sign up only if you want results emailed or saved."
+      : "Monthly access is active on this device. Sign up only if you want results emailed or saved.";
+  }
+
+  return "No account needed for the $1 result. Sign up only if you want it emailed or saved.";
+}
+
+function restoreCheckoutResult(mode) {
+  const pending = readJsonStorage(storageKeys.pendingCheckout, null);
+  const test = tests.find((item) => item.id === pending?.testId);
+
+  if (!pending || !test) {
+    if (mode === "member") grantAccess("member", "checkout");
+    removeStorageItem(storageKeys.pendingCheckout);
+    return false;
+  }
+
+  state.activeTest = test;
+  state.questionIndex = test.questions.length;
+  state.answerHistory = Array.isArray(pending.answerHistory) ? pending.answerHistory : [];
+  state.currentResult = null;
+  state.pendingEmailResult = false;
+  rebuildScoresFromHistory();
+
+  dom.modalTitle.textContent = test.title;
+  dom.modalCategory.textContent = test.category;
+  dom.modalDescription.textContent = test.description;
+  grantAccess(mode, "checkout");
+  removeStorageItem(storageKeys.pendingCheckout);
+  openModal();
+  unlockResult(mode === "member" ? "member" : "core");
+  return true;
+}
+
+function handleCheckoutReturn() {
+  const url = new URL(window.location.href);
+  const mode = url.searchParams.get(CHECKOUT_RETURN_PARAM);
+  if (mode !== "core" && mode !== "member") return;
+
+  restoreCheckoutResult(mode);
+  url.searchParams.delete(CHECKOUT_RETURN_PARAM);
+  window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
+}
+
 function showPaywall() {
   dom.progressBar.style.width = "100%";
   dom.progressCopy.textContent = "Complete";
+  resetPaywallControls();
+
+  if (hasMemberAccess()) {
+    unlockResult("member");
+    return;
+  }
+
+  if (hasCoreAccess()) {
+    unlockResult("core");
+    return;
+  }
+
   setModalView("paywall");
 }
 
@@ -3752,7 +3963,7 @@ function unlockResult(mode) {
   dom.resultExamples.textContent = profile.examples;
   dom.deepDive.hidden = mode !== "member";
   dom.resultDeep.textContent = profile.member;
-  setResultAccountMessage(state.account ? `Signed in as ${state.account.email}. You can email or save this result.` : "No account needed for the $1 result. Sign up only if you want it emailed or saved.");
+  setResultAccountMessage(accessMessageForMode(mode));
   setModalView("result");
 }
 
@@ -3807,10 +4018,17 @@ document.querySelectorAll("[data-start-test]").forEach((button) => {
   button.addEventListener("click", () => startTest(button.dataset.startTest));
 });
 
-dom.unlockCore.addEventListener("click", () => unlockResult("core"));
-dom.unlockDeep.addEventListener("click", () => unlockResult("member"));
+dom.unlockCore.addEventListener("click", () => requestPaidUnlock("core"));
+dom.unlockDeep.addEventListener("click", () => requestPaidUnlock("member"));
 dom.restart.addEventListener("click", restartActiveTest);
 dom.closeButtons.forEach((button) => button.addEventListener("click", closeModal));
+
+if (dom.promoForm) {
+  dom.promoForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    applyPromoUnlock(dom.promoForm.elements["promo-code"].value);
+  });
+}
 
 dom.modal.addEventListener("click", (event) => {
   if (event.target === dom.modal) closeModal();
@@ -3913,3 +4131,4 @@ if ("serviceWorker" in navigator) {
 initializeTheme();
 initializeAccount();
 renderTests();
+handleCheckoutReturn();

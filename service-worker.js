@@ -1,4 +1,4 @@
-const CACHE_NAME = "psycheiq-v11";
+const CACHE_NAME = "psycheiq-v13";
 const APP_SHELL = [
   "./",
   "./index.html",
