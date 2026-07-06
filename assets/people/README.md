@@ -14,4 +14,4 @@ The app turns each name into a lowercase filename with hyphens. Examples:
 - `assets/people/fictional/hermione-granger.jpg`
 - `assets/people/fictional/spock.jpg`
 
-If a file is missing, the card shows the exact path that needs to be added instead of using a stylized placeholder.
+If a file is missing, the card tries a recognizable Wikipedia/Wikimedia thumbnail. Local approved files still take priority when added here.

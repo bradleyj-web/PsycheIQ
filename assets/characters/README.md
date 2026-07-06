@@ -9,4 +9,4 @@ The Fantasy/Sci-Fi Character Match result page loads these files automatically w
 - `luke-skywalker.jpg`
 - `the-doctor.jpg`
 
-If an image is missing, the result page shows the exact file path that needs to be added.
+If an image is missing, the result page tries a recognizable Wikipedia/Wikimedia thumbnail. Local approved files still take priority when added here.

@@ -3238,6 +3238,85 @@ function renderDimensionVisuals(analytics) {
   `;
 }
 
+const wikiTitleOverrides = {
+  "Aang": "Aang",
+  "Ahsoka Tano": "Ahsoka_Tano",
+  "Albus Dumbledore": "Albus_Dumbledore",
+  "Alexander Hamilton": "Alexander_Hamilton",
+  "Annabeth Chase": "Annabeth_Chase",
+  "Aragorn": "Aragorn",
+  "Arya Stark": "Arya_Stark",
+  "Aslan": "Aslan",
+  "Beth Harmon": "Beth_Harmon",
+  "Bruce Wayne": "Batman",
+  "Buffy Summers": "Buffy_Summers",
+  "Carol Danvers": "Carol_Danvers",
+  "Chani": "Chani_(character)",
+  "Chidi Anagonye": "Chidi_Anagonye",
+  "Ciri": "Ciri_(The_Witcher)",
+  "Claudia from Warehouse 13": "Claudia_Donovan",
+  "Cleopatra": "Cleopatra",
+  "Daenerys Targaryen": "Daenerys_Targaryen",
+  "Data": "Data_(Star_Trek)",
+  "Din Djarin": "Din_Djarin",
+  "Eowyn": "Eowyn",
+  "Finn": "Finn_(Star_Wars)",
+  "Fleabag": "Fleabag_(TV_series)",
+  "Furiosa": "Imperator_Furiosa",
+  "Galadriel": "Galadriel",
+  "Geralt of Rivia": "Geralt_of_Rivia",
+  "Gimli": "Gimli_(Middle-earth)",
+  "Glinda": "Glinda_the_Good",
+  "Grover Underwood": "Grover_Underwood",
+  "Han Solo": "Han_Solo",
+  "Harry Potter": "Harry_Potter_(character)",
+  "Ida B. Wells": "Ida_B._Wells",
+  "James T. Kirk": "James_T._Kirk",
+  "J.R.R. Tolkien": "J._R._R._Tolkien",
+  "Jean-Luc Picard": "Jean-Luc_Picard",
+  "Jon Snow": "Jon_Snow_(character)",
+  "Katara": "Katara_(Avatar:_The_Last_Airbender)",
+  "Leia Organa": "Princess_Leia",
+  "Loki": "Loki_(Marvel_Cinematic_Universe)",
+  "Marlin": "Marlin_(Finding_Nemo)",
+  "Martin Luther King Jr.": "Martin_Luther_King_Jr.",
+  "Merlin": "Merlin",
+  "Moana": "Moana_(character)",
+  "Morpheus": "Morpheus_(The_Matrix)",
+  "Mulan": "Mulan_(Disney_character)",
+  "Neo": "Neo_(The_Matrix)",
+  "Neville Longbottom": "Neville_Longbottom",
+  "Obi-Wan Kenobi": "Obi-Wan_Kenobi",
+  "Okoye": "Okoye_(Marvel_Cinematic_Universe)",
+  "Paul Atreides": "Paul_Atreides",
+  "Peeta Mellark": "Peeta_Mellark",
+  "Percy Jackson": "Percy_Jackson_(character)",
+  "Peter Parker": "Spider-Man",
+  "Prince": "Prince_(musician)",
+  "Princess Leia": "Princess_Leia",
+  "Professor X": "Professor_X",
+  "Rey Skywalker": "Rey_(Star_Wars)",
+  "River Song": "River_Song_(Doctor_Who)",
+  "Samwise Gamgee": "Samwise_Gamgee",
+  "Sarah Connor": "Sarah_Connor_(Terminator)",
+  "Shuri": "Shuri_(character)",
+  "Spock": "Spock",
+  "Steve Rogers": "Captain_America",
+  "Storm": "Storm_(Marvel_Comics)",
+  "T'Challa": "T'Challa",
+  "The Doctor": "The_Doctor_(Doctor_Who)",
+  "Tony Stark": "Iron_Man",
+  "Toph Beifong": "Toph_Beifong",
+  "Trinity": "Trinity_(The_Matrix)",
+  "Uncle Iroh": "Iroh",
+  "Wanda Maximoff": "Wanda_Maximoff",
+  "Winnie the Pooh": "Winnie-the-Pooh",
+  "Yennefer of Vengerberg": "Yennefer_of_Vengerberg",
+};
+
+const wikiThumbnailCache = new Map();
+const wikiSearchImageCache = new Map();
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => {
     const entities = {
@@ -3267,9 +3346,117 @@ function exampleImagePath(person, kind) {
   return person.image || `assets/people/${kind}/${slugifyName(person.name)}.jpg`;
 }
 
+function wikiTitleForName(name) {
+  return wikiTitleOverrides[name] || name;
+}
+
+function wikiSummaryUrl(title) {
+  return `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(String(title).replace(/\s+/g, "_"))}`;
+}
+
+function wikiSearchUrl(name, kind) {
+  const query = kind === "famous" ? name : `${name} character`;
+  const params = new URLSearchParams({
+    action: "query",
+    generator: "search",
+    gsrsearch: query,
+    gsrlimit: "6",
+    prop: "pageimages",
+    piprop: "thumbnail|original",
+    pithumbsize: "500",
+    format: "json",
+    origin: "*",
+  });
+
+  return `https://en.wikipedia.org/w/api.php?${params.toString()}`;
+}
+
+async function fetchWikiThumbnail(title) {
+  const cacheKey = String(title);
+
+  if (!wikiThumbnailCache.has(cacheKey)) {
+    wikiThumbnailCache.set(
+      cacheKey,
+      fetch(wikiSummaryUrl(cacheKey))
+        .then((response) => (response.ok ? response.json() : null))
+        .then((data) => data?.thumbnail?.source || data?.originalimage?.source || "")
+        .catch(() => "")
+    );
+  }
+
+  return wikiThumbnailCache.get(cacheKey);
+}
+
+async function fetchWikiSearchThumbnail(name, kind) {
+  const cacheKey = `${kind}:${name}`;
+
+  if (!wikiSearchImageCache.has(cacheKey)) {
+    wikiSearchImageCache.set(
+      cacheKey,
+      fetch(wikiSearchUrl(name, kind))
+        .then((response) => (response.ok ? response.json() : null))
+        .then((data) => {
+          const pages = Object.values(data?.query?.pages || {}).sort((a, b) => (a.index || 0) - (b.index || 0));
+          const match = pages.find((page) => page.thumbnail?.source || page.original?.source);
+          return match?.thumbnail?.source || match?.original?.source || "";
+        })
+        .catch(() => "")
+    );
+  }
+
+  return wikiSearchImageCache.get(cacheKey);
+}
+
+async function findWikiThumbnail(name, preferredTitle, kind) {
+  const candidates = [preferredTitle, name].filter(Boolean);
+  const uniqueCandidates = [...new Set(candidates)];
+
+  for (const title of uniqueCandidates) {
+    const source = await fetchWikiThumbnail(title);
+    if (source) return source;
+  }
+
+  return fetchWikiSearchThumbnail(name, kind);
+}
+
+function showMissingImage(image) {
+  if (!image) return;
+  image.hidden = true;
+  image.parentElement?.classList.remove("image-loading");
+  image.parentElement?.classList.add("image-missing");
+}
+
+async function handleImageError(image) {
+  if (!image || image.dataset.remoteAttempted === "true") {
+    showMissingImage(image);
+    return;
+  }
+
+  const name = image.dataset.personName || image.alt.replace(/^Recognizable image of /, "");
+  const kind = image.dataset.imageKind || "fictional";
+  const preferredTitle = image.dataset.wikiTitle || wikiTitleForName(name);
+  image.dataset.remoteAttempted = "true";
+  image.hidden = true;
+  image.parentElement?.classList.add("image-loading");
+
+  const fallbackSource = await findWikiThumbnail(name, preferredTitle, kind);
+
+  if (!fallbackSource) {
+    showMissingImage(image);
+    return;
+  }
+
+  image.parentElement?.classList.remove("image-loading", "image-missing");
+  image.hidden = false;
+  image.src = fallbackSource;
+}
+
+window.handleImageError = handleImageError;
+
 function renderExampleCard(person, kind) {
   const label = kind === "famous" ? "Historical" : "Fictional";
   const imagePath = exampleImagePath(person, kind);
+  const wikiTitle = wikiTitleForName(person.name);
 
   return `
     <article class="example-card ${kind}">
@@ -3277,8 +3464,12 @@ function renderExampleCard(person, kind) {
         <img
           src="${escapeHtml(imagePath)}"
           alt="Recognizable image of ${escapeHtml(person.name)}"
+          data-person-name="${escapeHtml(person.name)}"
+          data-wiki-title="${escapeHtml(wikiTitle)}"
+          data-image-kind="${escapeHtml(kind)}"
           decoding="async"
-          onerror="this.hidden=true; this.parentElement.classList.add('image-missing');"
+          referrerpolicy="no-referrer"
+          onerror="handleImageError(this)"
         />
         <figcaption>
           <strong>${label} image needed</strong>
@@ -3312,8 +3503,12 @@ function renderCharacterFeature(profile) {
         <img
           src="${escapeHtml(character.image)}"
           alt="Recognizable image of ${escapeHtml(character.name)}"
+          data-person-name="${escapeHtml(character.name)}"
+          data-wiki-title="${escapeHtml(wikiTitleForName(character.name))}"
+          data-image-kind="character"
           decoding="async"
-          onerror="this.hidden=true; this.parentElement.classList.add('image-missing');"
+          referrerpolicy="no-referrer"
+          onerror="handleImageError(this)"
         />
         <figcaption>
           <strong>Character image needed</strong>
