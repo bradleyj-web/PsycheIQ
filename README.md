@@ -13,6 +13,24 @@ PsycheIQ is a static psychology and personality test app with IQ-style scoring, 
 
    `https://YOUR-USERNAME.github.io/YOUR-REPO-NAME/`
 
-## App Store Notes
+## Android / Play Store Notes
 
-This project is now PWA-ready with `manifest.json`, app icons, and a service worker. To publish it in the Google Play Store, host it online first, then wrap the hosted site with a Trusted Web Activity or package it with a framework like Capacitor.
+This project includes a native Android WebView wrapper in `android/`.
+
+- Play Store package: `com.bradleyjweb.psycheiq`
+- Hosted app URL: `https://bradleyj-web.github.io/PsycheIQ/`
+- Privacy policy URL: `https://bradleyj-web.github.io/PsycheIQ/privacy.html`
+- Play Store subscription product ID: `psycheiq_monthly_access`
+
+The Android app is configured as membership-only. It uses Google Play Billing for the `$12.99/month` membership, then unlocks tests and member results inside the hosted web app. The browser version can still keep a one-time report unlock as a future web checkout path.
+
+Build commands from `android/`:
+
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Android\Android Studio1\jbr"
+$env:ANDROID_HOME = "C:\Users\plzdo\AppData\Local\Android\Sdk"
+.\gradlew.bat :app:assembleDebug
+.\gradlew.bat :app:bundleRelease
+```
+
+See `PLAY_STORE_READINESS.md` for the Play Console checklist.

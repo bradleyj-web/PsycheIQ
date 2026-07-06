@@ -2604,7 +2604,21 @@ configureAssessmentCatalog();
 
 const FOUNDERS_PROMO_CODE = "PSYCHEIQ";
 const CHECKOUT_RETURN_PARAM = "psycheiq_checkout";
-// Paste live checkout URLs here after creating the $1 report and $12.99/mo products.
+const PLAY_BILLING_PRODUCTS = {
+  core: "psycheiq_core_report",
+  member: "psycheiq_monthly_access",
+};
+const ADS_CONFIG = {
+  enabled: true,
+  membersOnly: true,
+  provider: "placeholder",
+  placements: {
+    beforeTest: true,
+    beforeResult: true,
+    beforeEmail: true,
+  },
+};
+// Browser-only fallback. The Android app uses Google Play Billing instead.
 const PAYMENT_LINKS = {
   core: "",
   member: "",
@@ -2620,7 +2634,15 @@ const dom = {
   progressBar: document.querySelector("[data-progress-bar]"),
   progressCopy: document.querySelector("[data-progress-copy]"),
   quizPanel: document.querySelector("[data-quiz-panel]"),
+  adPanel: document.querySelector("[data-ad-panel]"),
+  adPlacement: document.querySelector("[data-ad-placement]"),
+  adTitle: document.querySelector("[data-ad-title]"),
+  adCopy: document.querySelector("[data-ad-copy]"),
+  adContinue: document.querySelector("[data-ad-continue]"),
+  adSkip: document.querySelector("[data-ad-skip]"),
   paywallPanel: document.querySelector("[data-paywall-panel]"),
+  paywallTitle: document.querySelector("[data-paywall-title]"),
+  paywallCopy: document.querySelector("[data-paywall-copy]"),
   resultPanel: document.querySelector("[data-result-panel]"),
   questionKicker: document.querySelector("[data-question-kicker]"),
   questionText: document.querySelector("[data-question-text]"),
@@ -2663,6 +2685,11 @@ const dom = {
   signinForm: document.querySelector("[data-signin-form]"),
   signupForm: document.querySelector("[data-signup-form]"),
   authMessage: document.querySelector("[data-auth-message]"),
+  coreOffers: document.querySelectorAll("[data-core-offer]"),
+  storePriceCopies: document.querySelectorAll("[data-store-price-copy]"),
+  unlockCopy: document.querySelector("[data-unlock-copy]"),
+  reportCopy: document.querySelector("[data-report-copy]"),
+  pricingCopy: document.querySelector("[data-pricing-copy]"),
 };
 
 const state = {
@@ -2677,6 +2704,8 @@ const state = {
   currentResult: null,
   pendingEmailResult: false,
   answerHistory: [],
+  pendingCheckoutIntent: "result",
+  adContinuation: null,
 };
 
 const storageKeys = {
@@ -2786,9 +2815,47 @@ function normalizePromoCode(value) {
   return String(value || "").trim().toUpperCase().replace(/\s+/g, "");
 }
 
+function updatePaywallPresentation() {
+  const memberOnly = requiresMemberAccess();
+  const startingTest = state.pendingCheckoutIntent === "start-test";
+
+  if (dom.unlockCore) {
+    dom.unlockCore.hidden = memberOnly;
+  }
+
+  if (dom.unlockDeep) {
+    dom.unlockDeep.textContent = memberOnly ? "Become a Member $12.99/mo" : "Go Unlimited $12.99/mo";
+  }
+
+  if (!dom.paywallTitle || !dom.paywallCopy) return;
+
+  if (memberOnly && startingTest) {
+    dom.paywallTitle.textContent = "Membership unlocks the Play Store app.";
+    dom.paywallCopy.textContent =
+      "The Play Store version uses monthly access only. Become a member to take every test, retake them anytime, and keep access to every result.";
+    return;
+  }
+
+  if (memberOnly) {
+    dom.paywallTitle.textContent = "Your result is ready with monthly access.";
+    dom.paywallCopy.textContent =
+      "The Play Store version does not use the $1 single-report unlock. Monthly access opens this result plus every current and future test.";
+    return;
+  }
+
+  dom.paywallTitle.textContent = "Your profile is waiting behind the report unlock.";
+  dom.paywallCopy.textContent =
+    "The quick quiz is complete. Unlock the result page for strengths, weak spots, situations, relationships, parenting notes, and matching examples. Or choose monthly access for every test and saved result.";
+}
+
 function resetPaywallControls() {
   if (dom.promoForm) dom.promoForm.reset();
-  setPaywallMessage("Enter a Founders code or choose a checkout option to unlock this result.");
+  updatePaywallPresentation();
+  setPaywallMessage(
+    requiresMemberAccess()
+      ? "Become a member through Google Play, or use the Founders code if you have it."
+      : "Enter a Founders code or choose a checkout option to unlock this result."
+  );
 }
 
 function saveAccount(account) {
@@ -2884,6 +2951,13 @@ function emailCurrentResult() {
     return;
   }
 
+  runMemberAd("beforeEmail", sendCurrentResultEmail);
+}
+
+function sendCurrentResultEmail() {
+  if (!state.currentResult || !state.account) return;
+
+  setModalView("result");
   saveCurrentResultToAccount();
   const subject = encodeURIComponent(`My PsycheIQ result: ${state.currentResult.title}`);
   const body = encodeURIComponent(formatResultEmail(state.currentResult));
@@ -2922,6 +2996,37 @@ function initializeTheme() {
   }
 
   setTheme(savedTheme);
+}
+
+function applyNativeStoreMode() {
+  if (!requiresMemberAccess()) return;
+
+  tests.forEach((test) => {
+    if (test.status !== "Coming Soon") test.price = "Member access";
+  });
+
+  dom.coreOffers.forEach((offer) => {
+    offer.hidden = true;
+  });
+
+  dom.storePriceCopies.forEach((item) => {
+    item.textContent = "Member access";
+  });
+
+  if (dom.unlockCopy) {
+    dom.unlockCopy.textContent =
+      "Monthly access opens the full test library, unlimited retakes, and every member result in the Play Store app.";
+  }
+
+  if (dom.reportCopy) {
+    dom.reportCopy.textContent =
+      "Each profile is built for self-understanding, not labels. Monthly access turns the full test library into a saved profile system.";
+  }
+
+  if (dom.pricingCopy) {
+    dom.pricingCopy.textContent =
+      "The Play Store app uses one simple membership: $12.99/month for unlimited tests, retakes, and result access.";
+  }
 }
 
 function renderTestDoodle(test) {
@@ -2980,6 +3085,7 @@ function renderTests(filter = "all") {
 
 function setModalView(view) {
   dom.quizPanel.hidden = view !== "quiz";
+  if (dom.adPanel) dom.adPanel.hidden = view !== "ad";
   dom.paywallPanel.hidden = view !== "paywall";
   dom.resultPanel.hidden = view !== "result";
 }
@@ -2992,6 +3098,7 @@ function openModal() {
 function closeModal() {
   dom.modal.hidden = true;
   document.body.classList.remove("modal-open");
+  state.adContinuation = null;
 }
 
 function startTest(testId) {
@@ -3008,13 +3115,26 @@ function startTest(testId) {
   state.answerHistory = [];
   state.currentResult = null;
   state.pendingEmailResult = false;
+  state.pendingCheckoutIntent = "result";
 
   dom.modalTitle.textContent = test.title;
   dom.modalCategory.textContent = test.category;
   dom.modalDescription.textContent = test.description;
-  setModalView("quiz");
   openModal();
-  renderQuestion();
+
+  if (requiresMemberAccess() && !hasMemberAccess()) {
+    state.pendingCheckoutIntent = "start-test";
+    dom.progressBar.style.width = "0%";
+    dom.progressCopy.textContent = "Membership required";
+    resetPaywallControls();
+    setModalView("paywall");
+    return;
+  }
+
+  runMemberAd("beforeTest", () => {
+    setModalView("quiz");
+    renderQuestion();
+  });
 }
 
 function renderQuestion() {
@@ -3119,6 +3239,7 @@ function savePendingCheckout(mode) {
 
   return writeJsonStorage(storageKeys.pendingCheckout, {
     mode,
+    intent: state.pendingCheckoutIntent,
     testId: state.activeTest.id,
     answerHistory: state.answerHistory,
     createdAt: new Date().toISOString(),
@@ -3129,26 +3250,127 @@ function checkoutUrlFor(mode) {
   return PAYMENT_LINKS[mode] || "";
 }
 
-function requestPaidUnlock(mode) {
-  if (!state.activeTest) return;
+function hasNativeBilling() {
+  return Boolean(window.PsycheIQBilling && typeof window.PsycheIQBilling.purchase === "function");
+}
 
-  if (mode === "member" && hasMemberAccess()) {
-    unlockResult("member");
+function requiresMemberAccess() {
+  return hasNativeBilling();
+}
+
+const adPlacementCopy = {
+  beforeTest: {
+    label: "Before Test",
+    title: "Member sponsor break",
+    copy:
+      "This member-only sponsor slot can show before an assessment starts. It is ready for AdMob or a house promotion.",
+    action: "Continue to Test",
+  },
+  beforeResult: {
+    label: "Before Result",
+    title: "Member result sponsor",
+    copy:
+      "This member-only sponsor slot can show before the full result opens. It gives you a clean place for a rewarded or interstitial ad.",
+    action: "Open Result",
+  },
+  beforeEmail: {
+    label: "Before Email",
+    title: "Member email sponsor",
+    copy:
+      "This member-only sponsor slot can show before an emailed result is prepared. Real ad units can replace this placeholder later.",
+    action: "Prepare Email",
+  },
+};
+
+function shouldShowMemberAd(placement) {
+  return Boolean(
+    ADS_CONFIG.enabled &&
+      ADS_CONFIG.placements?.[placement] &&
+      (!ADS_CONFIG.membersOnly || hasMemberAccess())
+  );
+}
+
+function runMemberAd(placement, continuation) {
+  if (!shouldShowMemberAd(placement) || !dom.adPanel) {
+    continuation();
     return;
   }
 
-  if (mode === "core" && hasCoreAccess()) {
+  const copy = adPlacementCopy[placement] || adPlacementCopy.beforeTest;
+  state.adContinuation = continuation;
+  dom.adPlacement.textContent = copy.label;
+  dom.adTitle.textContent = copy.title;
+  dom.adCopy.textContent = copy.copy;
+  dom.adContinue.textContent = copy.action;
+  setModalView("ad");
+}
+
+function finishMemberAd() {
+  const continuation = state.adContinuation;
+  state.adContinuation = null;
+  if (typeof continuation === "function") continuation();
+}
+
+function openUnlockedResult(mode) {
+  if (mode === "member") {
+    runMemberAd("beforeResult", () => unlockResult("member"));
+    return;
+  }
+
+  unlockResult("core");
+}
+
+function completePaidUnlock(mode, source = "checkout") {
+  const normalizedMode = requiresMemberAccess() || mode === "member" ? "member" : "core";
+  const restored = restoreCheckoutResult(normalizedMode, source);
+
+  if (!restored && state.activeTest) {
+    grantAccess(normalizedMode, source);
+    removeStorageItem(storageKeys.pendingCheckout);
+    openUnlockedResult(normalizedMode);
+  }
+
+  const successCopy =
+    normalizedMode === "member"
+      ? "Monthly access is active. Unlimited results are unlocked on this device."
+      : "Report unlocked. Your full result is ready.";
+  setPaywallMessage(successCopy, "success");
+}
+
+function requestPaidUnlock(mode) {
+  if (!state.activeTest) return;
+  const requestedMode = requiresMemberAccess() ? "member" : mode;
+
+  if (requestedMode === "member" && hasMemberAccess()) {
+    openUnlockedResult("member");
+    return;
+  }
+
+  if (requestedMode === "core" && hasCoreAccess()) {
     unlockResult("core");
     return;
   }
 
-  savePendingCheckout(mode);
-  const checkoutUrl = checkoutUrlFor(mode);
+  savePendingCheckout(requestedMode);
+
+  if (hasNativeBilling()) {
+    const productId = PLAY_BILLING_PRODUCTS[requestedMode] || PLAY_BILLING_PRODUCTS.member;
+    setPaywallMessage(`Opening Google Play checkout for ${productId}...`, "neutral");
+
+    try {
+      window.PsycheIQBilling.purchase(requestedMode);
+    } catch (error) {
+      setPaywallMessage("Google Play checkout could not start. Try again in a moment.", "error");
+    }
+    return;
+  }
+
+  const checkoutUrl = checkoutUrlFor(requestedMode);
 
   if (!checkoutUrl) {
-    const amount = mode === "member" ? "$12.99/mo" : "$1";
+    const amount = requestedMode === "member" ? "$12.99/mo" : "$1";
     setPaywallMessage(
-      `${amount} checkout is ready, but no live payment link is connected yet. Add your Stripe payment link in app.js, or use the Founders code.`,
+      `${amount} checkout is ready for the website version, but no browser payment link is connected yet. Use the Android app for Google Play checkout, or use the Founders code.`,
       "warning"
     );
     return;
@@ -3165,7 +3387,11 @@ function applyPromoUnlock(code) {
 
   grantAccess("member", "founders");
   setPaywallMessage("Founders access applied. Unlimited results are unlocked on this device.", "success");
-  unlockResult("member");
+  if (state.pendingCheckoutIntent === "start-test" && state.activeTest) {
+    startTest(state.activeTest.id);
+    return;
+  }
+  openUnlockedResult("member");
 }
 
 function accessMessageForMode(mode) {
@@ -3181,14 +3407,21 @@ function accessMessageForMode(mode) {
   return "No account needed for the $1 result. Sign up only if you want it emailed or saved.";
 }
 
-function restoreCheckoutResult(mode) {
+function restoreCheckoutResult(mode, source = "checkout") {
   const pending = readJsonStorage(storageKeys.pendingCheckout, null);
   const test = tests.find((item) => item.id === pending?.testId);
 
   if (!pending || !test) {
-    if (mode === "member") grantAccess("member", "checkout");
+    if (mode === "member") grantAccess("member", source);
     removeStorageItem(storageKeys.pendingCheckout);
     return false;
+  }
+
+  if (pending.intent === "start-test" && mode === "member") {
+    grantAccess("member", source);
+    removeStorageItem(storageKeys.pendingCheckout);
+    startTest(test.id);
+    return true;
   }
 
   state.activeTest = test;
@@ -3201,12 +3434,29 @@ function restoreCheckoutResult(mode) {
   dom.modalTitle.textContent = test.title;
   dom.modalCategory.textContent = test.category;
   dom.modalDescription.textContent = test.description;
-  grantAccess(mode, "checkout");
+  grantAccess(mode, source);
   removeStorageItem(storageKeys.pendingCheckout);
   openModal();
-  unlockResult(mode === "member" ? "member" : "core");
+  openUnlockedResult(mode === "member" ? "member" : "core");
   return true;
 }
+
+window.applyPlayBillingPurchase = (mode) => {
+  completePaidUnlock(mode, "google-play");
+};
+
+window.handlePlayBillingPending = (mode) => {
+  const label = mode === "member" ? "monthly access" : "report";
+  setPaywallMessage(`Your Google Play ${label} payment is pending. The result will unlock after Google confirms it.`, "warning");
+};
+
+window.handlePlayBillingError = (message) => {
+  setPaywallMessage(message || "Google Play checkout could not finish. Try again in a moment.", "error");
+};
+
+window.handlePlayBillingStatus = (message) => {
+  setPaywallMessage(message || "Google Play checkout is working...", "neutral");
+};
 
 function handleCheckoutReturn() {
   const url = new URL(window.location.href);
@@ -3221,10 +3471,11 @@ function handleCheckoutReturn() {
 function showPaywall() {
   dom.progressBar.style.width = "100%";
   dom.progressCopy.textContent = "Complete";
+  state.pendingCheckoutIntent = "result";
   resetPaywallControls();
 
   if (hasMemberAccess()) {
-    unlockResult("member");
+    openUnlockedResult("member");
     return;
   }
 
@@ -4020,6 +4271,8 @@ document.querySelectorAll("[data-start-test]").forEach((button) => {
 
 dom.unlockCore.addEventListener("click", () => requestPaidUnlock("core"));
 dom.unlockDeep.addEventListener("click", () => requestPaidUnlock("member"));
+if (dom.adContinue) dom.adContinue.addEventListener("click", finishMemberAd);
+if (dom.adSkip) dom.adSkip.addEventListener("click", finishMemberAd);
 dom.restart.addEventListener("click", restartActiveTest);
 dom.closeButtons.forEach((button) => button.addEventListener("click", closeModal));
 
@@ -4130,5 +4383,6 @@ if ("serviceWorker" in navigator) {
 
 initializeTheme();
 initializeAccount();
+applyNativeStoreMode();
 renderTests();
 handleCheckoutReturn();

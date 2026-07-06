@@ -84,7 +84,7 @@
           <div class="launcher-stats" aria-label="Assessment details">
             <span>12 min</span>
             <span>42 questions</span>
-            <span>$1 report</span>
+            <span data-store-price-copy>$1 report</span>
           </div>
           <button class="button button-full" type="button" data-start-test="archetype">Start Archetype Test</button>
         </aside>
@@ -116,7 +116,7 @@
           <article>
             <span class="step-number">3</span>
             <h3>Unlock the readout</h3>
-            <p>The $1 report gives one practical profile. The monthly plan opens the full test library and saved results.</p>
+            <p data-unlock-copy>The $1 report gives one practical profile. The monthly plan opens the full test library and saved results.</p>
           </article>
         </div>
       </section>
@@ -148,12 +148,13 @@
             <p class="eyebrow">What You Unlock</p>
             <h2 id="reports-title">Reports that read like a smart friend and a useful coach</h2>
             <p>
-              Each profile is built for self-understanding, not labels. The core report focuses on everyday behavior,
+              <span data-report-copy>Each profile is built for self-understanding, not labels. The core report focuses on everyday behavior,
               while monthly access turns the whole test library into a saved profile system.
+              </span>
             </p>
           </div>
           <div class="report-columns" aria-label="Report benefits">
-            <article>
+            <article data-core-offer>
               <h3>$1 Core Report</h3>
               <ul>
                 <li>Strengths and natural advantages</li>
@@ -206,12 +207,13 @@
           <p class="eyebrow">Explore Plans</p>
           <h2 id="pricing-title">Pay only when the result is ready</h2>
           <p>
-            Keep the quiz playful up front, then put the full result page behind a low-friction unlock with an optional
+            <span data-pricing-copy>Keep the quiz playful up front, then put the full result page behind a low-friction unlock with an optional
             monthly all-access plan.
+            </span>
           </p>
         </div>
         <div class="pricing-grid">
-          <article class="price-card">
+          <article class="price-card" data-core-offer>
             <p class="mini-label">Core Unlock</p>
             <h3>$1</h3>
             <p>One complete result page for the test you just finished.</p>
@@ -295,8 +297,8 @@
           <details>
             <summary>What should be connected before going live?</summary>
             <p>
-              A payment provider, user accounts, email receipts, privacy pages, and a backend for saving assessments
-              should be added before real customers use it.
+              Google Play Billing products, user account storage, email receipts, Play Console data safety answers, and
+              release signing should be finished before real customers use it.
             </p>
           </details>
         </div>
@@ -328,7 +330,7 @@
         <a href="#tests">Tests</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">Help</a>
-        <a href="#top">Privacy</a>
+        <a href="privacy.html">Privacy</a>
       </nav>
       <p class="legal">
         Copyright 2026 PsycheIQ. Fan-style references are unaffiliated. Results are educational and entertainment
@@ -359,10 +361,29 @@
               <button class="text-button quiz-back" type="button" data-prev-question hidden>Back</button>
             </div>
           </section>
+          <section class="ad-panel" data-ad-panel hidden>
+            <p class="mini-label" data-ad-placement>Member Sponsor</p>
+            <h3 data-ad-title>Member sponsor break</h3>
+            <p data-ad-copy>
+              A short sponsor placement can run here before the next member action. Real ads can be connected with
+              AdMob after your ad units are created.
+            </p>
+            <div class="ad-preview" aria-label="Advertisement preview">
+              <div>
+                <span>Ad</span>
+                <strong>PsycheIQ sponsor slot</strong>
+                <p>Ready for AdMob or a house promotion.</p>
+              </div>
+            </div>
+            <div class="ad-actions">
+              <button class="button" type="button" data-ad-continue>Continue</button>
+              <button class="button button-quiet" type="button" data-ad-skip>Skip</button>
+            </div>
+          </section>
           <section class="paywall-panel" data-paywall-panel hidden>
             <p class="mini-label">Result Ready</p>
-            <h3>Your profile is waiting behind the report unlock.</h3>
-            <p>
+            <h3 data-paywall-title>Your profile is waiting behind the report unlock.</h3>
+            <p data-paywall-copy>
               The quick quiz is complete. Unlock the result page for strengths, weak spots, situations, relationships,
               parenting notes, and matching examples. Or choose monthly access for every test and saved result.
             </p>
@@ -378,7 +399,7 @@
             <form class="promo-form" data-promo-form>
               <label for="promo-code">Founders promo code</label>
               <div>
-                <input id="promo-code" name="promo-code" type="text" autocomplete="off" placeholder="PSYCHEIQ" />
+                <input id="promo-code" name="promo-code" type="text" autocomplete="off" placeholder="Enter code" />
                 <button class="button button-small" type="submit">Apply</button>
               </div>
               <p data-paywall-message aria-live="polite"></p>
