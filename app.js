@@ -2133,6 +2133,84 @@ const fantasyRoster = [
   "Tony Stark", "Peter Parker", "Carol Danvers", "The Doctor", "Rose Tyler", "River Song", "Katniss Everdeen", "Furiosa",
 ];
 
+const fantasyCharacterDetails = Object.fromEntries(
+  [
+    ["Gandalf", "The Lord of the Rings", "Book/film", "A wandering wizard who guides others through fear, temptation, and impossible odds."],
+    ["Galadriel", "The Lord of the Rings", "Book/film", "An ancient elven leader known for foresight, grace, and terrifying inner power."],
+    ["Aragorn", "The Lord of the Rings", "Book/film", "A reluctant king who blends humility, courage, loyalty, and battlefield leadership."],
+    ["Legolas", "The Lord of the Rings", "Book/film", "An elven archer whose calm precision and loyalty make him deadly under pressure."],
+    ["Gimli", "The Lord of the Rings", "Book/film", "A proud warrior with grit, humor, and a fierce devotion to companions."],
+    ["Frodo Baggins", "The Lord of the Rings", "Book/film", "A quiet hero who carries a heavy burden because the world depends on it."],
+    ["Samwise Gamgee", "The Lord of the Rings", "Book/film", "A loyal companion whose courage shows up as care, endurance, and refusal to quit."],
+    ["Eowyn", "The Lord of the Rings", "Book/film", "A shieldmaiden who rejects being underestimated and steps directly into danger."],
+    ["Hermione Granger", "Harry Potter", "Book/film", "A brilliant witch whose preparation, loyalty, and moral clarity repeatedly save the day."],
+    ["Harry Potter", "Harry Potter", "Book/film", "A marked hero who acts from loyalty, instinct, and a stubborn sense of right."],
+    ["Luna Lovegood", "Harry Potter", "Book/film", "An unusual, gentle thinker who sees what others dismiss and stays true to herself."],
+    ["Newt Scamander", "Fantastic Beasts", "Film/book", "A soft-spoken magizoologist whose courage is rooted in empathy for overlooked creatures."],
+    ["Albus Dumbledore", "Harry Potter", "Book/film", "A powerful mentor whose strategy, wisdom, and secrets shape a larger conflict."],
+    ["Geralt of Rivia", "The Witcher", "Book/game/TV", "A monster hunter guided by a hard-earned code in a morally gray world."],
+    ["Yennefer of Vengerberg", "The Witcher", "Book/game/TV", "A formidable sorceress driven by power, longing, independence, and transformation."],
+    ["Ciri", "The Witcher", "Book/game/TV", "A young warrior with extraordinary destiny who must learn what kind of power she carries."],
+    ["Percy Jackson", "Percy Jackson and the Olympians", "Book/TV/film", "A demigod hero who leads with loyalty, humor, and impulsive bravery."],
+    ["Annabeth Chase", "Percy Jackson and the Olympians", "Book/TV/film", "A strategic daughter of Athena known for planning, nerve, and earned confidence."],
+    ["Grover Underwood", "Percy Jackson and the Olympians", "Book/TV/film", "A gentle protector whose courage grows from friendship and care for the natural world."],
+    ["Elphaba", "Wicked", "Book/stage/film", "A misunderstood outsider whose convictions challenge the story everyone else accepted."],
+    ["Glinda", "Wicked", "Book/stage/film", "A charismatic public figure who learns the difference between popularity and moral courage."],
+    ["Willow Rosenberg", "Buffy the Vampire Slayer", "TV", "A gifted witch whose intelligence and power grow faster than her sense of limits."],
+    ["Buffy Summers", "Buffy the Vampire Slayer", "TV", "A chosen fighter who balances ordinary longing with relentless supernatural duty."],
+    ["Merlin", "Arthurian legend", "Legend/book/TV", "A legendary wizard and counselor tied to prophecy, kingship, and hidden knowledge."],
+    ["Aang", "Avatar: The Last Airbender", "TV", "A playful avatar who carries world-saving responsibility without losing compassion."],
+    ["Katara", "Avatar: The Last Airbender", "TV", "A waterbender whose nurturing spirit sits beside fierce discipline and moral fire."],
+    ["Toph Beifong", "Avatar: The Last Airbender", "TV", "A blunt, independent earthbender who turns limitation into unmatched strength."],
+    ["Zuko", "Avatar: The Last Airbender", "TV", "A scarred prince whose identity is forged through exile, anger, and redemption."],
+    ["Korra", "The Legend of Korra", "TV", "A headstrong avatar who learns that power also requires humility and healing."],
+    ["Moana", "Moana", "Film", "A voyager called beyond the reef by courage, ancestry, and responsibility to her people."],
+    ["Mulan", "Mulan", "Film/legend", "A brave outsider who saves others by refusing the role she was handed."],
+    ["Aslan", "The Chronicles of Narnia", "Book/film", "A lion figure of wisdom, sacrifice, authority, and restoring courage."],
+    ["Luke Skywalker", "Star Wars", "Film/TV", "A hopeful Jedi whose growth arc moves from longing to disciplined compassion."],
+    ["Leia Organa", "Star Wars", "Film/TV", "A rebel leader and princess whose authority is sharp, principled, and fearless."],
+    ["Han Solo", "Star Wars", "Film", "A rogue pilot whose cynicism hides loyalty, nerve, and a surprisingly soft center."],
+    ["Rey Skywalker", "Star Wars", "Film", "A scavenger turned Jedi who seeks belonging while learning to trust her own power."],
+    ["Finn", "Star Wars", "Film", "A former soldier who breaks conditioning and chooses conscience over obedience."],
+    ["Poe Dameron", "Star Wars", "Film", "A daring pilot whose charm and courage work best when tied to responsibility."],
+    ["Obi-Wan Kenobi", "Star Wars", "Film/TV", "A disciplined Jedi mentor shaped by loss, patience, and principled restraint."],
+    ["Ahsoka Tano", "Star Wars", "TV/film", "A former Jedi apprentice who becomes independent without abandoning compassion."],
+    ["Spock", "Star Trek", "TV/film", "A logic-driven officer balancing reason, identity, loyalty, and buried feeling."],
+    ["James T. Kirk", "Star Trek", "TV/film", "A bold captain who trusts instinct, charisma, and decisive action under pressure."],
+    ["Jean-Luc Picard", "Star Trek: The Next Generation", "TV/film", "A principled captain who leads through ethics, diplomacy, and intellectual command."],
+    ["Data", "Star Trek: The Next Generation", "TV/film", "An android whose curiosity about humanity reveals precision, innocence, and depth."],
+    ["Ellen Ripley", "Alien", "Film", "A survivor whose practical courage and protective instincts sharpen under terror."],
+    ["Sarah Connor", "Terminator", "Film/TV", "A mother and fighter transformed by prophecy, trauma, and survival discipline."],
+    ["Neo", "The Matrix", "Film", "A reality-questioning hacker who awakens into power by rejecting the false world."],
+    ["Trinity", "The Matrix", "Film", "A fearless operative whose loyalty, focus, and skill cut through impossible systems."],
+    ["Morpheus", "The Matrix", "Film", "A mentor and rebel who believes in liberation before proof is easy."],
+    ["Paul Atreides", "Dune", "Book/film", "A noble heir pulled into prophecy, politics, survival, and dangerous vision."],
+    ["Chani", "Dune", "Book/film", "A desert fighter grounded in survival, love, suspicion, and loyalty to her people."],
+    ["Miles Morales", "Spider-Man", "Comics/film/game", "A young Spider-Man whose creativity and heart redefine what the mask can mean."],
+    ["Shuri", "Black Panther", "Comics/film", "A brilliant inventor whose humor and science carry royal responsibility."],
+    ["T'Challa", "Black Panther", "Comics/film", "A king and protector balancing tradition, conscience, diplomacy, and strength."],
+    ["Doctor Strange", "Doctor Strange", "Comics/film", "A surgeon turned sorcerer whose control issues become cosmic responsibility."],
+    ["Wanda Maximoff", "Marvel", "Comics/film/TV", "A powerful magic user shaped by grief, love, protection, and dangerous emotion."],
+    ["Tony Stark", "Iron Man", "Comics/film", "A genius inventor whose arrogance matures into sacrifice and accountability."],
+    ["Peter Parker", "Spider-Man", "Comics/film", "A young hero whose humor, guilt, and compassion keep pulling him back to help."],
+    ["Carol Danvers", "Captain Marvel", "Comics/film", "A cosmic-powered pilot who fights control by reclaiming memory and identity."],
+    ["The Doctor", "Doctor Who", "TV", "A time-traveling alien who solves crises through wit, compassion, and restless curiosity."],
+    ["Rose Tyler", "Doctor Who", "TV", "A brave companion whose empathy and wonder make the universe feel personal."],
+    ["River Song", "Doctor Who", "TV", "A time-crossed adventurer defined by mystery, confidence, love, and danger."],
+    ["Katniss Everdeen", "The Hunger Games", "Book/film", "A reluctant symbol whose survival instincts become revolutionary force."],
+    ["Furiosa", "Mad Max", "Film", "A hardened liberator whose purpose is rescue, escape, and earned redemption."],
+  ].map(([name, source, medium, bio]) => [
+    name,
+    {
+      name,
+      source,
+      medium,
+      bio,
+      image: `assets/characters/${slugifyName(name)}.jpg`,
+    },
+  ])
+);
+
 function buildChoiceQuestion(blueprint, choiceCopy, index) {
   const [kicker, prompt] = blueprint;
 
@@ -2276,6 +2354,29 @@ function fantasyDescriptorForCode(code) {
   return code.split("").map((letter) => descriptions[letter]).join(", ");
 }
 
+function fantasyFitReason(code, name) {
+  const world = code.includes("F")
+    ? "You leaned toward mythic stakes, symbolism, destiny, and old-story energy."
+    : "You leaned toward cosmic stakes, technology, future systems, and frontier pressure.";
+  const morality = code.includes("H")
+    ? "Your moral center came through as protective and heroic, even when the task is heavy."
+    : "Your answers favored a more complicated, rogue, or antiheroic path where survival and freedom matter.";
+  const pace = code.includes("W")
+    ? "You solve by reading the board first, which gives this match a strategic, watchful quality."
+    : "You solve by moving when the moment opens, which gives this match a fast, instinctive edge.";
+  const bonds = code.includes("L")
+    ? "You showed a strong loyalty signal: people, promises, and shared missions matter."
+    : "You showed an independent signal: autonomy, personal code, and self-direction matter.";
+  const power = code.includes("M")
+    ? "You were drawn to extraordinary gifts, mystery, and power that feels larger than ordinary skill."
+    : "You were drawn to trained competence, grounded skill, and power that has been earned.";
+  const arc = code.includes("O")
+    ? "Your story arc is more protector than disruptor: repair, guardrails, and stewardship are central."
+    : "Your story arc is more rebel than guardian: change, exposure, and refusing false limits are central.";
+
+  return `${name} fits because your pattern combines these signals: ${world} ${morality} ${pace} ${bonds} ${power} ${arc}`;
+}
+
 function buildFantasyProfiles() {
   const codes = generateDimensionCodes(fantasyDimensions);
   const famousByCode = {
@@ -2300,6 +2401,12 @@ function buildFantasyProfiles() {
       const firstFamous = famousByCode[code[0]];
       const secondFamous = famousByCode[code[5]];
       const descriptor = fantasyDescriptorForCode(code);
+      const character = fantasyCharacterDetails[name];
+      const characterFeature = {
+        ...character,
+        code,
+        fit: fantasyFitReason(code, name),
+      };
 
       return [
         code,
@@ -2321,6 +2428,7 @@ function buildFantasyProfiles() {
           relationships: `You connect through ${code.includes("L") ? "loyalty, shared missions, and showing up when it counts" : "respect, autonomy, and honest space"}. People get the best of you when they honor both your power and your pressure points.`,
           parenting: `As a parent or mentor, you would likely teach ${code.includes("H") ? "courage with conscience" : "self-trust with edge"}. The growth move is helping younger people feel safe without forcing them into your exact story arc.`,
           examples: `Famous echoes: ${firstFamous[0]}, ${secondFamous[0]}. Fictional echoes: ${name}, ${similar}.`,
+          characterFeature,
           examplePeople: {
             famous: [
               { name: firstFamous[0], note: firstFamous[1], motif: code.slice(0, 2) },
@@ -2421,6 +2529,7 @@ const dom = {
   resultSummary: document.querySelector("[data-result-summary]"),
   resultScore: document.querySelector("[data-result-score]"),
   resultVisuals: document.querySelector("[data-result-visuals]"),
+  characterFeature: document.querySelector("[data-character-feature]"),
   exampleShowcase: document.querySelector("[data-example-showcase]"),
   resultStoryPanels: document.querySelector("[data-result-story-panels]"),
   resultStrengths: document.querySelector("[data-result-strengths]"),
@@ -2538,6 +2647,16 @@ function saveCurrentResultToAccount() {
 }
 
 function formatResultEmail(profile) {
+  const characterLines = profile.characterFeature
+    ? [
+        "",
+        `Primary character match: ${profile.characterFeature.name}`,
+        `From: ${profile.characterFeature.source} (${profile.characterFeature.medium})`,
+        `Bio: ${profile.characterFeature.bio}`,
+        `Why it fits: ${profile.characterFeature.fit}`,
+      ]
+    : [];
+
   return [
     `PsycheIQ Result: ${profile.title}`,
     "",
@@ -2556,6 +2675,7 @@ function formatResultEmail(profile) {
     `As parents: ${profile.parenting}`,
     "",
     `Examples: ${profile.examples}`,
+    ...characterLines,
   ].join("\n");
 }
 
@@ -3131,62 +3251,90 @@ function escapeHtml(value) {
   });
 }
 
-function hashString(value) {
-  return [...value].reduce((hash, character) => hash + character.charCodeAt(0), 0);
-}
-
-function initials(name) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-}
-
 function firstSentence(text) {
   const match = String(text).match(/^[^.!?]+[.!?]/);
   return match ? match[0] : text;
 }
 
-function renderAvatarSvg(person, index, kind) {
-  const palettes = [
-    ["#8ee3d6", "#0f766e", "#d9534f"],
-    ["#f6c66a", "#b7791f", "#6d5bd0"],
-    ["#9fb8ff", "#334e7d", "#d9534f"],
-    ["#ffa7a1", "#9a3d3a", "#0f766e"],
-  ];
-  const palette = palettes[(hashString(person.name) + index) % palettes.length];
-  const badge = escapeHtml((person.motif || initials(person.name)).slice(0, 2).toUpperCase());
-  const hairPath =
-    kind === "fictional"
-      ? "M34 31c4-14 24-18 36-8 11 9 13 23 9 34-9-10-18-15-32-13-8 1-14-3-20-9Z"
-      : "M29 37c2-18 16-27 34-24 17 3 27 15 27 34-16-9-33-10-61-10Z";
+function slugifyName(name) {
+  return String(name)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function exampleImagePath(person, kind) {
+  return person.image || `assets/people/${kind}/${slugifyName(person.name)}.jpg`;
+}
+
+function renderExampleCard(person, kind) {
+  const label = kind === "famous" ? "Historical" : "Fictional";
+  const imagePath = exampleImagePath(person, kind);
 
   return `
-    <svg class="portrait-svg" viewBox="0 0 120 120" role="img" aria-label="Stylized caricature of ${escapeHtml(person.name)}">
-      <rect x="5" y="5" width="110" height="110" rx="24" fill="${palette[0]}" opacity=".22"/>
-      <circle cx="60" cy="56" r="34" fill="#fbfcfb"/>
-      <path d="${hairPath}" fill="${palette[1]}"/>
-      <circle cx="48" cy="58" r="4" fill="#13211f"/>
-      <circle cx="72" cy="58" r="4" fill="#13211f"/>
-      <path d="M48 76c7 7 18 7 25 0" fill="none" stroke="${palette[2]}" stroke-width="4" stroke-linecap="round"/>
-      <path d="M24 108c4-22 21-34 36-34s32 12 36 34Z" fill="${palette[1]}"/>
-      <circle cx="92" cy="28" r="18" fill="${palette[2]}"/>
-      <text x="92" y="33" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="800">${badge}</text>
-    </svg>
+    <article class="example-card ${kind}">
+      <figure class="example-media">
+        <img
+          src="${escapeHtml(imagePath)}"
+          alt="Recognizable image of ${escapeHtml(person.name)}"
+          decoding="async"
+          onerror="this.hidden=true; this.parentElement.classList.add('image-missing');"
+        />
+        <figcaption>
+          <strong>${label} image needed</strong>
+          <span>${escapeHtml(imagePath)}</span>
+        </figcaption>
+      </figure>
+      <div>
+        <p class="mini-label">${label}</p>
+        <h4>${escapeHtml(person.name)}</h4>
+        <p>${escapeHtml(person.note)}</p>
+      </div>
+    </article>
   `;
 }
 
-function renderExampleCard(person, kind, index) {
-  return `
-    <article class="example-card ${kind}">
-      ${renderAvatarSvg(person, index, kind)}
-      <div>
-        <p class="mini-label">${kind === "famous" ? "Historical" : "Fictional"}</p>
-        <h4>${escapeHtml(person.name)}</h4>
-        <p>${escapeHtml(person.note)}</p>
+function renderCharacterFeature(profile) {
+  const character = profile.characterFeature;
+
+  if (!dom.characterFeature) return;
+
+  if (!character) {
+    dom.characterFeature.hidden = true;
+    dom.characterFeature.innerHTML = "";
+    return;
+  }
+
+  dom.characterFeature.hidden = false;
+  dom.characterFeature.innerHTML = `
+    <article class="character-card">
+      <figure class="character-art">
+        <img
+          src="${escapeHtml(character.image)}"
+          alt="Recognizable image of ${escapeHtml(character.name)}"
+          decoding="async"
+          onerror="this.hidden=true; this.parentElement.classList.add('image-missing');"
+        />
+        <figcaption>
+          <strong>Character image needed</strong>
+          <span>${escapeHtml(character.image)}</span>
+        </figcaption>
+      </figure>
+      <div class="character-copy">
+        <p class="mini-label">Primary Fictional Match</p>
+        <h4>${escapeHtml(character.name)}</h4>
+        <div class="character-meta">
+          <span>From: ${escapeHtml(character.source)}</span>
+          <span>${escapeHtml(character.medium)}</span>
+        </div>
+        <section>
+          <h5>Short Bio</h5>
+          <p>${escapeHtml(character.bio)}</p>
+        </section>
+        <section>
+          <h5>Why This Fits You</h5>
+          <p>${escapeHtml(character.fit)}</p>
+        </section>
       </div>
     </article>
   `;
@@ -3213,11 +3361,11 @@ function renderExampleShowcase(profile) {
         <p class="mini-label">Visual Match Board</p>
         <h4>Two historical echoes and two fictional archetypes</h4>
       </div>
-      <p>These are stylized symbolic matches, not official portraits or endorsements.</p>
+      <p>Image slots use approved recognizable files when available and never imply endorsement.</p>
     </div>
     <div class="example-grid">
-      ${examples.famous.map((person, index) => renderExampleCard(person, "famous", index)).join("")}
-      ${examples.fictional.map((person, index) => renderExampleCard(person, "fictional", index + 2)).join("")}
+      ${examples.famous.map((person) => renderExampleCard(person, "famous")).join("")}
+      ${examples.fictional.map((person) => renderExampleCard(person, "fictional")).join("")}
     </div>
   `;
 }
@@ -3291,6 +3439,7 @@ function unlockResult(mode) {
   dom.resultSummary.textContent = profile.summary;
   dom.resultScore.textContent = mode === "member" ? `${profile.score} | All tests unlocked` : profile.score;
   renderResultVisuals(profile);
+  renderCharacterFeature(profile);
   renderExampleShowcase(profile);
   renderResultStoryPanels(profile);
   renderList(dom.resultStrengths, profile.strengths);

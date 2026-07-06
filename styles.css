@@ -35,6 +35,10 @@ html[data-theme="dark"] {
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -1009,6 +1013,7 @@ details p {
   display: grid;
   grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
   gap: 14px;
+  align-items: start;
   padding: 14px;
 }
 
@@ -1191,8 +1196,111 @@ details p {
 }
 
 .example-showcase,
+.character-feature,
 .result-story-panels {
   margin: 0 0 18px;
+}
+
+.character-card {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.42fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+}
+
+.character-art {
+  position: relative;
+  display: grid;
+  min-height: 280px;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--soft);
+}
+
+.character-art img {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  object-fit: cover;
+}
+
+.character-art figcaption {
+  position: absolute;
+  inset: auto 12px 12px;
+  display: none;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #ffffff;
+  background: rgba(19, 33, 31, 0.78);
+  font-size: 0.82rem;
+}
+
+.character-art figcaption span {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.75rem;
+}
+
+.character-art.image-missing {
+  place-items: center;
+  min-height: 280px;
+  padding: 20px;
+  border: 1px dashed rgba(15, 118, 110, 0.44);
+}
+
+.character-art.image-missing figcaption {
+  position: static;
+  display: grid;
+  color: var(--ink);
+  background: transparent;
+  text-align: center;
+}
+
+.character-art.image-missing figcaption span {
+  color: var(--muted);
+}
+
+.character-copy {
+  display: grid;
+  align-content: center;
+  gap: 14px;
+}
+
+.character-copy h4 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.65rem);
+  line-height: 1;
+}
+
+.character-copy h5 {
+  margin: 0 0 7px;
+  font-size: 0.95rem;
+}
+
+.character-copy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.58;
+}
+
+.character-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.character-meta span {
+  padding: 7px 9px;
+  border-radius: 8px;
+  color: var(--teal-deep);
+  background: var(--soft);
+  font-size: 0.82rem;
+  font-weight: 850;
 }
 
 .showcase-heading {
@@ -1235,7 +1343,7 @@ details p {
 
 .example-card {
   display: grid;
-  grid-template-columns: 104px minmax(0, 1fr);
+  grid-template-columns: 112px minmax(0, 1fr);
   align-items: center;
   gap: 12px;
   min-height: 140px;
@@ -1251,9 +1359,49 @@ details p {
   border-color: rgba(109, 91, 208, 0.38);
 }
 
-.portrait-svg {
-  width: 104px;
-  height: 104px;
+.example-media {
+  display: grid;
+  width: 112px;
+  height: 112px;
+  margin: 0;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--soft);
+}
+
+.example-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.example-media figcaption {
+  display: none;
+}
+
+.example-media.image-missing {
+  padding: 10px;
+  border: 1px dashed rgba(15, 118, 110, 0.38);
+  text-align: center;
+}
+
+.example-media.image-missing figcaption {
+  display: grid;
+  gap: 4px;
+}
+
+.example-media figcaption strong {
+  color: var(--ink);
+  font-size: 0.72rem;
+  line-height: 1.12;
+}
+
+.example-media figcaption span {
+  color: var(--muted);
+  font-size: 0.64rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .example-card h4 {
@@ -1705,11 +1853,15 @@ html[data-theme="dark"] .login-popover {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .example-card {
-    grid-template-columns: 92px minmax(0, 1fr);
+  .character-card {
+    grid-template-columns: minmax(220px, 0.5fr) minmax(0, 1fr);
   }
 
-  .portrait-svg {
+  .example-card {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+
+  .example-media {
     width: 92px;
     height: 92px;
   }
@@ -1780,10 +1932,16 @@ html[data-theme="dark"] .login-popover {
   .review-grid,
   .report-columns,
   .result-visuals,
+  .character-card,
   .example-grid,
   .result-story-panels,
   .result-grid {
     grid-template-columns: 1fr;
+  }
+
+  .character-art,
+  .character-art img {
+    min-height: 240px;
   }
 
   .showcase-heading {
@@ -1799,7 +1957,7 @@ html[data-theme="dark"] .login-popover {
     grid-template-columns: 1fr;
   }
 
-  .portrait-svg {
+  .example-media {
     width: 82px;
     height: 82px;
   }
