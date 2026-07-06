@@ -1430,6 +1430,10 @@ details p {
   padding: 18px;
 }
 
+.story-copy {
+  min-width: 0;
+}
+
 .result-story-panels h4 {
   margin: 0 0 8px;
   font-size: 1rem;

@@ -3394,18 +3394,24 @@ function renderResultStoryPanels(profile) {
   dom.resultStoryPanels.innerHTML = `
     <article>
       ${renderSpotIllustration("map")}
-      <h4>What This Looks Like</h4>
-      <p>${escapeHtml(firstSentence(profile.summary))} Day to day, ${escapeHtml(profile.situations)}</p>
+      <div class="story-copy">
+        <h4>What This Looks Like</h4>
+        <p>${escapeHtml(firstSentence(profile.summary))} Day to day, ${escapeHtml(profile.situations)}</p>
+      </div>
     </article>
     <article>
       ${renderSpotIllustration("spark")}
-      <h4>Growth Edge</h4>
-      <p>Your strongest advantage is ${escapeHtml(topStrength.toLowerCase())}. The thing to watch is ${escapeHtml(firstWatchout.toLowerCase())}, especially when stress makes the pattern louder than usual.</p>
+      <div class="story-copy">
+        <h4>Growth Edge</h4>
+        <p>Your strongest advantage is ${escapeHtml(topStrength.toLowerCase())}. The thing to watch is ${escapeHtml(firstWatchout.toLowerCase())}, especially when stress makes the pattern louder than usual.</p>
+      </div>
     </article>
     <article>
       ${renderSpotIllustration("bridge")}
-      <h4>With Other People</h4>
-      <p>${escapeHtml(profile.relationships)} The best use of this result is not to box you in, but to help others understand how to meet you well.</p>
+      <div class="story-copy">
+        <h4>With Other People</h4>
+        <p>${escapeHtml(profile.relationships)} The best use of this result is not to box you in, but to help others understand how to meet you well.</p>
+      </div>
     </article>
   `;
 }
