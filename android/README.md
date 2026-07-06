@@ -29,6 +29,21 @@ This folder is an Android Studio wrapper for the hosted PsycheIQ web app.
 7. Create or select a release signing key.
 8. Upload the generated `.aab` to Google Play Console.
 
+## Command-Line Build
+
+After Android Studio has installed the SDK, this project can also build from the `android` folder:
+
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Android\Android Studio1\jbr"
+.\gradlew.bat :app:assembleDebug
+.\gradlew.bat :app:bundleRelease
+```
+
+Useful outputs:
+
+- Debug APK: `app/build/outputs/apk/debug/app-debug.apk`
+- Release app bundle: `app/build/outputs/bundle/release/app-release.aab`
+
 ## Important Play Store Note
 
 The current website has paid result unlocks and a monthly membership concept. For Google Play distribution, digital in-app features and subscriptions generally need to use Google Play Billing. Add Play Billing before publishing real paid unlocks in the Play Store.
