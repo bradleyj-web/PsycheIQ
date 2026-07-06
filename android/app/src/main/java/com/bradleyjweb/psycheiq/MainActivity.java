@@ -1,6 +1,7 @@
 package com.bradleyjweb.psycheiq;
 
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.app.Activity;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -94,7 +95,11 @@ public class MainActivity extends Activity {
                 return false;
             }
 
-            view.getContext().startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, uri));
+            try {
+                view.getContext().startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, uri));
+            } catch (ActivityNotFoundException error) {
+                return true;
+            }
             return true;
         }
     }

@@ -6,20 +6,28 @@ This folder is an Android Studio wrapper for the hosted PsycheIQ web app.
 
 - Opens `https://bradleyj-web.github.io/PsycheIQ/` in a native Android WebView.
 - Uses package ID `com.bradleyjweb.psycheiq`.
-- Targets Android API 35 for Google Play compatibility.
+- Uses the Android SDK installed by Android Studio on this computer.
 - Is structured so Android Studio can generate an Android App Bundle (`.aab`).
+- Keeps permissions limited to internet/network status. No camera, mic, or location permissions are requested.
+
+## Open In Android Studio
+
+1. Open Android Studio.
+2. Choose `Open`.
+3. Select this folder: `C:\Users\plzdo\OneDrive\Documents\Testing Apps\android`.
+4. Let Android Studio sync Gradle and download anything it requests.
+5. If Android Studio asks for an SDK location, use `C:\Users\plzdo\AppData\Local\Android\Sdk`.
 
 ## Build For Google Play
 
-1. Install Android Studio.
-2. Open this `android` folder as a project.
-3. Let Android Studio install/download the Android Gradle plugin and SDK files.
-4. Open `app/src/main/java/com/bradleyjweb/psycheiq/MainActivity.java`.
-5. Confirm `WEB_APP_URL` points to the final live website.
-6. In Android Studio, use `Build` -> `Generate Signed App Bundle / APK`.
-7. Choose `Android App Bundle`.
-8. Create or select a release signing key.
-9. Upload the generated `.aab` to Google Play Console.
+1. Open this `android` folder as a project.
+2. Let Android Studio install/download the Android Gradle plugin and SDK files.
+3. Open `app/src/main/java/com/bradleyjweb/psycheiq/MainActivity.java`.
+4. Confirm `WEB_APP_URL` points to the final live website.
+5. In Android Studio, use `Build` -> `Generate Signed App Bundle / APK`.
+6. Choose `Android App Bundle`.
+7. Create or select a release signing key.
+8. Upload the generated `.aab` to Google Play Console.
 
 ## Important Play Store Note
 
