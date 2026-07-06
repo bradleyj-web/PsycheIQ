@@ -621,8 +621,8 @@ const tests = [
     tone: "coral",
     symbol: "AR",
     status: "Live",
-    time: "6 min",
-    items: "24 prompts",
+    time: "12 min",
+    items: "42 questions",
     price: "$1 report",
     description:
       "A mythic but practical profile of the inner pattern that drives your decisions, relationships, and stress response.",
@@ -1032,17 +1032,17 @@ const tests = [
     },
   },
   {
-    id: "thrones",
-    title: "Game of Thrones Character Match",
+    id: "fantasy-seed",
+    title: "Fantasy/Sci-Fi Character Match",
     category: "Pop Culture",
     tone: "coral",
     symbol: "GT",
     status: "Live",
-    time: "5 min",
-    items: "18 prompts",
+    time: "12 min",
+    items: "42 questions",
     price: "$1 report",
     description:
-      "A fan-style character lens for how you handle loyalty, power, strategy, and survival when the room gets dramatic.",
+      "A broad character lens for how you handle loyalty, power, strategy, and survival in fantasy and sci-fi worlds.",
     questions: [
       {
         kicker: "Power",
@@ -1317,7 +1317,7 @@ const tests = [
     symbol: "AT",
     status: "Coming Soon",
     time: "8 min",
-    items: "32 prompts",
+    items: "42 planned",
     price: "Member library",
     description:
       "A relationship-focused test for closeness, conflict, reassurance, independence, and emotional repair.",
@@ -1332,7 +1332,7 @@ const tests = [
     symbol: "CD",
     status: "Coming Soon",
     time: "9 min",
-    items: "36 prompts",
+    items: "42 planned",
     price: "Member library",
     description:
       "A practical profile for what motivates your best work: mastery, status, autonomy, mission, security, or creativity.",
@@ -1599,6 +1599,800 @@ const visualExampleLibrary = {
   },
 };
 
+const archetypeChoiceCopy = {
+  sage: {
+    labels: ["Find the pattern", "Ask the sharper question", "Study the signal", "Clarify what matters"],
+    details: [
+      "You calm the room by making it understandable.",
+      "Truth feels more useful than speed.",
+      "You prefer meaning over noise.",
+      "A clear model helps everyone choose.",
+    ],
+  },
+  catalyst: {
+    labels: ["Create movement", "Name the bold next step", "Turn energy into action", "Start the spark"],
+    details: [
+      "You wake people up when the moment has gone stale.",
+      "Momentum feels like medicine.",
+      "You would rather try than circle forever.",
+      "A strong signal is better than a perfect plan.",
+    ],
+  },
+  guardian: {
+    labels: ["Protect the bond", "Steady the people", "Make it safe enough", "Hold the center"],
+    details: [
+      "Trust matters more than looking impressive.",
+      "You notice who is carrying too much.",
+      "People do better when they feel held.",
+      "Care is a form of leadership.",
+    ],
+  },
+  explorer: {
+    labels: ["Look for the open door", "Choose the unknown", "Follow the wider map", "Find another route"],
+    details: [
+      "You sense when life has gotten too small.",
+      "Possibility returns when the frame changes.",
+      "Freedom helps you think clearly.",
+      "A new angle can change the whole story.",
+    ],
+  },
+};
+
+const archetypePrompts = [
+  ["Decision pressure", "When a decision feels emotionally loaded, you usually trust..."],
+  ["Group role", "In a team that has lost direction, people most need you to..."],
+  ["Stress signal", "Your stress becomes obvious when you start..."],
+  ["Best compliment", "The praise that feels most accurate is..."],
+  ["Friendship", "A friend in trouble usually gets this from you first..."],
+  ["Leadership", "Your leadership style works best when you can..."],
+  ["Learning", "You learn something new fastest when you can..."],
+  ["Conflict repair", "After a disagreement, your repair instinct is to..."],
+  ["Energy", "You feel drained when life has too much..."],
+  ["Growth edge", "The growth move that would stretch you most is..."],
+  ["Creativity", "Your creative process starts with..."],
+  ["Trust", "You begin trusting someone when they show..."],
+  ["Change", "When everything changes at once, you first look for..."],
+  ["Boundaries", "Your boundary style is most often..."],
+  ["Motivation", "The inner reward you chase without meaning to is..."],
+  ["Work style", "Your best workday gives you enough room to..."],
+  ["Shadow", "Your pattern can hurt you when it becomes..."],
+  ["Courage", "The brave thing you do most naturally is..."],
+  ["Planning", "A good plan should mostly provide..."],
+  ["Belonging", "You feel most yourself with people who value..."],
+  ["Crisis", "In a crisis, your attention goes first to..."],
+  ["Communication", "People understand you best when you..."],
+  ["Purpose", "A meaningful life should include..."],
+  ["Romance", "In romance, you are most likely to offer..."],
+  ["Parenting", "A child would probably remember you teaching them..."],
+  ["Feedback", "Feedback lands best when it includes..."],
+  ["Risk", "The risk you are most willing to take is..."],
+  ["Success", "Success feels hollow unless it also has..."],
+  ["Habits", "Your habits stick when they support..."],
+  ["Attention", "You automatically notice..."],
+  ["Problem solving", "A hard problem becomes easier when you..."],
+  ["Values", "You would rather be known as someone who..."],
+  ["Recovery", "When you are depleted, you recover by..."],
+  ["Influence", "You change people by..."],
+  ["Mistake pattern", "Your most common mistake is..."],
+  ["Inner compass", "Your inner compass points toward..."],
+  ["Future self", "The future version of you wants more..."],
+];
+
+const scifiChoiceCopy = {
+  engineer: {
+    labels: ["Fix the system", "Trace the failure", "Keep the machine alive", "Make the world work"],
+    details: ["Infrastructure tells the truth.", "You solve through practical competence.", "Function matters before speeches.", "The hidden mechanism is usually the clue."],
+  },
+  archivist: {
+    labels: ["Protect the record", "Find the missing file", "Remember the pattern", "Recover the old truth"],
+    details: ["History keeps receipts.", "You notice what got edited out.", "Memory can become resistance.", "A buried detail can save everyone."],
+  },
+  sentinel: {
+    labels: ["Hold the line", "Protect the group", "Read the danger", "Stabilize the room"],
+    details: ["People need steadiness under pressure.", "Safety is practical, not abstract.", "You watch the emotional perimeter.", "Order can keep panic from spreading."],
+  },
+  outlier: {
+    labels: ["Question the walls", "Follow the forbidden clue", "Break the frame", "Step outside the script"],
+    details: ["The rule against looking is the clue.", "You want truth, not just survival.", "False limits bother you.", "A door matters more once someone calls it impossible."],
+  },
+};
+
+const scifiPrompts = [
+  ["First move", "When the official story starts cracking, you first..."],
+  ["Hidden talent", "People in a sealed society would underestimate your..."],
+  ["Risk", "The risk that feels worth taking is for..."],
+  ["Trust", "You trust someone more when they..."],
+  ["Pressure", "Under pressure, your mind moves toward..."],
+  ["Authority", "An authority figure loses you when they..."],
+  ["Mystery", "A mystery pulls you in hardest when it involves..."],
+  ["Leadership", "People follow you because you provide..."],
+  ["Weakness", "Your survival flaw would be..."],
+  ["Alliance", "The ally you need most is someone who..."],
+  ["Truth", "Truth becomes dangerous when it..."],
+  ["Escape", "An escape plan should begin with..."],
+  ["Memory", "The past matters because it..."],
+  ["Repair", "A broken world is repaired by..."],
+  ["Morality", "Your moral line is crossed when people..."],
+  ["Discovery", "A discovery is useful only if it..."],
+  ["Community", "A community survives when someone..."],
+  ["Rebellion", "A rebellion becomes justified when..."],
+  ["Sacrifice", "You would sacrifice comfort to preserve..."],
+  ["Fear", "Fear is easiest to manage when you can..."],
+  ["Skill", "Your most valuable skill in a crisis is..."],
+  ["Evidence", "The evidence you trust most is..."],
+  ["Power", "Power should be used to..."],
+  ["Unknown", "The unknown feels less frightening when..."],
+  ["Ending", "The ending you want most is..."],
+  ["Failure", "The mistake you would regret most is..."],
+  ["Signal", "The signal you never ignore is..."],
+  ["Order", "Rules are worth keeping when they..."],
+  ["Hope", "Hope returns when someone..."],
+  ["Legacy", "You would want to be remembered as the one who..."],
+  ["Tension", "In a tense room, you usually..."],
+  ["Secrets", "Secrets become unbearable when they..."],
+  ["Work", "Your best contribution is usually..."],
+  ["Warning", "Your warning to the group would be..."],
+  ["Future", "A better future begins when people..."],
+  ["Courage", "Your courage looks like..."],
+  ["Home", "Home is worth protecting because it..."],
+];
+
+const mbtiDimensions = [
+  { left: "E", right: "I", leftLabel: "Extraversion", rightLabel: "Introversion" },
+  { left: "S", right: "N", leftLabel: "Sensing", rightLabel: "Intuition" },
+  { left: "T", right: "F", leftLabel: "Thinking", rightLabel: "Feeling" },
+  { left: "J", right: "P", leftLabel: "Judging", rightLabel: "Perceiving" },
+];
+
+const mbtiDimensionCopy = {
+  E: {
+    name: "outward energy",
+    strength: "social momentum",
+    watchout: "overextending before you reset",
+    relationship: "talking things through in real time",
+  },
+  I: {
+    name: "inner focus",
+    strength: "reflective depth",
+    watchout: "withdrawing before people understand you",
+    relationship: "private processing before response",
+  },
+  S: {
+    name: "practical detail",
+    strength: "grounded observation",
+    watchout: "missing a wider possibility",
+    relationship: "noticing what people actually need",
+  },
+  N: {
+    name: "pattern imagination",
+    strength: "future-oriented insight",
+    watchout: "skipping over concrete details",
+    relationship: "connecting events into meaning",
+  },
+  T: {
+    name: "analytical decision-making",
+    strength: "clear logic",
+    watchout: "sounding colder than you feel",
+    relationship: "solving problems directly",
+  },
+  F: {
+    name: "values-based decision-making",
+    strength: "relational sensitivity",
+    watchout: "absorbing too much emotional weight",
+    relationship: "protecting harmony and meaning",
+  },
+  J: {
+    name: "structured planning",
+    strength: "follow-through",
+    watchout: "tightening control too quickly",
+    relationship: "making commitments feel dependable",
+  },
+  P: {
+    name: "adaptive openness",
+    strength: "flexibility",
+    watchout: "leaving too much unresolved",
+    relationship: "keeping space for change and discovery",
+  },
+};
+
+const mbtiTypeNames = {
+  ISTJ: "Responsible Realist",
+  ISFJ: "Steady Protector",
+  INFJ: "Insightful Advocate",
+  INTJ: "Quiet Strategist",
+  ISTP: "Tactical Problem Solver",
+  ISFP: "Gentle Individualist",
+  INFP: "Idealist Story-Seeker",
+  INTP: "Analytical Architect",
+  ESTP: "Bold Improviser",
+  ESFP: "Social Spark",
+  ENFP: "People Catalyst",
+  ENTP: "Inventive Debater",
+  ESTJ: "Practical Organizer",
+  ESFJ: "Community Caretaker",
+  ENFJ: "Charismatic Guide",
+  ENTJ: "Decisive Director",
+};
+
+const mbtiExamples = {
+  ISTJ: [["George Washington", "duty and discipline"], ["Angela Merkel", "steady pragmatism"], ["Spock", "precise responsibility"], ["Hermione Granger", "prepared competence"]],
+  ISFJ: [["Florence Nightingale", "practical care"], ["Rosa Parks", "quiet resolve"], ["Samwise Gamgee", "loyal protection"], ["Molly Weasley", "fierce home energy"]],
+  INFJ: [["Martin Luther King Jr.", "vision with conscience"], ["Carl Jung", "symbolic insight"], ["Obi-Wan Kenobi", "principled guidance"], ["Galadriel", "deep seeing"]],
+  INTJ: [["Isaac Newton", "private systems thinking"], ["Nikola Tesla", "future-facing design"], ["Bruce Wayne", "long-range planning"], ["Beth Harmon", "silent calculation"]],
+  ISTP: [["Amelia Earhart", "calm risk"], ["Hedy Lamarr", "inventive mechanics"], ["Ellen Ripley", "practical survival"], ["Han Solo", "hands-on nerve"]],
+  ISFP: [["Frida Kahlo", "personal expression"], ["Bob Ross", "gentle creativity"], ["Zuko", "inner honor"], ["Luna Lovegood", "soft originality"]],
+  INFP: [["Maya Angelou", "inner truth"], ["J.R.R. Tolkien", "mythic imagination"], ["Frodo Baggins", "quiet moral quest"], ["Wanda Maximoff", "feeling and longing"]],
+  INTP: [["Albert Einstein", "conceptual play"], ["Charles Darwin", "patient theory"], ["Data", "curious analysis"], ["Neo", "questioning reality"]],
+  ESTP: [["Theodore Roosevelt", "action under pressure"], ["Serena Williams", "competitive presence"], ["Tony Stark", "fast tactical brilliance"], ["Maverick", "bold improvisation"]],
+  ESFP: [["Dolly Parton", "warm showmanship"], ["Josephine Baker", "radiant adaptability"], ["Aang", "playful presence"], ["Poe Dameron", "high-energy charm"]],
+  ENFP: [["Oscar Wilde", "sparkling originality"], ["Walt Whitman", "expansive humanity"], ["Leslie Knope", "enthusiastic connection"], ["Aang", "playful possibility"]],
+  ENTP: [["Benjamin Franklin", "inventive argument"], ["Richard Feynman", "curious challenge"], ["Loki", "restless cleverness"], ["The Doctor", "chaotic invention"]],
+  ESTJ: [["Margaret Thatcher", "decisive order"], ["Vince Lombardi", "clear standards"], ["Princess Leia", "mission leadership"], ["Okoye", "disciplined command"]],
+  ESFJ: [["Fred Rogers", "community warmth"], ["Dolly Parton", "generous connection"], ["Molly Weasley", "protective belonging"], ["Peeta Mellark", "relational steadiness"]],
+  ENFJ: [["Barack Obama", "inspiring communication"], ["Oprah Winfrey", "human-centered influence"], ["Jean-Luc Picard", "ethical leadership"], ["Moana", "calling others forward"]],
+  ENTJ: [["Cleopatra", "commanding strategy"], ["Napoleon Bonaparte", "decisive campaigns"], ["Princess Leia", "mission leadership"], ["Miranda Priestly", "executive force"]],
+};
+
+const mbtiQuestionGroups = [
+  ["E", "I", [
+    ["Energy", "After a demanding week, what restores you fastest?", "A lively plan with people", "Conversation helps you come back online.", "Quiet time with your own thoughts", "Solitude lets your system reset."],
+    ["Attention", "In a new room, you usually notice first...", "The social energy", "You read who is open, tense, or interesting.", "The inner impression", "You take in the atmosphere before joining it."],
+    ["Processing", "When a problem is confusing, you prefer to...", "Talk it out", "Speaking helps the thought become real.", "Think it through privately", "You want a cleaner answer before sharing."],
+    ["Momentum", "A big idea becomes exciting when...", "Other people start reacting", "Shared energy gives it lift.", "You can explore it alone", "Private focus helps it deepen."],
+    ["Stress", "When overwhelmed, your less helpful move is...", "Over-talking the problem", "You may process faster than others can follow.", "Disappearing too long", "People may not know where you went emotionally."],
+    ["Friendship", "You usually maintain closeness through...", "Frequent contact", "Little moments keep the bond warm.", "Meaningful check-ins", "Depth matters more than frequency."],
+    ["Work", "Your ideal work rhythm includes...", "Collaborative bursts", "You like energy moving around the work.", "Protected focus blocks", "You need space where concentration can land."],
+    ["Celebration", "After a win, you most want to...", "Share it out loud", "The joy gets bigger with people.", "Savor it quietly", "You want to absorb what it means."],
+    ["Learning", "A class or course works best when it has...", "Discussion and exchange", "You learn through response.", "Reading and reflection", "You learn through internal structure."],
+    ["Leadership", "People experience your presence as...", "Accessible and energizing", "You make contact quickly.", "Composed and thoughtful", "You reveal yourself selectively."],
+    ["Change", "When life changes suddenly, you first seek...", "People to orient with", "A shared read helps you adapt.", "Time to re-center", "You need your own sense of the shift."],
+  ]],
+  ["S", "N", [
+    ["Information", "You trust a conclusion more when it comes from...", "Concrete evidence", "You want facts that can be checked.", "A clear pattern", "You trust the shape behind the facts."],
+    ["Planning", "A useful plan should include...", "Specific next steps", "Reality improves when details are named.", "A strong direction", "The concept matters before the checklist."],
+    ["Memory", "You tend to remember...", "What actually happened", "Details, sequence, and practical facts stick.", "What it meant", "Themes and implications stay with you."],
+    ["Ideas", "You get more excited by...", "A proven method", "You like what works in real life.", "A new possibility", "You like what opens the future."],
+    ["Conversation", "You get impatient when people...", "Stay too abstract", "You want examples and application.", "Get stuck in details", "You want the bigger point."],
+    ["Problem solving", "When solving, you first ask...", "What do we know?", "Known facts are the anchor.", "What could this become?", "Possibility is the doorway."],
+    ["Creativity", "Your creativity often begins with...", "Materials and constraints", "You build from what is present.", "Images and associations", "You follow the invisible thread."],
+    ["Advice", "The best advice gives you...", "Practical steps", "You want something usable today.", "A reframed perspective", "You want the whole picture to shift."],
+    ["Learning style", "You prefer examples that are...", "Realistic", "Concrete cases make ideas usable.", "Symbolic", "Metaphors make ideas memorable."],
+    ["Risk", "Before a risk, you check...", "The facts on the ground", "Evidence helps you move wisely.", "The future pattern", "You test where the story is headed."],
+  ]],
+  ["T", "F", [
+    ["Decision", "When a choice matters, you first weigh...", "Logic and consistency", "A decision should hold up under scrutiny.", "People and values", "A decision should honor the human impact."],
+    ["Conflict", "In conflict, you usually want to...", "Clarify what is fair", "Accuracy calms the room.", "Repair what feels hurt", "Connection calms the room."],
+    ["Feedback", "Feedback is easiest to trust when it is...", "Direct and specific", "You can use what is clearly stated.", "Respectful and contextual", "You need the personhood kept intact."],
+    ["Leadership", "A leader earns you by being...", "Competent", "Sound judgment builds trust.", "Caring", "Emotional responsibility builds trust."],
+    ["Stress", "Under stress, you may become too...", "Blunt", "Truth can come out without enough cushion.", "Accommodating", "Care can crowd out your real view."],
+    ["Apology", "A good apology should include...", "Accountability", "You need the logic of repair.", "Sincere empathy", "You need the heart of repair."],
+    ["Teamwork", "On a team, you naturally protect...", "Standards", "The work needs to make sense.", "Morale", "The people need to stay intact."],
+    ["Values", "You respect someone who can...", "Make a hard call", "Clarity under pressure matters.", "Stay kind under pressure", "Humanity under pressure matters."],
+    ["Debate", "In a debate, you focus on...", "The strongest argument", "Bad logic distracts you.", "The real concern underneath", "Unspoken feelings distract you."],
+    ["Boundaries", "You set a boundary by...", "Naming the rule", "The line should be clear.", "Naming the impact", "The line should preserve dignity."],
+    ["Trust", "You trust your own answer when it feels...", "Consistent", "It matches the principle.", "Aligned", "It matches the values at stake."],
+  ]],
+  ["J", "P", [
+    ["Structure", "Your ideal weekend has...", "A loose plan", "You relax when the shape is known.", "Open space", "You relax when options stay alive."],
+    ["Deadlines", "You prefer to finish...", "Early", "Closure gives you peace.", "Near the deadline", "Pressure helps the final shape emerge."],
+    ["Change", "A sudden change feels better when...", "There is a revised plan", "You want the new structure quickly.", "You can improvise", "You want room to respond naturally."],
+    ["Workspace", "Your workspace works best when it is...", "Organized", "Order reduces friction.", "Flexible", "Visible options keep you engaged."],
+    ["Projects", "You feel proudest when you...", "Complete the plan", "Execution is satisfying.", "Discover a better path", "Adaptation is satisfying."],
+    ["Commitment", "Making a commitment usually feels like...", "Relief", "A decision frees your attention.", "Limitation", "You notice what options close."],
+    ["Travel", "A good trip needs...", "Reservations and timing", "You want the basics handled.", "Room for wandering", "You want discovery built in."],
+    ["Stress", "Under stress, you may become...", "Over-controlling", "You tighten the plan to feel safe.", "Avoidant", "You keep options open too long."],
+    ["Focus", "You concentrate best with...", "Clear priorities", "You need a defined target.", "Flexible entry points", "You need freedom to follow energy."],
+    ["Success", "Success feels like...", "Closure", "The loop is complete.", "Possibility", "The next door has opened."],
+  ]],
+];
+
+const enneagramTypeKeys = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+
+const enneagramOptionCopy = {
+  one: ["Do it right", "Improve what is flawed", "Hold the standard"],
+  two: ["Help the people", "Be needed with warmth", "Notice the unmet need"],
+  three: ["Make it successful", "Earn visible progress", "Adapt and perform well"],
+  four: ["Make it authentic", "Find the emotional truth", "Protect what is unique"],
+  five: ["Understand it deeply", "Preserve energy and insight", "Step back to analyze"],
+  six: ["Make it secure", "Prepare for what could go wrong", "Test trust carefully"],
+  seven: ["Keep possibility alive", "Find the bright option", "Move toward freedom"],
+  eight: ["Protect your power", "Confront what is unfair", "Take control directly"],
+  nine: ["Keep the peace", "Make room for everyone", "Lower the tension"],
+};
+
+const enneagramProfiles = {
+  one: {
+    title: "Type One: The Reformer",
+    score: "Core drive: integrity through improvement",
+    summary: "You are principled, responsible, and sensitive to what could be better. Your growth is learning that goodness does not require constant self-correction.",
+    strengths: ["Integrity", "Discernment", "Reliable standards"],
+    weaknesses: ["Inner criticism", "Rigidity", "Difficulty relaxing into enough"],
+    situations: "You shine where quality, ethics, and follow-through matter more than shortcuts.",
+    relationships: "You love by improving life and keeping promises. Loved ones may need reassurance that they are not a project.",
+    parenting: "You may model responsibility and character. The edge is letting mistakes become learning instead of moral failure.",
+    examples: "Famous echoes: Eleanor Roosevelt, Nelson Mandela. Fictional echoes: Steve Rogers, Hermione Granger.",
+    member: "Monthly access would add wings, stress paths, growth practices, and cross-test comparisons.",
+  },
+  two: {
+    title: "Type Two: The Helper",
+    score: "Core drive: love through being needed",
+    summary: "You are warm, responsive, and tuned to the needs around you. Your growth is receiving care without having to earn it first.",
+    strengths: ["Empathy", "Generosity", "Relational attention"],
+    weaknesses: ["Over-giving", "Hidden resentment", "Difficulty asking directly"],
+    situations: "You are powerful when people need encouragement, repair, and practical emotional support.",
+    relationships: "You love actively and personally. Intimacy deepens when you let your own needs be visible too.",
+    parenting: "You may create a deeply caring home. The edge is not making love depend on being indispensable.",
+    examples: "Famous echoes: Dolly Parton, Fred Rogers. Fictional echoes: Samwise Gamgee, Peeta Mellark.",
+    member: "Monthly access would add boundary prompts, wing notes, and comparison with attachment results.",
+  },
+  three: {
+    title: "Type Three: The Achiever",
+    score: "Core drive: value through accomplishment",
+    summary: "You are adaptive, ambitious, and tuned to what excellence looks like in a given room. Your work is remembering you are more than your output.",
+    strengths: ["Drive", "Presentation", "Goal focus"],
+    weaknesses: ["Image management", "Burnout risk", "Avoiding vulnerability"],
+    situations: "You become highly effective when success is visible, the stakes are clear, and the path rewards polish and momentum.",
+    relationships: "You bring pride and energy to people you love. Intimacy deepens when you let them see the unfinished parts too.",
+    parenting: "You may model ambition and confidence. The edge is praising effort, honesty, and rest as much as achievement.",
+    examples: "Famous echoes: Muhammad Ali, Madonna. Fictional echoes: Jay Gatsby, Rachel Berry.",
+    member: "Monthly access would unlock wings, stress paths, growth prompts, and comparisons with your archetype and MBTI-style results.",
+  },
+  four: {
+    title: "Type Four: The Individualist",
+    score: "Core drive: identity through depth and authenticity",
+    summary: "You are emotionally nuanced and drawn to what feels real. Your work is learning that ordinary life can hold your uniqueness too.",
+    strengths: ["Depth", "Aesthetic sensitivity", "Emotional honesty"],
+    weaknesses: ["Comparison", "Mood identification", "Longing for elsewhere"],
+    situations: "You bring meaning to places that have become too flat, performative, or emotionally dishonest.",
+    relationships: "You crave being truly known and offer the same depth in return. Loved ones may need steadiness alongside intensity.",
+    parenting: "You may validate a child's inner life beautifully. The edge is not making every feeling the center of the room.",
+    examples: "Famous echoes: Frida Kahlo, Prince. Fictional echoes: Jo March, Fleabag.",
+    member: "Monthly access would add emotional regulation prompts, creativity notes, and full-library result comparisons.",
+  },
+  five: {
+    title: "Type Five: The Investigator",
+    score: "Core drive: competence through understanding",
+    summary: "You are observant, private, and drawn to mastery. Your growth is letting life be lived as well as understood.",
+    strengths: ["Insight", "Focus", "Independent thinking"],
+    weaknesses: ["Detachment", "Withholding", "Energy conservation that becomes isolation"],
+    situations: "You are invaluable where complexity needs patient analysis and emotional noise needs a calmer model.",
+    relationships: "You love through attention, loyalty, and carefully shared inner space. People may need clearer signals of warmth.",
+    parenting: "You may raise curious independent thinkers. The edge is staying emotionally available, not only intellectually useful.",
+    examples: "Famous echoes: Albert Einstein, Jane Goodall. Fictional echoes: Sherlock Holmes, Spock.",
+    member: "Monthly access would add energy budgeting, vulnerability prompts, and type comparisons.",
+  },
+  six: {
+    title: "Type Six: The Loyalist",
+    score: "Core drive: safety through trust and preparation",
+    summary: "You are alert, loyal, and thoughtful about risk. Your gift is seeing what others miss; your work is not letting fear become the boss.",
+    strengths: ["Loyalty", "Preparedness", "Skeptical intelligence"],
+    weaknesses: ["Anxiety loops", "Testing trust", "Catastrophizing"],
+    situations: "You are crucial when decisions need risk checks, contingency plans, and honest questions before commitment.",
+    relationships: "You love with devotion and vigilance. People may need to know when you want reassurance versus when you want problem-solving.",
+    parenting: "You may create safety and preparedness. The edge is letting kids experience uncertainty without inheriting your alarm system.",
+    examples: "Famous echoes: Malcolm X, Mark Ruffalo. Fictional echoes: Ron Weasley, Marlin.",
+    member: "Monthly access would add security patterns, trust exercises, and cross-test comparisons for stress and attachment.",
+  },
+  seven: {
+    title: "Type Seven: The Enthusiast",
+    score: "Core drive: freedom through possibility",
+    summary: "You are quick, imaginative, and oriented toward options. Your growth is staying present when discomfort cannot be outrun.",
+    strengths: ["Optimism", "Idea generation", "Resilience"],
+    weaknesses: ["Avoiding pain", "Scattered follow-through", "Restlessness"],
+    situations: "You bring life to stuck rooms, especially when people need hope, humor, and a bigger menu of choices.",
+    relationships: "You love with playfulness and energy. Depth grows when you stay available for hard feelings too.",
+    parenting: "You may create adventure and openness. The edge is teaching emotional steadiness alongside possibility.",
+    examples: "Famous echoes: Richard Branson, Robin Williams. Fictional echoes: Aang, The Doctor.",
+    member: "Monthly access would add focus tools, stress paths, and freedom-versus-avoidance prompts.",
+  },
+  eight: {
+    title: "Type Eight: The Challenger",
+    score: "Core drive: protection through strength",
+    summary: "You are direct, intense, and allergic to being controlled. Your growth is letting softness exist without feeling like surrender.",
+    strengths: ["Courage", "Protection", "Decisive action"],
+    weaknesses: ["Over-control", "Intimidating honesty", "Difficulty showing vulnerability"],
+    situations: "You are strongest when someone needs to confront reality, defend the vulnerable, or make the hard call.",
+    relationships: "You love fiercely and expect honesty. Intimacy deepens when tenderness gets as much room as truth.",
+    parenting: "You may raise strong, self-respecting children. The edge is making safety feel gentle, not only powerful.",
+    examples: "Famous echoes: Winston Churchill, Serena Williams. Fictional echoes: Leia Organa, Furiosa.",
+    member: "Monthly access would add anger patterns, vulnerability practices, and leadership comparisons.",
+  },
+  nine: {
+    title: "Type Nine: The Peacemaker",
+    score: "Core drive: harmony through ease and belonging",
+    summary: "You have a calming presence and a gift for seeing many sides. Your growth is letting your own desire become as real as everyone else's.",
+    strengths: ["Patience", "Mediation", "Grounded empathy"],
+    weaknesses: ["Avoidance", "Self-forgetting", "Slow decisions"],
+    situations: "You help groups settle, listen, and move without unnecessary damage. Your voice matters most when you risk using it.",
+    relationships: "You offer warmth and acceptance. Connection grows when you share wants before they become quiet resistance.",
+    parenting: "You may create a peaceful, accepting home. The edge is modeling healthy disagreement and self-advocacy.",
+    examples: "Famous echoes: Abraham Lincoln, Audrey Hepburn. Fictional echoes: Chidi Anagonye, Uncle Iroh.",
+    member: "Monthly access would add conflict practice, energy patterns, and comparison views with relationship and archetype tests.",
+  },
+};
+
+const enneagramContexts = [
+  "When life feels demanding, which response feels most familiar?",
+  "Which compliment would quietly mean the most to you?",
+  "When you are insecure, what do you tend to reach for?",
+  "What kind of problem pulls your attention first?",
+  "Which criticism would sting the most because it feels close?",
+  "When someone depends on you, what role do you slide into?",
+  "What do you most want to avoid feeling?",
+  "Which version of growth sounds hardest but healthiest?",
+  "In a tense conversation, what do you try to restore?",
+  "What makes you feel useful in a group?",
+  "When plans change, what do you check first?",
+  "What do people sometimes misunderstand about you?",
+  "Which hidden fear feels most familiar?",
+  "What makes a relationship feel safer?",
+  "When you are proud of yourself, it is usually because you...",
+  "Which habit becomes stronger under stress?",
+  "What kind of freedom do you want most?",
+  "What do you notice before most people do?",
+  "When a room is messy emotionally, you tend to...",
+  "What would make success feel empty?",
+  "Which unmet need is hardest to admit?",
+  "What kind of responsibility do you take on quickly?",
+  "Which situation makes you feel most exposed?",
+  "What do you do when you do not know the answer yet?",
+  "Which kind of peace are you seeking most?",
+  "When you feel overlooked, you usually...",
+  "What do you secretly hope people recognize?",
+  "Which mistake do you repeat when tired?",
+  "What helps you trust yourself again?",
+  "What kind of leadership feels natural?",
+  "Which emotional pattern feels oldest?",
+  "What are you most tempted to control?",
+  "When you love someone, you often show it by...",
+  "What makes you feel trapped?",
+  "Which phrase sounds like growth?",
+  "In a crisis, you are likely to...",
+  "Which kind of truth matters most?",
+  "What do you wish people would stop assuming?",
+  "When you imagine being fully healthy, you are...",
+  "Which conflict role do you fall into?",
+  "What do you protect when no one asks you to?",
+  "Which desire keeps returning?",
+];
+
+const fantasyDimensions = [
+  { left: "F", right: "S", leftLabel: "Fantasy/Mythic", rightLabel: "Sci-Fi/Cosmic" },
+  { left: "H", right: "A", leftLabel: "Heroic", rightLabel: "Antihero/Rogue" },
+  { left: "W", right: "I", leftLabel: "Wise/Strategic", rightLabel: "Instinctive/Action" },
+  { left: "L", right: "N", leftLabel: "Loyal/Team-Bound", rightLabel: "Independent/Lone-Wolf" },
+  { left: "M", right: "G", leftLabel: "Mystic/Extraordinary", rightLabel: "Grounded/Skilled" },
+  { left: "O", right: "R", leftLabel: "Order/Protector", rightLabel: "Rebel/Changer" },
+];
+
+const fantasyAxisQuestions = {
+  FS: [
+    ["World", "The world that pulls you in most is...", "Ancient magic, prophecy, and myth", "You like destiny, symbols, and enchanted stakes.", "Starships, experiments, and future tech", "You like frontiers, systems, and cosmic scale."],
+    ["Problem", "A strange problem should be solved with...", "A legend, ritual, or hidden lineage", "The old story contains the key.", "A device, theory, or technical workaround", "The answer lives in the system."],
+    ["Setting", "Your ideal adventure begins in...", "A kingdom with old secrets", "History and myth make the quest matter.", "A colony at the edge of space", "Unknown futures make the mission matter."],
+    ["Power source", "Power feels more interesting when it comes from...", "Magic, ancestry, or sacred objects", "Mystery should stay a little mysterious.", "Science, training, or engineered tools", "Power should have a mechanism."],
+    ["Discovery", "The discovery that would change you is...", "A hidden realm", "The world is bigger than the map.", "A hidden technology", "Reality is bigger than the manual."],
+    ["Guide", "You would rather be trained by...", "A mystic mentor", "Wisdom arrives through symbols.", "A brilliant operator", "Wisdom arrives through systems."],
+    ["Ending", "The ending you want feels like...", "The curse is broken", "The old wound is healed.", "The signal reaches the stars", "The future opens."],
+  ],
+  HA: [
+    ["Motive", "Your character match should be driven by...", "Protecting what is good", "You respect a clean moral center.", "Surviving a morally gray world", "You respect complicated motives."],
+    ["Reputation", "You would rather be known as...", "The person people can count on", "Trust is its own power.", "The person no one can predict", "Freedom is its own power."],
+    ["Temptation", "Your tempting flaw would be...", "Taking on too much duty", "Responsibility can become a cage.", "Breaking rules too easily", "Independence can become collateral damage."],
+    ["Victory", "A victory feels right when...", "People are safer because of it", "The win should protect the vulnerable.", "The old power structure loses control", "The win should change the rules."],
+    ["Conflict", "In conflict, you lean toward...", "Doing the honorable thing", "The line matters even when it costs.", "Doing the necessary thing", "The outcome matters when the line is blurry."],
+    ["Ally", "Your best ally would call you...", "Principled", "They trust your heart.", "Dangerous but useful", "They trust your edge."],
+    ["Choice", "When no option is clean, you choose...", "The least harmful path", "Your conscience stays involved.", "The path that works", "You accept the moral weight."],
+  ],
+  WI: [
+    ["Approach", "You solve a challenge by first...", "Reading the deeper pattern", "Strategy comes before movement.", "Acting before the window closes", "Movement reveals the answer."],
+    ["Timing", "You are strongest when you can...", "Wait for the right moment", "Patience creates leverage.", "Move before others react", "Speed creates leverage."],
+    ["Threat", "A threat is best handled by...", "Understanding its motive", "The mind behind it matters.", "Interrupting its momentum", "The action in front of you matters."],
+    ["Gift", "Your signature gift is closer to...", "Insight", "You see what others miss.", "Nerve", "You do what others hesitate to do."],
+    ["Mistake", "Your mistake would be...", "Overthinking the moment", "The window can close while you calculate.", "Underthinking the cost", "The impact can arrive after the leap."],
+    ["Puzzle", "A puzzle gets fun when...", "The pattern reveals itself", "You enjoy the elegant turn.", "The chase speeds up", "You enjoy the live-wire pressure."],
+    ["Leadership", "People follow you because you...", "Understand the board", "You know where the pieces are.", "Go first", "You prove the path exists."],
+  ],
+  LN: [
+    ["Bond", "Your story works best when it centers on...", "A loyal fellowship", "You become yourself through bonds.", "A solitary mission", "You become yourself through separation."],
+    ["Trust", "Trust grows when someone...", "Stays with you through pressure", "Consistency matters.", "Respects your autonomy", "Space matters."],
+    ["Weakness", "Your relationship flaw would be...", "Carrying everyone", "The group can become too heavy.", "Refusing help", "Independence can become isolation."],
+    ["Home", "Home means...", "The people you protect", "Belonging has faces.", "The path you choose", "Belonging is self-direction."],
+    ["Team", "On a team, you are likely to...", "Hold the group together", "You notice the bonds.", "Handle the risky side quest", "You notice the opening."],
+    ["Loss", "Loss would push you to...", "Protect the remaining bonds", "You move toward loyalty.", "Become harder to catch", "You move toward freedom."],
+    ["Promise", "The promise you keep is to...", "Your people", "Devotion guides you.", "Your own code", "Self-command guides you."],
+  ],
+  MG: [
+    ["Talent", "Your power should feel like...", "A rare gift", "Something uncanny moves through you.", "A trained skill", "Something earned makes you dangerous."],
+    ["Tool", "You would rather carry...", "An enchanted object", "Symbolic power feels alive.", "A perfectly built tool", "Reliable craft feels alive."],
+    ["Origin", "Your origin story involves...", "A hidden ability awakening", "You discover what was inside you.", "Training until you become ready", "You build what was missing."],
+    ["Edge", "Your edge in a fight is...", "An extraordinary force", "You bend the rules of reality.", "Precision and practice", "You use reality better than others."],
+    ["Identity", "You feel more connected to...", "Mystery", "Not everything should be explainable.", "Mastery", "Skill becomes a kind of magic."],
+    ["Rescue", "You save the day by...", "Unleashing the impossible", "The answer is bigger than the room.", "Doing the exact right thing", "The answer is cleaner than the panic."],
+    ["Symbol", "Your symbol would be...", "A glowing mark", "Power as destiny.", "A scarred tool", "Power as experience."],
+  ],
+  OR: [
+    ["Goal", "Your story goal is to...", "Restore balance", "Protection and repair matter.", "Break the false system", "Change and liberation matter."],
+    ["Rules", "Rules are useful when they...", "Protect people", "Order can be compassionate.", "Stop pretending they are neutral", "Rules can hide control."],
+    ["Authority", "You respect authority that...", "Serves the vulnerable", "Power should stabilize life.", "Can survive being challenged", "Power should answer questions."],
+    ["Arc", "Your growth arc is about...", "Becoming a better protector", "You learn strength with care.", "Becoming a braver disruptor", "You learn freedom with cost."],
+    ["Mission", "You accept a mission to...", "Guard what must endure", "Some things should not be lost.", "Expose what must change", "Some things should not continue."],
+    ["Ending", "A satisfying ending gives the world...", "A safer structure", "The future can breathe.", "A door nobody can close", "The future can move."],
+    ["Conflict role", "In the final act, you would...", "Hold the gate", "You protect the threshold.", "Light the fuse", "You force the transformation."],
+  ],
+};
+
+const fantasyRoster = [
+  "Gandalf", "Galadriel", "Aragorn", "Legolas", "Gimli", "Frodo Baggins", "Samwise Gamgee", "Eowyn",
+  "Hermione Granger", "Harry Potter", "Luna Lovegood", "Newt Scamander", "Albus Dumbledore", "Geralt of Rivia", "Yennefer of Vengerberg", "Ciri",
+  "Percy Jackson", "Annabeth Chase", "Grover Underwood", "Elphaba", "Glinda", "Willow Rosenberg", "Buffy Summers", "Merlin",
+  "Aang", "Katara", "Toph Beifong", "Zuko", "Korra", "Moana", "Mulan", "Aslan",
+  "Luke Skywalker", "Leia Organa", "Han Solo", "Rey Skywalker", "Finn", "Poe Dameron", "Obi-Wan Kenobi", "Ahsoka Tano",
+  "Spock", "James T. Kirk", "Jean-Luc Picard", "Data", "Ellen Ripley", "Sarah Connor", "Neo", "Trinity",
+  "Morpheus", "Paul Atreides", "Chani", "Miles Morales", "Shuri", "T'Challa", "Doctor Strange", "Wanda Maximoff",
+  "Tony Stark", "Peter Parker", "Carol Danvers", "The Doctor", "Rose Tyler", "River Song", "Katniss Everdeen", "Furiosa",
+];
+
+function buildChoiceQuestion(blueprint, choiceCopy, index) {
+  const [kicker, prompt] = blueprint;
+
+  return {
+    kicker,
+    prompt,
+    options: Object.entries(choiceCopy).map(([value, copy]) => ({
+      label: copy.labels[index % copy.labels.length],
+      detail: copy.details[index % copy.details.length],
+      value,
+    })),
+  };
+}
+
+function extendChoiceTest(test, prompts, choiceCopy, target = 42) {
+  let promptIndex = 0;
+
+  while (test.questions.length < target) {
+    test.questions.push(buildChoiceQuestion(prompts[promptIndex % prompts.length], choiceCopy, promptIndex));
+    promptIndex += 1;
+  }
+
+  test.questions = test.questions.slice(0, target);
+  test.items = "42 questions";
+  test.time = test.id === "archetype" ? "12 min" : "10 min";
+}
+
+function buildDimensionQuestion(left, right, item) {
+  const [kicker, prompt, leftLabel, leftDetail, rightLabel, rightDetail] = item;
+
+  return {
+    kicker,
+    prompt,
+    options: [
+      { label: leftLabel, detail: leftDetail, scores: { [left]: 1 } },
+      { label: rightLabel, detail: rightDetail, scores: { [right]: 1 } },
+    ],
+  };
+}
+
+function buildMbtiQuestions() {
+  return mbtiQuestionGroups.flatMap(([left, right, questions]) =>
+    questions.map((question) => buildDimensionQuestion(left, right, question))
+  );
+}
+
+function buildMbtiProfiles() {
+  return Object.fromEntries(
+    Object.keys(mbtiTypeNames).map((type) => {
+      const letters = type.split("");
+      const copy = letters.map((letter) => mbtiDimensionCopy[letter]);
+      const examples = mbtiExamples[type];
+      const profile = {
+        title: `${type}-Style ${mbtiTypeNames[type]}`,
+        score: `Type pattern: ${type} across energy, information, decisions, and structure`,
+        summary: `Your answers point toward ${copy.map((item) => item.name).join(", ")}. This combination often reads as ${mbtiTypeNames[type].toLowerCase()}: a pattern for how you recharge, notice information, decide, and organize life.`,
+        strengths: copy.map((item) => item.strength),
+        weaknesses: copy.map((item) => item.watchout),
+        situations: `You tend to shine when a situation rewards ${copy[0].strength}, ${copy[1].strength}, ${copy[2].strength}, and ${copy[3].strength}.`,
+        relationships: `In relationships, you often show care through ${copy.map((item) => item.relationship).join(", ")}. People understand you best when they see the full pattern, not just one letter.`,
+        parenting: `As a parent or mentor, you may model ${copy[1].strength} and ${copy[3].strength}. Your growth edge is balancing your natural style with the child's opposite needs.`,
+        examples: `Popularly compared examples: ${examples[0][0]}, ${examples[1][0]}. Fictional echoes: ${examples[2][0]}, ${examples[3][0]}.`,
+        examplePeople: {
+          famous: [
+            { name: examples[0][0], note: examples[0][1], motif: type.slice(0, 2) },
+            { name: examples[1][0], note: examples[1][1], motif: type.slice(2) },
+          ],
+          fictional: [
+            { name: examples[2][0], note: examples[2][1], motif: type[0] + type[2] },
+            { name: examples[3][0], note: examples[3][1], motif: type[1] + type[3] },
+          ],
+        },
+        member: "Monthly access would save this full 16-type result beside Enneagram, archetype, IQ, and character-match reports.",
+      };
+
+      return [type, profile];
+    })
+  );
+}
+
+function buildEnneagramQuestions() {
+  return enneagramContexts.map((prompt, index) => {
+    const typeIndexes = [index % 9, (index + 3) % 9, (index + 6) % 9];
+    return {
+      kicker: `Core drive ${index + 1}`,
+      prompt,
+      options: typeIndexes.map((typeIndex) => {
+        const value = enneagramTypeKeys[typeIndex];
+        const copy = enneagramOptionCopy[value];
+        return {
+          label: copy[index % copy.length],
+          detail: enneagramProfiles[value].score.replace("Core drive: ", ""),
+          value,
+        };
+      }),
+    };
+  });
+}
+
+function attachExamplePeopleToEnneagramProfiles() {
+  Object.values(enneagramProfiles).forEach((profile) => {
+    const famous = profile.examples.match(/Famous echoes: ([^.]+)\./)?.[1].split(", ") || [];
+    const fictional = profile.examples.match(/Fictional echoes: ([^.]+)\./)?.[1].split(", ") || [];
+    profile.examplePeople = {
+      famous: famous.slice(0, 2).map((name, index) => ({ name, note: index === 0 ? "historical echo" : "public-life echo", motif: profile.title.match(/Type (\w+)/)?.[1] || "EN" })),
+      fictional: fictional.slice(0, 2).map((name, index) => ({ name, note: index === 0 ? "fictional echo" : "story pattern echo", motif: profile.title.slice(5, 7) })),
+    };
+  });
+}
+
+function buildFantasyQuestions() {
+  return fantasyDimensions.flatMap((dimension) => {
+    const key = `${dimension.left}${dimension.right}`;
+    return fantasyAxisQuestions[key].map((question) => buildDimensionQuestion(dimension.left, dimension.right, question));
+  });
+}
+
+function generateDimensionCodes(dimensions) {
+  return dimensions.reduce(
+    (codes, dimension) => codes.flatMap((code) => [`${code}${dimension.left}`, `${code}${dimension.right}`]),
+    [""]
+  );
+}
+
+function fantasyDescriptorForCode(code) {
+  const descriptions = {
+    F: "mythic",
+    S: "cosmic",
+    H: "heroic",
+    A: "rogue",
+    W: "strategic",
+    I: "instinctive",
+    L: "loyal",
+    N: "independent",
+    M: "extraordinary",
+    G: "grounded",
+    O: "protective",
+    R: "rebellious",
+  };
+
+  return code.split("").map((letter) => descriptions[letter]).join(", ");
+}
+
+function buildFantasyProfiles() {
+  const codes = generateDimensionCodes(fantasyDimensions);
+  const famousByCode = {
+    F: ["Joan of Arc", "vision and courage"],
+    S: ["Katherine Johnson", "precision and frontier thinking"],
+    H: ["Nelson Mandela", "moral courage"],
+    A: ["Nellie Bly", "rule-breaking curiosity"],
+    W: ["Carl Sagan", "wise perspective"],
+    I: ["Amelia Earhart", "action under uncertainty"],
+    L: ["Harriet Tubman", "protective loyalty"],
+    N: ["Galileo Galilei", "independent conviction"],
+    M: ["Leonardo da Vinci", "rare imagination"],
+    G: ["Hedy Lamarr", "skilled invention"],
+    O: ["Eleanor Roosevelt", "protective public service"],
+    R: ["Muhammad Ali", "disruptive conviction"],
+  };
+
+  return Object.fromEntries(
+    codes.map((code, index) => {
+      const name = fantasyRoster[index];
+      const similar = fantasyRoster[(index + 17) % fantasyRoster.length];
+      const firstFamous = famousByCode[code[0]];
+      const secondFamous = famousByCode[code[5]];
+      const descriptor = fantasyDescriptorForCode(code);
+
+      return [
+        code,
+        {
+          title: `${name} Match`,
+          score: `Character code: ${code} | 1 of 64 fantasy/sci-fi possibilities`,
+          summary: `Your match is ${name}, built from a ${descriptor} answer pattern. This result blends your preferred world, moral style, decision rhythm, bond style, power source, and story arc.`,
+          strengths: [
+            code.includes("W") ? "Strategic perspective" : "Fast action under pressure",
+            code.includes("L") ? "Loyalty under stress" : "Independent conviction",
+            code.includes("O") ? "Protective responsibility" : "Courage to disrupt",
+          ],
+          weaknesses: [
+            code.includes("H") ? "Can carry too much duty" : "Can become hard to pin down",
+            code.includes("M") ? "May trust destiny over details" : "May over-rely on self-sufficiency",
+            code.includes("F") ? "Can romanticize the quest" : "Can detach into systems",
+          ],
+          situations: `You are most compelling in stories where ${code.includes("O") ? "something precious must be protected" : "a false system needs to be challenged"} and ${code.includes("W") ? "the board must be read before the move" : "someone has to move before the moment disappears"}.`,
+          relationships: `You connect through ${code.includes("L") ? "loyalty, shared missions, and showing up when it counts" : "respect, autonomy, and honest space"}. People get the best of you when they honor both your power and your pressure points.`,
+          parenting: `As a parent or mentor, you would likely teach ${code.includes("H") ? "courage with conscience" : "self-trust with edge"}. The growth move is helping younger people feel safe without forcing them into your exact story arc.`,
+          examples: `Famous echoes: ${firstFamous[0]}, ${secondFamous[0]}. Fictional echoes: ${name}, ${similar}.`,
+          examplePeople: {
+            famous: [
+              { name: firstFamous[0], note: firstFamous[1], motif: code.slice(0, 2) },
+              { name: secondFamous[0], note: secondFamous[1], motif: code.slice(4) },
+            ],
+            fictional: [
+              { name, note: "your primary character match", motif: code.slice(0, 2) },
+              { name: similar, note: "nearby story-pattern echo", motif: code.slice(2, 4) },
+            ],
+          },
+          member: "Monthly access would save this character code and compare it with your MBTI-style, Enneagram, IQ, and archetype patterns.",
+        },
+      ];
+    })
+  );
+}
+
+function createFantasyScifiTest() {
+  return {
+    id: "fantasy-scifi",
+    title: "Fantasy/Sci-Fi Character Match",
+    category: "Pop Culture",
+    tone: "violet",
+    symbol: "FS",
+    status: "Live",
+    time: "12 min",
+    items: "42 questions",
+    price: "$1 report",
+    scoring: "dimensions",
+    totalPossibilities: 64,
+    dimensions: fantasyDimensions,
+    description: "A broad fantasy and sci-fi character matcher with 64 possible outcomes across heroic, rogue, mythic, cosmic, loyal, lone-wolf, protector, and rebel patterns.",
+    questions: buildFantasyQuestions(),
+    profiles: buildFantasyProfiles(),
+  };
+}
+
+function configureAssessmentCatalog() {
+  const archetype = tests.find((test) => test.id === "archetype");
+  if (archetype) extendChoiceTest(archetype, archetypePrompts, archetypeChoiceCopy, 42);
+
+  const mbti = tests.find((test) => test.id === "mbti");
+  if (mbti) {
+    mbti.scoring = "dimensions";
+    mbti.dimensions = mbtiDimensions;
+    mbti.totalPossibilities = 16;
+    mbti.questions = buildMbtiQuestions();
+    mbti.profiles = buildMbtiProfiles();
+    mbti.items = "42 questions";
+    mbti.time = "12 min";
+    mbti.description = "A complete 16-outcome type map inspired by the familiar MBTI framework, scored across energy, information, decisions, and structure.";
+  }
+
+  const enneagram = tests.find((test) => test.id === "enneagram");
+  if (enneagram) {
+    attachExamplePeopleToEnneagramProfiles();
+    enneagram.questions = buildEnneagramQuestions();
+    enneagram.profiles = enneagramProfiles;
+    enneagram.items = "42 questions";
+    enneagram.time = "12 min";
+    enneagram.description = "A full 9-type motivation test that looks beneath behavior to the fear, desire, and coping pattern that quietly steers you.";
+  }
+
+  const fantasySeedIndex = tests.findIndex((test) => test.id === "fantasy-seed");
+  if (fantasySeedIndex >= 0) tests.splice(fantasySeedIndex, 1, createFantasyScifiTest());
+
+  const scifi = tests.find((test) => test.id === "scifi");
+  if (scifi) extendChoiceTest(scifi, scifiPrompts, scifiChoiceCopy, 42);
+}
+
+configureAssessmentCatalog();
+
 const dom = {
   grid: document.querySelector("[data-test-grid]"),
   filters: document.querySelectorAll("[data-filter]"),
@@ -1614,6 +2408,7 @@ const dom = {
   questionKicker: document.querySelector("[data-question-kicker]"),
   questionText: document.querySelector("[data-question-text]"),
   answerList: document.querySelector("[data-answer-list]"),
+  prevQuestion: document.querySelector("[data-prev-question]"),
   unlockCore: document.querySelector("[data-unlock-core]"),
   unlockDeep: document.querySelector("[data-unlock-deep]"),
   closeButtons: document.querySelectorAll("[data-close-modal], [data-close-link]"),
@@ -1636,12 +2431,18 @@ const dom = {
   resultExamples: document.querySelector("[data-result-examples]"),
   deepDive: document.querySelector("[data-deep-dive]"),
   resultDeep: document.querySelector("[data-result-deep]"),
+  emailResult: document.querySelector("[data-email-result]"),
+  resultAccountMessage: document.querySelector("[data-result-account-message]"),
   requestForm: document.querySelector("[data-request-form]"),
   requestOutput: document.querySelector("[data-request-output]"),
   dropList: document.querySelector(".drop-list"),
   login: document.querySelector("[data-login]"),
   openLogin: document.querySelector("[data-open-login]"),
   closeLogin: document.querySelector("[data-close-login]"),
+  authTabs: document.querySelectorAll("[data-auth-tab]"),
+  signinForm: document.querySelector("[data-signin-form]"),
+  signupForm: document.querySelector("[data-signup-form]"),
+  authMessage: document.querySelector("[data-auth-message]"),
 };
 
 const state = {
@@ -1652,7 +2453,127 @@ const state = {
   scoredAnswered: 0,
   domainStats: {},
   lastMode: "core",
+  account: null,
+  currentResult: null,
+  pendingEmailResult: false,
+  answerHistory: [],
 };
+
+const storageKeys = {
+  account: "psycheiq-account",
+  results: "psycheiq-results",
+};
+
+function readJsonStorage(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch (error) {
+    return fallback;
+  }
+}
+
+function writeJsonStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+function getSavedResults() {
+  return readJsonStorage(storageKeys.results, []);
+}
+
+function saveAccount(account) {
+  state.account = account;
+  writeJsonStorage(storageKeys.account, account);
+  updateAccountUi();
+}
+
+function updateAccountUi() {
+  if (!dom.openLogin) return;
+  dom.openLogin.textContent = state.account ? state.account.name.split(" ")[0] : "Log In";
+}
+
+function initializeAccount() {
+  state.account = readJsonStorage(storageKeys.account, null);
+  updateAccountUi();
+}
+
+function setAuthMessage(message) {
+  if (dom.authMessage) dom.authMessage.textContent = message;
+}
+
+function setResultAccountMessage(message) {
+  if (dom.resultAccountMessage) dom.resultAccountMessage.textContent = message;
+}
+
+function showAuthPanel(panel = "signin", message = "") {
+  dom.login.hidden = false;
+  dom.authTabs.forEach((button) => {
+    const active = button.dataset.authTab === panel;
+    button.classList.toggle("active", active);
+  });
+  dom.signinForm.hidden = panel !== "signin";
+  dom.signupForm.hidden = panel !== "signup";
+  setAuthMessage(message);
+}
+
+function saveCurrentResultToAccount() {
+  if (!state.account || !state.currentResult) return false;
+  const savedResults = getSavedResults();
+  savedResults.unshift({
+    id: `${Date.now()}-${state.activeTest.id}`,
+    email: state.account.email,
+    testTitle: state.activeTest.title,
+    resultTitle: state.currentResult.title,
+    score: state.currentResult.score,
+    summary: state.currentResult.summary,
+    createdAt: new Date().toISOString(),
+  });
+  writeJsonStorage(storageKeys.results, savedResults.slice(0, 25));
+  return true;
+}
+
+function formatResultEmail(profile) {
+  return [
+    `PsycheIQ Result: ${profile.title}`,
+    "",
+    `Test: ${state.activeTest.title}`,
+    `Score: ${profile.score}`,
+    "",
+    profile.summary,
+    "",
+    `Strengths: ${profile.strengths.join(", ")}`,
+    `Watchouts: ${profile.weaknesses.join(", ")}`,
+    "",
+    `In situations: ${profile.situations}`,
+    "",
+    `Relationships: ${profile.relationships}`,
+    "",
+    `As parents: ${profile.parenting}`,
+    "",
+    `Examples: ${profile.examples}`,
+  ].join("\n");
+}
+
+function emailCurrentResult() {
+  if (!state.currentResult) return;
+
+  if (!state.account) {
+    state.pendingEmailResult = true;
+    showAuthPanel("signup", "Create an account to email or save this result. You can still unlock the $1 result without signing up.");
+    return;
+  }
+
+  saveCurrentResultToAccount();
+  const subject = encodeURIComponent(`My PsycheIQ result: ${state.currentResult.title}`);
+  const body = encodeURIComponent(formatResultEmail(state.currentResult));
+  window.location.href = `mailto:${encodeURIComponent(state.account.email)}?subject=${subject}&body=${body}`;
+  setResultAccountMessage(`Prepared this result for ${state.account.email}. Your email app may ask you to press send.`);
+}
 
 function setTheme(theme) {
   const nextTheme = theme === "dark" ? "dark" : "light";
@@ -1768,6 +2689,9 @@ function startTest(testId) {
   state.scoredAnswered = 0;
   state.domainStats = {};
   state.lastMode = "core";
+  state.answerHistory = [];
+  state.currentResult = null;
+  state.pendingEmailResult = false;
 
   dom.modalTitle.textContent = test.title;
   dom.modalCategory.textContent = test.category;
@@ -1785,6 +2709,9 @@ function renderQuestion() {
 
   dom.progressBar.style.width = `${progress}%`;
   dom.progressCopy.textContent = `Question ${state.questionIndex + 1} of ${total}`;
+  if (dom.prevQuestion) {
+    dom.prevQuestion.hidden = state.questionIndex === 0 || state.activeTest.id !== "iq";
+  }
   dom.questionKicker.textContent = question.kicker;
   dom.questionText.textContent = question.prompt;
   dom.answerList.innerHTML = question.options
@@ -1802,11 +2729,7 @@ function renderQuestion() {
     .join("");
 }
 
-function handleAnswer(optionIndex) {
-  const question = state.activeTest.questions[state.questionIndex];
-  const option = question.options[Number(optionIndex)];
-  if (!option) return;
-
+function applyAnswerScoring(question, option) {
   if (typeof option.correct === "boolean") {
     const domain = question.domain || "reasoning";
     state.scoredAnswered += 1;
@@ -1823,6 +2746,37 @@ function handleAnswer(optionIndex) {
     state.scores[option.value] = (state.scores[option.value] || 0) + 1;
   }
 
+  if (option.scores) {
+    Object.entries(option.scores).forEach(([key, value]) => {
+      state.scores[key] = (state.scores[key] || 0) + Number(value || 0);
+    });
+  }
+}
+
+function rebuildScoresFromHistory() {
+  state.scores = {};
+  state.correctScore = 0;
+  state.scoredAnswered = 0;
+  state.domainStats = {};
+
+  state.answerHistory.forEach((entry) => {
+    const question = state.activeTest.questions[entry.questionIndex];
+    const option = question?.options[entry.optionIndex];
+    if (question && option) applyAnswerScoring(question, option);
+  });
+}
+
+function handleAnswer(optionIndex) {
+  const question = state.activeTest.questions[state.questionIndex];
+  const option = question.options[Number(optionIndex)];
+  if (!option) return;
+
+  applyAnswerScoring(question, option);
+  state.answerHistory.push({
+    questionIndex: state.questionIndex,
+    optionIndex: Number(optionIndex),
+  });
+
   state.questionIndex += 1;
 
   if (state.questionIndex >= state.activeTest.questions.length) {
@@ -1830,6 +2784,17 @@ function handleAnswer(optionIndex) {
     return;
   }
 
+  renderQuestion();
+}
+
+function goToPreviousQuestion() {
+  if (!state.activeTest || state.questionIndex === 0) return;
+  const previous = state.answerHistory.pop();
+  if (!previous) return;
+
+  state.questionIndex = previous.questionIndex;
+  rebuildScoresFromHistory();
+  setModalView("quiz");
   renderQuestion();
 }
 
@@ -1842,6 +2807,7 @@ function showPaywall() {
 function getResultProfile() {
   const test = state.activeTest;
   if (test.scoring === "correct") return getIqResultProfile(test);
+  if (test.scoring === "dimensions") return getDimensionResultProfile(test);
 
   const keys = Object.keys(test.profiles);
   const winner = keys.reduce((best, key) => {
@@ -1945,6 +2911,44 @@ function getIqResultProfile(test) {
       percentile,
       domainStats: state.domainStats,
       style,
+    },
+  };
+}
+
+function getDimensionResultProfile(test) {
+  const dimensions = test.dimensions.map((dimension) => {
+    const leftValue = state.scores[dimension.left] || 0;
+    const rightValue = state.scores[dimension.right] || 0;
+    const selected = leftValue >= rightValue ? dimension.left : dimension.right;
+    const selectedValue = Math.max(leftValue, rightValue);
+    const total = leftValue + rightValue;
+
+    return {
+      ...dimension,
+      leftValue,
+      rightValue,
+      selected,
+      selectedLabel: selected === dimension.left ? dimension.leftLabel : dimension.rightLabel,
+      oppositeLabel: selected === dimension.left ? dimension.rightLabel : dimension.leftLabel,
+      selectedValue,
+      total,
+    };
+  });
+  const winner = dimensions.map((dimension) => dimension.selected).join("");
+  const profile = test.profiles[winner] || test.profiles[Object.keys(test.profiles)[0]];
+  const winnerScore = dimensions.reduce((sum, dimension) => sum + dimension.selectedValue, 0);
+  const totalAnswers = dimensions.reduce((sum, dimension) => sum + dimension.total, 0);
+
+  return {
+    ...profile,
+    analytics: {
+      type: "dimensions",
+      winner,
+      winnerLabel: profile.title,
+      winnerScore,
+      totalAnswers,
+      dimensions,
+      totalPossibilities: test.totalPossibilities || Object.keys(test.profiles).length,
     },
   };
 }
@@ -2069,6 +3073,51 @@ function renderProfileVisuals(analytics) {
   `;
 }
 
+function renderDimensionVisuals(analytics) {
+  const total = analytics.totalAnswers || 1;
+  const winnerPercent = Math.round((analytics.winnerScore / total) * 100);
+  const bars = analytics.dimensions
+    .map((dimension) => {
+      const percent = dimension.total ? (dimension.selectedValue / dimension.total) * 100 : 50;
+      return renderBar(
+        `${dimension.selected} | ${dimension.selectedLabel}`,
+        percent,
+        `${dimension.left}: ${dimension.leftValue} vs ${dimension.right}: ${dimension.rightValue}`
+      );
+    })
+    .join("");
+  const columns = analytics.dimensions.map((dimension) => ({
+    label: dimension.selected,
+    value: dimension.selectedValue || 1,
+  }));
+
+  return `
+    <article class="visual-card">
+      <div class="visual-card-heading">
+        <h4>Result Code</h4>
+        <span>${analytics.totalPossibilities} possible outcomes</span>
+      </div>
+      <div class="big-percent code-result">${analytics.winner}</div>
+      <div class="bar-track large"><span style="width: ${winnerPercent}%"></span></div>
+      <p class="chart-note">Your strongest combined signal points to ${analytics.winnerLabel}.</p>
+    </article>
+    <article class="visual-card">
+      <div class="visual-card-heading">
+        <h4>Preference Axes</h4>
+        <span>Answer pattern</span>
+      </div>
+      ${bars}
+    </article>
+    <article class="visual-card">
+      <div class="visual-card-heading">
+        <h4>Type Shape</h4>
+        <span>Selected poles</span>
+      </div>
+      ${renderMiniColumns(columns, Math.max(...columns.map((item) => item.value), 1))}
+    </article>
+  `;
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => {
     const entities = {
@@ -2145,6 +3194,7 @@ function renderExampleCard(person, kind, index) {
 
 function renderExampleShowcase(profile) {
   const examples =
+    profile.examplePeople ||
     visualExampleLibrary[profile.title] ||
     {
       famous: [
@@ -2218,13 +3268,23 @@ function renderResultVisuals(profile) {
     return;
   }
 
-  dom.resultVisuals.innerHTML =
-    profile.analytics.type === "iq" ? renderIqVisuals(profile.analytics) : renderProfileVisuals(profile.analytics);
+  if (profile.analytics.type === "iq") {
+    dom.resultVisuals.innerHTML = renderIqVisuals(profile.analytics);
+    return;
+  }
+
+  if (profile.analytics.type === "dimensions") {
+    dom.resultVisuals.innerHTML = renderDimensionVisuals(profile.analytics);
+    return;
+  }
+
+  dom.resultVisuals.innerHTML = renderProfileVisuals(profile.analytics);
 }
 
 function unlockResult(mode) {
   const profile = getResultProfile();
   state.lastMode = mode;
+  state.currentResult = profile;
 
   dom.resultTest.textContent = mode === "member" ? `${state.activeTest.title} | Monthly access` : state.activeTest.title;
   dom.resultTitle.textContent = profile.title;
@@ -2241,12 +3301,27 @@ function unlockResult(mode) {
   dom.resultExamples.textContent = profile.examples;
   dom.deepDive.hidden = mode !== "member";
   dom.resultDeep.textContent = profile.member;
+  setResultAccountMessage(state.account ? `Signed in as ${state.account.email}. You can email or save this result.` : "No account needed for the $1 result. Sign up only if you want it emailed or saved.");
   setModalView("result");
 }
 
 function restartActiveTest() {
   if (!state.activeTest) return;
   startTest(state.activeTest.id);
+}
+
+function completeAuthFlow(message) {
+  saveCurrentResultToAccount();
+
+  if (state.pendingEmailResult) {
+    state.pendingEmailResult = false;
+    dom.login.hidden = true;
+    emailCurrentResult();
+    return;
+  }
+
+  dom.login.hidden = true;
+  setResultAccountMessage(message);
 }
 
 dom.grid.addEventListener("click", (event) => {
@@ -2260,6 +3335,10 @@ dom.answerList.addEventListener("click", (event) => {
   if (!button) return;
   handleAnswer(button.dataset.answerIndex);
 });
+
+if (dom.prevQuestion) {
+  dom.prevQuestion.addEventListener("click", goToPreviousQuestion);
+}
 
 dom.filters.forEach((button) => {
   button.addEventListener("click", () => {
@@ -2287,7 +3366,7 @@ dom.modal.addEventListener("click", (event) => {
 });
 
 dom.openLogin.addEventListener("click", () => {
-  dom.login.hidden = false;
+  showAuthPanel(state.account ? "signin" : "signup", state.account ? `Signed in as ${state.account.email}.` : "Create an account only when you want saved or emailed results.");
 });
 
 dom.closeLogin.addEventListener("click", () => {
@@ -2297,6 +3376,51 @@ dom.closeLogin.addEventListener("click", () => {
 dom.login.addEventListener("click", (event) => {
   if (event.target === dom.login) dom.login.hidden = true;
 });
+
+dom.authTabs.forEach((button) => {
+  button.addEventListener("click", () => showAuthPanel(button.dataset.authTab));
+});
+
+dom.signinForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const email = dom.signinForm.elements.email.value.trim().toLowerCase();
+  const savedAccount = readJsonStorage(storageKeys.account, null);
+
+  if (!savedAccount || savedAccount.email !== email) {
+    showAuthPanel("signup", "No local account found for that email on this device. Create one to save or email results.");
+    dom.signupForm.elements.email.value = email;
+    return;
+  }
+
+  saveAccount(savedAccount);
+  setAuthMessage(`Signed in as ${savedAccount.email}.`);
+  completeAuthFlow(`Signed in as ${savedAccount.email}.`);
+});
+
+dom.signupForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const form = dom.signupForm;
+  const account = {
+    name: form.elements.name.value.trim(),
+    email: form.elements.email.value.trim().toLowerCase(),
+    age: form.elements.age.value.trim(),
+    sex: form.elements.sex.value,
+    createdAt: new Date().toISOString(),
+  };
+
+  if (!account.name || !account.email || !account.age || !account.sex) {
+    setAuthMessage("Please fill out name, email, age, and sex to create the account.");
+    return;
+  }
+
+  saveAccount(account);
+  setAuthMessage(`Account created for ${account.email}.`);
+  completeAuthFlow(`Account created for ${account.email}. Result saved on this device.`);
+});
+
+if (dom.emailResult) {
+  dom.emailResult.addEventListener("click", emailCurrentResult);
+}
 
 dom.requestForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -2336,4 +3460,5 @@ if ("serviceWorker" in navigator) {
 }
 
 initializeTheme();
+initializeAccount();
 renderTests();
