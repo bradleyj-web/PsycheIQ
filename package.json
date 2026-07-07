@@ -1,0 +1,9 @@
+{
+  "name": "psycheiq",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PsycheIQ static psychology and personality test app.",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.1"
+  }
+}

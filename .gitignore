@@ -1,5 +1,6 @@
 .agents/
 screenshots/
+node_modules/
 *.log
 android/.gradle/
 android/**/build/
