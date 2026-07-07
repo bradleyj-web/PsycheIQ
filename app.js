@@ -2567,6 +2567,436 @@ function createFantasyScifiTest() {
   };
 }
 
+const attachmentDimensions = [
+  { left: "S", right: "A", leftLabel: "Settled Trust", rightLabel: "Reassurance Seeking" },
+  { left: "O", right: "D", leftLabel: "Open Closeness", rightLabel: "Protective Distance" },
+];
+
+const attachmentQuestionGroups = [
+  [
+    "S",
+    "A",
+    [
+      ["Texting", "When someone you care about replies later than usual, you usually...", "Assume life got busy", "You can wait without making the delay personal.", "Start reading the delay", "Your mind looks for what the silence might mean."],
+      ["Plans", "If plans change suddenly, your first emotional reaction is...", "Flexible if the care is clear", "You can adjust when the bond still feels steady.", "Worried about the hidden message", "You wonder whether the change means something about you."],
+      ["Conflict", "During a disagreement, you most need...", "Honest repair", "You want the issue named and handled.", "Immediate reassurance", "You need to know the relationship is still safe."],
+      ["Space", "When a partner or close friend asks for space, you tend to...", "Let the space breathe", "You can respect it without losing yourself.", "Feel the distance sharply", "Space can feel like rejection before you have proof."],
+      ["Affection", "You feel most secure when affection is...", "Consistent enough", "Small steady signals build trust.", "Frequent and explicit", "You relax when care is named often."],
+      ["Uncertainty", "When you are unsure where you stand, you usually...", "Ask directly when needed", "You prefer clarity without spiraling.", "Replay every detail", "You search for clues until your body calms down."],
+      ["Closeness", "The closeness you want most feels like...", "Warm and dependable", "Love can be stable without being dramatic.", "Intense and unmistakable", "You want to feel chosen beyond doubt."],
+      ["Jealousy", "Jealousy shows up for you as...", "A signal to check facts", "You can pause before making a story.", "A fast alarm", "Your nervous system tries to protect you from being replaced."],
+      ["Repair", "After a rupture, the thing that helps most is...", "A clear conversation", "Understanding what happened lets you move on.", "Extra closeness", "You need warmth before logic can land."],
+      ["Independence", "When you are doing well alone, you feel...", "Connected and separate", "Independence does not threaten closeness.", "A little unsteady", "Part of you wants proof you have not been forgotten."],
+      ["Memory", "Your mind remembers relationship details mostly to...", "Understand the pattern", "You use memory for learning and repair.", "Protect against hurt", "You keep score when safety feels uncertain."],
+      ["Need", "When you need support, asking for it feels...", "Reasonable", "Needs are part of being close.", "Risky", "You worry the ask could be too much."],
+      ["Commitment", "Commitment feels strongest when it is...", "Lived consistently", "Actions over time create confidence.", "Repeated verbally", "You need the promise refreshed and spoken."],
+      ["Tone", "If someone's tone feels off, you usually...", "Check before deciding", "You can leave room for other explanations.", "Brace for a shift", "You feel the possible rejection quickly."],
+      ["Friendship", "In friendship, you maintain security through...", "Reliable rhythm", "Trust grows through ordinary showing up.", "Frequent checking in", "Regular contact helps quiet doubt."],
+      ["Vulnerability", "When you share something tender, you want...", "Attentive presence", "You need enough care to feel met.", "Strong confirmation", "You want to know it mattered to them."],
+      ["Mistake", "If you make a relational mistake, you usually...", "Own it and repair", "You trust that one mistake is not the whole bond.", "Fear it changed everything", "You can feel one mistake as a threat to closeness."],
+      ["Distance", "Emotional distance usually means...", "A conversation is needed", "You do not assume the worst right away.", "Something is wrong", "Distance feels like evidence before it is explained."],
+      ["Love language", "The care signal you trust most is...", "Follow-through", "Promises feel real when they become action.", "Reassuring words", "You relax when care is clearly said."],
+      ["Stress", "Under stress, your attachment system usually...", "Looks for practical repair", "You want to solve the bond problem.", "Looks for proof of love", "You want certainty before anything else."],
+      ["Growth", "Your healthiest relationship move is to...", "Stay present and clear", "You can ask without chasing.", "Self-soothe before seeking proof", "You can want closeness without letting fear drive."],
+    ],
+  ],
+  [
+    "O",
+    "D",
+    [
+      ["Dependence", "Depending on someone emotionally feels...", "Natural in the right bond", "Mutual care does not feel like weakness.", "Hard to fully trust", "You prefer not to need too much from anyone."],
+      ["Pressure", "When someone wants more closeness than you can give, you usually...", "Name your capacity", "You can stay connected while setting a limit.", "Pull back quietly", "Distance feels safer than explaining the limit."],
+      ["Support", "When someone offers help, your first instinct is to...", "Receive it if it fits", "You can let care in without losing agency.", "Handle it yourself", "Self-reliance feels cleaner than owing anyone."],
+      ["Conflict", "In conflict, you are more likely to...", "Stay available for repair", "You can tolerate the discomfort of talking it through.", "Shut down or detach", "Your system protects itself by going private."],
+      ["Vulnerability", "Being emotionally exposed feels...", "Brave and connecting", "You can share more when trust is present.", "Unsafe or inefficient", "Part of you wants to edit the need out."],
+      ["Closeness", "When closeness gets intense, you tend to...", "Let it deepen slowly", "Depth feels good when there is room to breathe.", "Need an exit ramp", "Intensity can make you feel trapped."],
+      ["Needs", "When someone asks what you need, you often...", "Can answer honestly", "You have access to your own signals.", "Minimize the answer", "It is easier to need less."],
+      ["Daily life", "A good relationship rhythm has...", "Shared routines and solo time", "Connection and independence can coexist.", "A lot of personal space", "You relax when nobody expects too much access."],
+      ["After hurt", "After someone hurts you, your first move is to...", "Talk when you are ready", "You can re-open the door after cooling down.", "Close the inner door", "Distance helps you feel protected."],
+      ["Praise", "Warm praise from someone close feels...", "Easy to receive", "You can let appreciation land.", "A little exposing", "Being seen too directly can feel uncomfortable."],
+      ["Commitment", "Long-term commitment sounds like...", "A chosen partnership", "Security can create more freedom.", "A possible loss of freedom", "You notice what commitment might cost."],
+      ["Repair", "The repair style that works for you is...", "Clear and emotionally present", "You want both truth and warmth.", "Short and practical", "You prefer not to stay in the emotional heat."],
+      ["Family patterns", "Old family patterns taught you to...", "Seek safe connection", "You believe closeness can be learned and repaired.", "Protect your independence", "You learned not to count on people too much."],
+      ["Receiving care", "When someone cares for you consistently, you...", "Soften over time", "Steady care makes closeness easier.", "Question the catch", "Reliability can feel unfamiliar or suspicious."],
+      ["Apology", "A sincere apology makes you want to...", "Reconnect with better boundaries", "Repair helps trust grow wiser.", "Keep distance anyway", "You need a lot of proof before re-opening."],
+      ["Emotion", "Big feelings in a relationship make you...", "Want honest language", "Naming emotion makes it less scary.", "Want space from the room", "Emotion can feel like pressure to perform."],
+      ["Asking", "Asking for comfort feels...", "Human", "Needing reassurance sometimes is allowed.", "Too vulnerable", "You would rather comfort yourself first."],
+      ["Dating", "Early dating is easiest when there is...", "Warm interest and pacing", "You can be interested without rushing.", "Low expectation", "You need room not to feel claimed too fast."],
+      ["Friendship", "You keep friendship healthiest by...", "Staying emotionally honest", "You let people know where you are.", "Keeping low-maintenance bonds", "You prefer connection that does not demand much."],
+      ["Stress", "When life is overwhelming, you usually...", "Let trusted people know", "Connection can help you regulate.", "Go quiet until you recover", "Privacy helps you feel in control again."],
+      ["Growth", "Your healthiest closeness move is to...", "Let care be mutual", "You can be both independent and reachable.", "Stay open when you want to vanish", "You can protect yourself without disappearing."],
+    ],
+  ],
+];
+
+const attachmentProfiles = {
+  SO: {
+    title: "Secure Bond Builder",
+    score: "Attachment pattern: settled trust with open closeness",
+    summary:
+      "Your answers point toward a secure relationship pattern. You can care deeply without losing yourself, ask for repair without panic, and let closeness feel steady rather than consuming.",
+    strengths: ["Trust with boundaries", "Direct repair", "Comfort with mutual care"],
+    weaknesses: ["May underestimate others' fear", "Can expect clarity before people are ready", "May need practice with very guarded partners"],
+    situations:
+      "In tense moments, you are likely to look for the real issue, name what matters, and keep the bond available while still respecting limits.",
+    relationships:
+      "You usually create safety through consistency, honest conversation, and a sense that both people can be separate and connected.",
+    parenting:
+      "As a parent or mentor, you would likely model emotional steadiness, apology, and boundaries that do not feel like rejection.",
+    examples:
+      "Famous echoes, not diagnoses: Fred Rogers, Michelle Obama. Fictional echoes: Samwise Gamgee, T'Challa.",
+    examplePeople: {
+      famous: [
+        { name: "Fred Rogers", note: "warm consistency and repair", motif: "heart" },
+        { name: "Michelle Obama", note: "grounded connection and boundaries", motif: "home" },
+      ],
+      fictional: [
+        { name: "Samwise Gamgee", note: "devoted but steady care", motif: "leaf" },
+        { name: "T'Challa", note: "protective and emotionally grounded", motif: "crown" },
+      ],
+    },
+    uniqueSections: [
+      {
+        kicker: "Attachment-Specific",
+        title: "Trigger Pattern",
+        body:
+          "Your biggest triggers are usually unclear repair, not ordinary independence. You do best when conflict has language, care, and limits.",
+      },
+      {
+        kicker: "Repair Practice",
+        title: "What To Try",
+        body:
+          "Name the issue early, ask for what would help, and keep the tone warm enough that repair does not become a trial.",
+      },
+    ],
+    member:
+      "Monthly access would compare this attachment pattern with your Enneagram, archetype, and character-match results so you can see where security is strongest and where stress changes it.",
+  },
+  AO: {
+    title: "Reassurance Seeker",
+    score: "Attachment pattern: high closeness need with worry under uncertainty",
+    summary:
+      "Your answers suggest a warm, highly bonded style that can become anxious when the signal is unclear. You care intensely and often look for proof that the relationship is still safe.",
+    strengths: ["Emotional attunement", "Loyal investment", "Fast awareness of disconnection"],
+    weaknesses: ["Can read silence as rejection", "May over-check for certainty", "Can let fear set the pace"],
+    situations:
+      "When distance appears, your system tries to close the gap quickly. The growth move is pausing long enough to separate facts from fear before reaching out.",
+    relationships:
+      "You love with presence and devotion. The right partners and friends help by being clear, while you help yourself by building self-soothing before reassurance.",
+    parenting:
+      "As a parent or mentor, your warmth can be powerful. The edge is helping young people feel loved without making every separation feel dangerous.",
+    examples:
+      "Famous echoes, not diagnoses: Princess Diana, Judy Garland. Fictional echoes: Bridget Jones, Ted Mosby.",
+    examplePeople: {
+      famous: [
+        { name: "Princess Diana", note: "public warmth and longing for closeness", motif: "heart" },
+        { name: "Judy Garland", note: "tender visibility and emotional intensity", motif: "stage" },
+      ],
+      fictional: [
+        { name: "Bridget Jones", note: "hopeful romantic vulnerability", motif: "diary" },
+        { name: "Ted Mosby", note: "devoted search for certainty in love", motif: "umbrella" },
+      ],
+    },
+    uniqueSections: [
+      {
+        kicker: "Attachment-Specific",
+        title: "Trigger Pattern",
+        body:
+          "Delayed replies, vague tone, or uncertain plans can hit quickly. Your body may seek proof before the facts are clear.",
+      },
+      {
+        kicker: "Repair Practice",
+        title: "What To Try",
+        body:
+          "Pause, regulate, ask one direct question, and let the answer be enough before asking again.",
+      },
+    ],
+    member:
+      "Monthly access would add reassurance scripts, conflict reflections, and comparisons with motivation and personality results.",
+  },
+  SD: {
+    title: "Independent Protector",
+    score: "Attachment pattern: settled self-reliance with protective distance",
+    summary:
+      "Your answers point toward a self-reliant style. You may trust yourself easily and trust others more slowly, especially when closeness starts to feel demanding or intrusive.",
+    strengths: ["Autonomy", "Calm under pressure", "Low drama boundaries"],
+    weaknesses: ["Can minimize needs", "May detach instead of repair", "Can make others feel shut out"],
+    situations:
+      "When emotions get loud, you often create space so you can think. The growth move is telling people what is happening instead of simply disappearing into competence.",
+    relationships:
+      "You love through loyalty, reliability, and respecting freedom. Closeness deepens when you let trusted people matter before everything is already handled.",
+    parenting:
+      "As a parent or mentor, you may teach independence and resilience. The edge is showing that needing comfort is not a failure.",
+    examples:
+      "Famous echoes, not diagnoses: Amelia Earhart, Clint Eastwood. Fictional echoes: Elsa, Geralt of Rivia.",
+    examplePeople: {
+      famous: [
+        { name: "Amelia Earhart", note: "autonomy and courage", motif: "wing" },
+        { name: "Clint Eastwood", note: "self-contained toughness", motif: "ridge" },
+      ],
+      fictional: [
+        { name: "Elsa", note: "distance as protection", motif: "snow" },
+        { name: "Geralt of Rivia", note: "guarded loyalty", motif: "wolf" },
+      ],
+    },
+    uniqueSections: [
+      {
+        kicker: "Attachment-Specific",
+        title: "Trigger Pattern",
+        body:
+          "Pressure, emotional intensity, or too much access can feel like a loss of freedom, even when the other person means well.",
+      },
+      {
+        kicker: "Repair Practice",
+        title: "What To Try",
+        body:
+          "Tell people you are taking space and when you will return, so distance becomes a boundary rather than disappearance.",
+      },
+    ],
+    member:
+      "Monthly access would track where independence is healthy, where it becomes armor, and how it connects to your career and archetype results.",
+  },
+  AD: {
+    title: "Push-Pull Protector",
+    score: "Attachment pattern: closeness hunger with protective shutdown",
+    summary:
+      "Your answers suggest a mixed attachment pattern: you may want deep closeness while also bracing against the risk of needing someone. That can create a push-pull rhythm under stress.",
+    strengths: ["Emotional depth", "Survival sensitivity", "Strong radar for relational risk"],
+    weaknesses: ["Can test trust", "May alternate pursuit and withdrawal", "Can confuse intensity with safety"],
+    situations:
+      "When a bond matters, you may move toward it and away from it at the same time. The growth move is slowing the cycle enough to name both the longing and the fear.",
+    relationships:
+      "You connect deeply when trust is patient, honest, and not rushed. Stability grows when repair is predictable and distance is explained rather than used as a shield.",
+    parenting:
+      "As a parent or mentor, your sensitivity can help children feel deeply seen. The edge is regulating your alarm before responding to theirs.",
+    examples:
+      "Famous echoes, not diagnoses: Frida Kahlo, Vincent van Gogh. Fictional echoes: Wanda Maximoff, Zuko.",
+    examplePeople: {
+      famous: [
+        { name: "Frida Kahlo", note: "intensity, longing, and self-protection", motif: "flower" },
+        { name: "Vincent van Gogh", note: "emotional depth and vulnerability", motif: "star" },
+      ],
+      fictional: [
+        { name: "Wanda Maximoff", note: "love and fear under grief", motif: "spark" },
+        { name: "Zuko", note: "guarded longing for belonging", motif: "flame" },
+      ],
+    },
+    uniqueSections: [
+      {
+        kicker: "Attachment-Specific",
+        title: "Trigger Pattern",
+        body:
+          "Closeness and risk can arrive together. You may pursue connection and protect yourself at the same time.",
+      },
+      {
+        kicker: "Repair Practice",
+        title: "What To Try",
+        body:
+          "Name both truths: I want closeness and I am scared. Then choose one steady repair action.",
+      },
+    ],
+    member:
+      "Monthly access would add regulation prompts, repair language, and cross-test views for stress, conflict, and intimacy patterns.",
+  },
+};
+
+function buildAttachmentQuestions() {
+  return attachmentQuestionGroups.flatMap(([left, right, questions]) =>
+    questions.map((question) => buildDimensionQuestion(left, right, question))
+  );
+}
+
+const careerDimensions = [
+  { left: "M", right: "R", leftLabel: "Mastery/Craft", rightLabel: "Recognition/Status" },
+  { left: "A", right: "S", leftLabel: "Autonomy/Freedom", rightLabel: "Security/Structure" },
+  { left: "I", right: "C", leftLabel: "Mission/Impact", rightLabel: "Creativity/Novelty" },
+];
+
+const careerQuestionGroups = [
+  [
+    "M",
+    "R",
+    [
+      ["Reward", "A workday feels worth it when you...", "Get better at something hard", "Skill growth is deeply satisfying.", "Are visibly valued for the win", "Recognition tells you the effort landed."],
+      ["Compliment", "The compliment that motivates you most is...", "You are excellent at this", "Mastery matters more than applause.", "People noticed your impact", "Status and visibility give the work energy."],
+      ["Promotion", "A promotion appeals most because it gives you...", "Harder problems", "You want a larger craft challenge.", "More influence", "You want your value to be seen and felt."],
+      ["Learning", "You choose a course or mentor based on...", "Depth of expertise", "You want the best teacher for the craft.", "Credibility and network", "You want the doors that open afterward."],
+      ["Competition", "Competition is useful when it...", "Sharpens your skill", "The rival makes you better.", "Proves your standing", "The scoreboard tells the truth."],
+      ["Failure", "Failure bothers you most when it means...", "You were not prepared enough", "The craft gap gets your attention.", "People may doubt you", "Reputation risk hits hard."],
+      ["Portfolio", "You would rather build a career known for...", "Excellent work", "Quality is the legacy.", "Visible wins", "Momentum and reputation are the legacy."],
+      ["Feedback", "The feedback you want first is...", "How to improve the work", "Useful critique beats vague praise.", "How the work was received", "Audience and stakeholder response matter."],
+      ["Pride", "You feel proudest when you...", "Solve the difficult piece", "The private breakthrough matters.", "Get chosen for the big room", "External trust feels like a milestone."],
+      ["Motivation", "Your motivation fades when...", "The work becomes shallow", "You need substance to stay engaged.", "Nobody notices the effort", "Invisible work can start feeling pointless."],
+      ["Role model", "Your ideal role model is...", "A master of the craft", "Their excellence teaches you.", "A respected public leader", "Their influence teaches you."],
+      ["Decision", "When choosing between roles, you pick...", "The better skill ladder", "Growth over optics.", "The stronger platform", "Leverage over obscurity."],
+      ["Daily metric", "The metric you check first is...", "Quality improvement", "You want to know the work is stronger.", "Recognition or reach", "You want to know the work traveled."],
+      ["Growth", "The career growth move you need now is...", "Deeper mastery", "You want your craft to become undeniable.", "Bolder visibility", "You want your contribution to be impossible to miss."],
+    ],
+  ],
+  [
+    "A",
+    "S",
+    [
+      ["Schedule", "Your ideal schedule gives you...", "Control over your time", "Freedom helps you do your best work.", "Reliable structure", "Predictability helps you focus."],
+      ["Manager", "The best manager gives you...", "Room to choose the path", "Autonomy creates ownership.", "Clear expectations", "Structure makes success repeatable."],
+      ["Risk", "A career risk feels acceptable when...", "It expands your freedom", "Independence is worth uncertainty.", "The downside is contained", "Security lets you take a smart risk."],
+      ["Environment", "You thrive in an environment with...", "Flexibility", "You need room to adapt.", "Stability", "You need a dependable base."],
+      ["Rules", "Rules are useful when they...", "Protect freedom without micromanaging", "You want guardrails, not cages.", "Create fairness and clarity", "You want everyone to know the standard."],
+      ["Stress", "Under work stress, you most need...", "Space to solve it your way", "Control helps you regulate.", "A clear plan", "Structure helps you regulate."],
+      ["Offer", "A job offer becomes more attractive if it includes...", "Remote or flexible options", "Choice is part of compensation.", "Benefits and long-term security", "Stability is part of compensation."],
+      ["Ownership", "You feel most responsible when...", "You designed the route", "Self-direction increases commitment.", "The role is clearly defined", "Clarity increases commitment."],
+      ["Change", "When a workplace changes quickly, you...", "Look for new freedom", "Change can open space.", "Look for the new rules", "Change needs a stable map."],
+      ["Burnout", "Burnout starts when you...", "Lose control of your work", "Too much constraint drains you.", "Lose dependable support", "Too much uncertainty drains you."],
+      ["Team", "A team works best when it gives people...", "Autonomy with trust", "People should own their lane.", "Reliable systems", "People should have shared structure."],
+      ["Money", "Money matters most because it gives you...", "Options", "Resources buy freedom.", "Security", "Resources buy peace."],
+      ["Planning", "You plan your career by asking...", "What gives me more agency?", "Freedom is the north star.", "What creates a stronger foundation?", "Stability is the north star."],
+      ["Growth", "The next role should give you more...", "Independence", "You want a wider lane.", "Reliability", "You want a stronger base."],
+    ],
+  ],
+  [
+    "I",
+    "C",
+    [
+      ["Meaning", "Work feels meaningful when it...", "Helps people or improves a system", "Impact gives the effort weight.", "Lets you make something new", "Originality gives the effort life."],
+      ["Project", "The project you volunteer for first is...", "The one with real-world stakes", "You want the work to matter beyond itself.", "The one with creative freedom", "You want room to invent."],
+      ["Boredom", "You get bored fastest when work lacks...", "Purpose", "Tasks need a reason.", "Variety", "Tasks need freshness."],
+      ["Legacy", "You would rather leave behind...", "A measurable difference", "The world should be better because you were there.", "A distinctive body of work", "The work should feel unmistakably yours."],
+      ["Brainstorm", "In a brainstorm, you push for...", "Usefulness", "Ideas should solve a real problem.", "Originality", "Ideas should open a new door."],
+      ["Customer", "You care most that customers or users...", "Are truly helped", "Their lives should improve.", "Feel surprised and engaged", "Their imagination should wake up."],
+      ["Mission", "A company mission matters when it is...", "Ethical and real", "Values should show up in decisions.", "Bold and imaginative", "Vision should make people feel possibility."],
+      ["Recognition", "You want to be recognized for...", "Making a difference", "Impact is the proof.", "Making something fresh", "Originality is the proof."],
+      ["Problem", "A hard problem hooks you when it...", "Affects real people", "Human stakes keep you invested.", "Has no obvious answer", "Novelty keeps you invested."],
+      ["Routine", "Routine is tolerable when it...", "Serves a meaningful outcome", "Purpose can carry repetition.", "Leaves room for experiments", "Variety can refresh repetition."],
+      ["Team value", "Your team value is strongest when you...", "Keep the purpose in view", "You remind people why it matters.", "Generate a new angle", "You remind people what else is possible."],
+      ["Ethics", "You are most likely to challenge work that...", "Does not align with values", "Mission without integrity loses you.", "Feels stale or copied", "Creativity without life loses you."],
+      ["Energy", "Your energy rises when you can...", "Serve something bigger", "Contribution gives you stamina.", "Invent something different", "Creation gives you stamina."],
+      ["Growth", "The career growth move you need now is...", "Choose higher-impact work", "You want stronger purpose.", "Choose more original work", "You want wider creative range."],
+    ],
+  ],
+];
+
+const careerDriverCopy = {
+  M: {
+    name: "mastery",
+    strength: "craft discipline",
+    watchout: "perfectionism or hiding until the work is flawless",
+    relationship: "offering competence and thoughtful improvement",
+  },
+  R: {
+    name: "recognition",
+    strength: "ambition and visibility",
+    watchout: "letting applause define the value of the work",
+    relationship: "bringing momentum, confidence, and public energy",
+  },
+  A: {
+    name: "autonomy",
+    strength: "self-direction",
+    watchout: "resisting structure even when it would help",
+    relationship: "giving people freedom and trusting ownership",
+  },
+  S: {
+    name: "security",
+    strength: "stability and follow-through",
+    watchout: "staying too long in a safe but shrinking lane",
+    relationship: "creating reliability people can count on",
+  },
+  I: {
+    name: "mission",
+    strength: "purpose-led effort",
+    watchout: "over-carrying work because it matters",
+    relationship: "keeping the human stakes visible",
+  },
+  C: {
+    name: "creativity",
+    strength: "fresh thinking",
+    watchout: "chasing novelty before finishing the useful thing",
+    relationship: "making work feel alive and possible",
+  },
+};
+
+const careerExamples = {
+  MAI: [["Marie Curie", "mastery with purpose"], ["Jane Goodall", "deep craft in service of life"], ["Hermione Granger", "prepared mission focus"], ["Shuri", "skill applied to impact"]],
+  MAC: [["Leonardo da Vinci", "mastery and invention"], ["David Bowie", "craft with reinvention"], ["Tony Stark", "technical creativity"], ["Luna Lovegood", "original perception"]],
+  MSI: [["Florence Nightingale", "systematic service"], ["Jonas Salk", "careful work for public good"], ["Samwise Gamgee", "steady useful devotion"], ["T'Challa", "stable mission leadership"]],
+  MSC: [["Hedy Lamarr", "skilled invention"], ["Walt Disney", "creative systems"], ["Data", "precise curiosity"], ["Newt Scamander", "craft and wonder"]],
+  RAI: [["Oprah Winfrey", "visible influence with purpose"], ["Barack Obama", "public leadership and mission"], ["Princess Leia", "commanding cause-driven leadership"], ["Jean-Luc Picard", "principled authority"]],
+  RAC: [["Lady Gaga", "visible creative originality"], ["Steve Jobs", "influence through design"], ["Glinda", "charismatic creative polish"], ["Tony Stark", "spotlight innovation"]],
+  RSI: [["Alexander Hamilton", "ambition tied to institution-building"], ["Indra Nooyi", "executive impact"], ["Leslie Knope", "status used for public service"], ["Princess Leia", "structured resistance leadership"]],
+  RSC: [["Anna Wintour", "prestige and creative standards"], ["Martha Stewart", "brand, structure, and taste"], ["Miranda Priestly", "high-status creative command"], ["Bruce Wayne", "resources and disciplined systems"]],
+};
+
+function careerTitleForCode(code) {
+  const titles = {
+    MAI: "Mission-Driven Expert",
+    MAC: "Independent Creative Specialist",
+    MSI: "Steady Impact Builder",
+    MSC: "Reliable Craft Designer",
+    RAI: "Influence-Driven Changemaker",
+    RAC: "Creative Spotlight Driver",
+    RSI: "Purposeful Organization Climber",
+    RSC: "Prestige-Stability Strategist",
+  };
+  return titles[code] || "Career Driver Blend";
+}
+
+function careerSummaryForCode(code) {
+  const copy = code.split("").map((letter) => careerDriverCopy[letter]);
+  return `Your work motivation leans toward ${copy.map((item) => item.name).join(", ")}. You are most energized when your role lets you use ${copy[0].strength}, ${copy[1].strength}, and ${copy[2].strength} in the same direction.`;
+}
+
+function buildCareerQuestions() {
+  return careerQuestionGroups.flatMap(([left, right, questions]) =>
+    questions.map((question) => buildDimensionQuestion(left, right, question))
+  );
+}
+
+function buildCareerProfiles() {
+  return Object.fromEntries(
+    generateDimensionCodes(careerDimensions).map((code) => {
+      const copy = code.split("").map((letter) => careerDriverCopy[letter]);
+      const examples = careerExamples[code];
+      return [
+        code,
+        {
+          title: careerTitleForCode(code),
+          score: `Career driver code: ${code} | 1 of 8 motivation patterns`,
+          summary: careerSummaryForCode(code),
+          strengths: copy.map((item) => item.strength),
+          weaknesses: copy.map((item) => item.watchout),
+          situations: `You are likely strongest in roles where ${copy[0].name}, ${copy[1].name}, and ${copy[2].name} are rewarded instead of treated as side benefits.`,
+          relationships: `At work, people experience you through ${copy.map((item) => item.relationship).join(", ")}. Your best teams understand what actually fuels you.`,
+          parenting: `As a parent or mentor, you may encourage younger people to value ${copy[0].name} and ${copy[2].name}. The growth edge is remembering that their driver blend may not match yours.`,
+          examples: `Famous echoes, not diagnoses: ${examples[0][0]}, ${examples[1][0]}. Fictional echoes: ${examples[2][0]}, ${examples[3][0]}.`,
+          examplePeople: {
+            famous: [
+              { name: examples[0][0], note: examples[0][1], motif: code.slice(0, 2) },
+              { name: examples[1][0], note: examples[1][1], motif: code.slice(1) },
+            ],
+            fictional: [
+              { name: examples[2][0], note: examples[2][1], motif: code[0] + code[2] },
+              { name: examples[3][0], note: examples[3][1], motif: code[1] + code[2] },
+            ],
+          },
+          uniqueSections: [
+            {
+              kicker: "Career-Specific",
+              title: "Best-Fit Environment",
+              body: `You will probably do best where ${copy[0].name}, ${copy[1].name}, and ${copy[2].name} are explicitly valued, not treated as nice-to-have extras.`,
+            },
+            {
+              kicker: "Role Red Flag",
+              title: "What Drains You",
+              body: `Watch roles that block ${copy[1].name}, flatten ${copy[0].name}, or make ${copy[2].name} impossible to practice in daily work.`,
+            },
+          ],
+          member:
+            "Monthly access would compare this driver blend with IQ, archetype, Enneagram, attachment, and character-match results so career choices can line up with the rest of your profile.",
+        },
+      ];
+    })
+  );
+}
+
 function configureAssessmentCatalog() {
   const archetype = tests.find((test) => test.id === "archetype");
   if (archetype) extendChoiceTest(archetype, archetypePrompts, archetypeChoiceCopy, 42);
@@ -2598,6 +3028,38 @@ function configureAssessmentCatalog() {
 
   const scifi = tests.find((test) => test.id === "scifi");
   if (scifi) extendChoiceTest(scifi, scifiPrompts, scifiChoiceCopy, 42);
+
+  const attachment = tests.find((test) => test.id === "attachment");
+  if (attachment) {
+    attachment.category = "Psychology";
+    attachment.status = "Live";
+    attachment.time = "12 min";
+    attachment.items = "42 questions";
+    attachment.price = "$1 report";
+    attachment.scoring = "dimensions";
+    attachment.totalPossibilities = 4;
+    attachment.dimensions = attachmentDimensions;
+    attachment.description =
+      "A relationship-focused test for closeness, reassurance, independence, conflict repair, and emotional safety.";
+    attachment.questions = buildAttachmentQuestions();
+    attachment.profiles = attachmentProfiles;
+  }
+
+  const career = tests.find((test) => test.id === "career");
+  if (career) {
+    career.category = "Psychology";
+    career.status = "Live";
+    career.time = "12 min";
+    career.items = "42 questions";
+    career.price = "$1 report";
+    career.scoring = "dimensions";
+    career.totalPossibilities = 8;
+    career.dimensions = careerDimensions;
+    career.description =
+      "A practical career motivation test for mastery, recognition, autonomy, security, mission, and creativity.";
+    career.questions = buildCareerQuestions();
+    career.profiles = buildCareerProfiles();
+  }
 }
 
 configureAssessmentCatalog();
@@ -2665,6 +3127,7 @@ const dom = {
   characterFeature: document.querySelector("[data-character-feature]"),
   exampleShowcase: document.querySelector("[data-example-showcase]"),
   resultStoryPanels: document.querySelector("[data-result-story-panels]"),
+  resultUniqueSections: document.querySelector("[data-result-unique-sections]"),
   resultStrengths: document.querySelector("[data-result-strengths]"),
   resultWeaknesses: document.querySelector("[data-result-weaknesses]"),
   resultSituations: document.querySelector("[data-result-situations]"),
@@ -2919,6 +3382,10 @@ function formatResultEmail(profile) {
         `Why it fits: ${profile.characterFeature.fit}`,
       ]
     : [];
+  const uniqueLines = (profile.uniqueSections || []).flatMap((section) => [
+    "",
+    `${section.title}: ${section.body}`,
+  ]);
 
   return [
     `PsycheIQ Result: ${profile.title}`,
@@ -2938,6 +3405,7 @@ function formatResultEmail(profile) {
     `As parents: ${profile.parenting}`,
     "",
     `Examples: ${profile.examples}`,
+    ...uniqueLines,
     ...characterLines,
   ].join("\n");
 }
@@ -3806,25 +4274,35 @@ const wikiTitleOverrides = {
   "Ahsoka Tano": "Ahsoka_Tano",
   "Albus Dumbledore": "Albus_Dumbledore",
   "Alexander Hamilton": "Alexander_Hamilton",
+  "Amelia Earhart": "Amelia_Earhart",
   "Annabeth Chase": "Annabeth_Chase",
+  "Anna Wintour": "Anna_Wintour",
   "Aragorn": "Aragorn",
   "Arya Stark": "Arya_Stark",
   "Aslan": "Aslan",
+  "Barack Obama": "Barack_Obama",
   "Beth Harmon": "Beth_Harmon",
+  "Bridget Jones": "Bridget_Jones_(character)",
   "Bruce Wayne": "Batman",
   "Buffy Summers": "Buffy_Summers",
   "Carol Danvers": "Carol_Danvers",
   "Chani": "Chani_(character)",
   "Chidi Anagonye": "Chidi_Anagonye",
   "Ciri": "Ciri_(The_Witcher)",
+  "Clint Eastwood": "Clint_Eastwood",
   "Claudia from Warehouse 13": "Claudia_Donovan",
   "Cleopatra": "Cleopatra",
   "Daenerys Targaryen": "Daenerys_Targaryen",
   "Data": "Data_(Star_Trek)",
+  "David Bowie": "David_Bowie",
   "Din Djarin": "Din_Djarin",
+  "Elsa": "Elsa_(Frozen)",
   "Eowyn": "Eowyn",
   "Finn": "Finn_(Star_Wars)",
   "Fleabag": "Fleabag_(TV_series)",
+  "Florence Nightingale": "Florence_Nightingale",
+  "Fred Rogers": "Fred_Rogers",
+  "Frida Kahlo": "Frida_Kahlo",
   "Furiosa": "Imperator_Furiosa",
   "Galadriel": "Galadriel",
   "Geralt of Rivia": "Geralt_of_Rivia",
@@ -3833,29 +4311,46 @@ const wikiTitleOverrides = {
   "Grover Underwood": "Grover_Underwood",
   "Han Solo": "Han_Solo",
   "Harry Potter": "Harry_Potter_(character)",
+  "Hedy Lamarr": "Hedy_Lamarr",
+  "Hermione Granger": "Hermione_Granger",
   "Ida B. Wells": "Ida_B._Wells",
+  "Indra Nooyi": "Indra_Nooyi",
   "James T. Kirk": "James_T._Kirk",
+  "Jane Goodall": "Jane_Goodall",
   "J.R.R. Tolkien": "J._R._R._Tolkien",
   "Jean-Luc Picard": "Jean-Luc_Picard",
+  "Jonas Salk": "Jonas_Salk",
   "Jon Snow": "Jon_Snow_(character)",
+  "Judy Garland": "Judy_Garland",
   "Katara": "Katara_(Avatar:_The_Last_Airbender)",
+  "Lady Gaga": "Lady_Gaga",
   "Leia Organa": "Princess_Leia",
+  "Leonardo da Vinci": "Leonardo_da_Vinci",
+  "Leslie Knope": "Leslie_Knope",
   "Loki": "Loki_(Marvel_Cinematic_Universe)",
+  "Luna Lovegood": "Luna_Lovegood",
   "Marlin": "Marlin_(Finding_Nemo)",
   "Martin Luther King Jr.": "Martin_Luther_King_Jr.",
+  "Marie Curie": "Marie_Curie",
+  "Martha Stewart": "Martha_Stewart",
   "Merlin": "Merlin",
+  "Michelle Obama": "Michelle_Obama",
+  "Miranda Priestly": "Miranda_Priestly",
   "Moana": "Moana_(character)",
   "Morpheus": "Morpheus_(The_Matrix)",
   "Mulan": "Mulan_(Disney_character)",
   "Neo": "Neo_(The_Matrix)",
+  "Newt Scamander": "Newt_Scamander",
   "Neville Longbottom": "Neville_Longbottom",
   "Obi-Wan Kenobi": "Obi-Wan_Kenobi",
   "Okoye": "Okoye_(Marvel_Cinematic_Universe)",
+  "Oprah Winfrey": "Oprah_Winfrey",
   "Paul Atreides": "Paul_Atreides",
   "Peeta Mellark": "Peeta_Mellark",
   "Percy Jackson": "Percy_Jackson_(character)",
   "Peter Parker": "Spider-Man",
   "Prince": "Prince_(musician)",
+  "Princess Diana": "Diana,_Princess_of_Wales",
   "Princess Leia": "Princess_Leia",
   "Professor X": "Professor_X",
   "Rey Skywalker": "Rey_(Star_Wars)",
@@ -3864,17 +4359,22 @@ const wikiTitleOverrides = {
   "Sarah Connor": "Sarah_Connor_(Terminator)",
   "Shuri": "Shuri_(character)",
   "Spock": "Spock",
+  "Steve Jobs": "Steve_Jobs",
   "Steve Rogers": "Captain_America",
   "Storm": "Storm_(Marvel_Comics)",
   "T'Challa": "T'Challa",
+  "Ted Mosby": "Ted_Mosby",
   "The Doctor": "The_Doctor_(Doctor_Who)",
   "Tony Stark": "Iron_Man",
   "Toph Beifong": "Toph_Beifong",
   "Trinity": "Trinity_(The_Matrix)",
   "Uncle Iroh": "Iroh",
+  "Vincent van Gogh": "Vincent_van_Gogh",
   "Wanda Maximoff": "Wanda_Maximoff",
+  "Walt Disney": "Walt_Disney",
   "Winnie the Pooh": "Winnie-the-Pooh",
   "Yennefer of Vengerberg": "Yennefer_of_Vengerberg",
+  "Zuko": "Zuko",
 };
 
 const wikiThumbnailCache = new Map();
@@ -4174,6 +4674,30 @@ function renderResultStoryPanels(profile) {
   `;
 }
 
+function renderUniqueSections(profile) {
+  if (!dom.resultUniqueSections) return;
+
+  const sections = profile.uniqueSections || [];
+  if (!sections.length) {
+    dom.resultUniqueSections.hidden = true;
+    dom.resultUniqueSections.innerHTML = "";
+    return;
+  }
+
+  dom.resultUniqueSections.hidden = false;
+  dom.resultUniqueSections.innerHTML = sections
+    .map(
+      (section) => `
+        <article>
+          <p class="mini-label">${escapeHtml(section.kicker || "Profile Detail")}</p>
+          <h4>${escapeHtml(section.title)}</h4>
+          <p>${escapeHtml(section.body)}</p>
+        </article>
+      `
+    )
+    .join("");
+}
+
 function renderResultVisuals(profile) {
   if (!profile.analytics) {
     dom.resultVisuals.innerHTML = "";
@@ -4206,6 +4730,7 @@ function unlockResult(mode) {
   renderCharacterFeature(profile);
   renderExampleShowcase(profile);
   renderResultStoryPanels(profile);
+  renderUniqueSections(profile);
   renderList(dom.resultStrengths, profile.strengths);
   renderList(dom.resultWeaknesses, profile.weaknesses);
   dom.resultSituations.textContent = profile.situations;
