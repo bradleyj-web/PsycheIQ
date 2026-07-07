@@ -16,12 +16,12 @@ Open `supabase-config.js` and fill in the public values from Supabase:
 ```js
 window.PSYCHEIQ_SUPABASE = {
   url: "https://YOUR-PROJECT.supabase.co",
-  anonKey: "YOUR-PUBLIC-ANON-KEY",
+  anonKey: "YOUR-PUBLIC-ANON-OR-PUBLISHABLE-KEY",
   functionsUrl: "https://YOUR-PROJECT.supabase.co/functions/v1",
 };
 ```
 
-Only use the public anon key in this file. Never put the service role key in the browser.
+Only use the public anon or publishable key in this file. Never put the service role key in the browser.
 
 ## 3. Add Supabase secrets
 

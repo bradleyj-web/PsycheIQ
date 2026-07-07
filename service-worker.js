@@ -1,10 +1,10 @@
-const CACHE_NAME = "psycheiq-v23";
+const CACHE_NAME = "psycheiq-v24";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./privacy.html",
   "./styles.css",
-  "./supabase-config.js",
+  "./supabase-config.js?v=24",
   "./app.js?v=23",
   "./manifest.json",
   "./assets/psyche-hero.svg",
