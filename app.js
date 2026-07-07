@@ -3082,8 +3082,8 @@ const ADS_CONFIG = {
 };
 // Browser-only fallback. The Android app uses Google Play Billing instead.
 const PAYMENT_LINKS = {
-  core: "",
-  member: "",
+  core: "https://buy.stripe.com/aFaeVeaaU0EC82N4P63oA00",
+  member: "https://buy.stripe.com/7sYbJ25UEfzwerb5Ta3oA01",
 };
 
 const dom = {
@@ -3907,7 +3907,6 @@ function restoreCheckoutResult(mode, source = "checkout") {
   const test = tests.find((item) => item.id === pending?.testId);
 
   if (!pending || !test) {
-    if (mode === "member") grantAccess("member", source);
     removeStorageItem(storageKeys.pendingCheckout);
     return false;
   }
