@@ -2,15 +2,20 @@ import Stripe from "https://esm.sh/stripe@latest?target=denonext";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders, errorResponse, jsonResponse } from "../_shared/cors.ts";
 
-const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-  apiVersion: "2026-02-25.clover" as any,
-  httpClient: Stripe.createFetchHttpClient(),
-});
-
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL") || "",
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
 );
+
+function stripeClient() {
+  const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
+  if (!secretKey) throw new Error("Missing STRIPE_SECRET_KEY");
+
+  return new Stripe(secretKey, {
+    apiVersion: "2026-02-25.preview" as any,
+    httpClient: Stripe.createFetchHttpClient(),
+  });
+}
 
 function cleanText(value: unknown) {
   return String(value || "").trim();
@@ -61,9 +66,10 @@ Deno.serve(async (request) => {
       email,
     };
 
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams: any = {
       mode: requestedMode === "member" ? "subscription" : "payment",
       line_items: [{ price: priceId, quantity: 1 }],
+      managed_payments: { enabled: true },
       customer_email: email || undefined,
       client_reference_id: userId || email || undefined,
       success_url: successUrl,
@@ -76,7 +82,9 @@ Deno.serve(async (request) => {
               metadata,
             }
           : undefined,
-    });
+    };
+
+    const session = await stripeClient().checkout.sessions.create(sessionParams);
 
     return jsonResponse({ url: session.url });
   } catch (error) {

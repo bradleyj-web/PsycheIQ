@@ -56,10 +56,12 @@ The webhook function must use `--no-verify-jwt` because Stripe cannot send a Sup
 
 ## 5. Connect Stripe webhook
 
-In Stripe, add an endpoint:
+In Stripe, first enable Managed Payments for the account. PsycheIQ's Stripe products should use an eligible digital-product tax code such as `txcd_10103100`.
+
+Then add a webhook endpoint:
 
 ```text
-https://YOUR-PROJECT.supabase.co/functions/v1/stripe-webhook
+https://ofaafruiapampldmrtdg.supabase.co/functions/v1/stripe-webhook
 ```
 
 Send these events:

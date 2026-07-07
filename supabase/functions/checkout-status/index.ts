@@ -3,15 +3,19 @@ import Stripe from "https://esm.sh/stripe@latest?target=denonext";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders, errorResponse, jsonResponse } from "../_shared/cors.ts";
 
-const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-  apiVersion: "2026-02-25.clover" as any,
-  httpClient: Stripe.createFetchHttpClient(),
-});
-
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL") || "",
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
 );
+
+function stripeClient() {
+  const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
+  if (!secretKey) throw new Error("Missing STRIPE_SECRET_KEY");
+
+  return new Stripe(secretKey, {
+    httpClient: Stripe.createFetchHttpClient(),
+  });
+}
 
 function cleanText(value: unknown) {
   return String(value || "").trim();
@@ -66,7 +70,7 @@ async function persistCheckoutAccess(session: any, fallbackUserId = "", fallback
 
   if (accessType === "member") {
     if (!subscriptionId) return { ok: false, reason: "Subscription was not found." };
-    subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    subscription = await stripeClient().subscriptions.retrieve(subscriptionId);
     subscriptionActive = ["active", "trialing"].includes(subscription.status);
     currentPeriodEnd = timestampToIso(subscription.current_period_end);
 
@@ -153,7 +157,7 @@ Deno.serve(async (request) => {
     const sessionId = cleanText(body.sessionId);
     if (!sessionId) return errorResponse("Missing checkout session id", 400);
 
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const session = await stripeClient().checkout.sessions.retrieve(sessionId);
     if (session.metadata?.app !== "psycheiq") {
       return errorResponse("Checkout session does not belong to PsycheIQ", 403);
     }
