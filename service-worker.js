@@ -1,10 +1,10 @@
-const CACHE_NAME = "psycheiq-v17";
+const CACHE_NAME = "psycheiq-v18";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./privacy.html",
   "./styles.css",
-  "./app.js",
+  "./app.js?v=18",
   "./manifest.json",
   "./assets/psyche-hero.svg",
   "./assets/icon.svg"
@@ -31,9 +31,13 @@ self.addEventListener("fetch", (event) => {
   if (requestUrl.origin !== self.location.origin) return;
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).catch((error) => {
+    fetch(event.request).then((response) => {
+      const copy = response.clone();
+      caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+      return response;
+    }).catch((error) => {
+      return caches.match(event.request).then((cached) => {
+        if (cached) return cached;
         if (event.request.mode === "navigate") return caches.match("./index.html");
         throw error;
       });
