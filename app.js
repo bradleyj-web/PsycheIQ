@@ -3085,7 +3085,7 @@ const PAYMENT_LINKS = {
   core: "https://buy.stripe.com/aFaeVeaaU0EC82N4P63oA00",
   member: "https://buy.stripe.com/7sYbJ25UEfzwerb5Ta3oA01",
 };
-const SUPPORT_EMAIL = "BRADJ@SMARTRENDZZ.COM";
+const SUPPORT_EMAIL = "brad.s.johnson666@gmail.com";
 
 const dom = {
   grid: document.querySelector("[data-test-grid]"),
