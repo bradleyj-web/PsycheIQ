@@ -57,25 +57,26 @@
           <h2>Information You Provide</h2>
           <p>
             You can take tests without creating an account. If you choose to save or email a result, the app may ask
-            for your name, email address, age, and sex. In the current version, this account information and saved
-            results are stored on your device using browser storage.
+            for your name, email address, age, sex, and account password. Account information may be stored locally on
+            your device and, when the cloud backend is connected, in PsycheIQ's Supabase project.
           </p>
         </article>
 
         <article>
           <h2>Test Answers and Results</h2>
           <p>
-            Your answers are used to calculate the result shown in the app. The current app keeps this information on
-            your device unless you choose to email a result to yourself. Emailing a result opens your device email app,
-            where you decide whether to send it.
+            Your answers are used to calculate the result shown in the app. Results may be stored on your device and,
+            if you sign in, saved to your account so you can access them later. Emailing a result may open your device
+            email app or use the connected backend email flow when that feature is enabled.
           </p>
         </article>
 
         <article>
           <h2>Purchases</h2>
           <p>
-            In the Android app, monthly membership purchases are processed by Google Play Billing. Google handles the
-            payment transaction. PsycheIQ receives purchase status information so the app can unlock membership access.
+            Website purchases are processed by Stripe. Android monthly membership purchases are processed by Google
+            Play Billing. PsycheIQ receives purchase status information so the app can unlock paid access and maintain
+            membership status.
           </p>
         </article>
 
@@ -101,8 +102,9 @@
           <h2>Data Sharing</h2>
           <p>
             PsycheIQ does not sell personal information. Data may be processed by platform services needed to operate
-            the app, such as Google Play Billing for Android purchases, external image hosts for image delivery, email
-            apps when you choose to send a result, and advertising providers if ads are connected.
+            the app, such as Supabase for account and result storage, Stripe for website payments, Google Play Billing
+            for Android purchases, external image hosts for image delivery, email apps or email providers when you
+            choose to send a result or support request, and advertising providers if ads are connected.
           </p>
         </article>
 

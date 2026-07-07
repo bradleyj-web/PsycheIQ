@@ -34,3 +34,17 @@ $env:ANDROID_HOME = "C:\Users\plzdo\AppData\Local\Android\Sdk"
 ```
 
 See `PLAY_STORE_READINESS.md` for the Play Console checklist.
+
+## Supabase Backend
+
+The app now includes a Supabase-ready backend scaffold in `supabase/`.
+
+- `supabase/schema.sql` creates profiles, purchases, subscriptions, entitlements, saved results, and support tickets.
+- `supabase/functions/create-checkout` starts secure Stripe Checkout Sessions.
+- `supabase/functions/checkout-status` verifies a returned Stripe session before unlocking access.
+- `supabase/functions/stripe-webhook` keeps membership status updated from Stripe.
+- `supabase/functions/support-ticket` stores chatbot support tickets and can email them when an email provider key is added.
+
+Fill in `supabase-config.js` with your public Supabase project URL and anon key after the project is created. Keep private keys inside Supabase Edge Function secrets only.
+
+See `supabase/README.md` for the setup steps.

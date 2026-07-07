@@ -506,6 +506,10 @@
             Email
             <input name="email" type="email" placeholder="you@example.com" required />
           </label>
+          <label>
+            Password
+            <input name="password" type="password" placeholder="Cloud account password" autocomplete="current-password" />
+          </label>
           <button class="button button-full" type="submit">Sign In</button>
         </form>
         <form class="auth-form" data-signup-form hidden>
@@ -516,6 +520,10 @@
           <label>
             Email
             <input name="email" type="email" placeholder="you@example.com" required />
+          </label>
+          <label>
+            Password
+            <input name="password" type="password" minlength="8" placeholder="At least 8 characters" autocomplete="new-password" />
           </label>
           <div class="form-split">
             <label>
@@ -570,6 +578,8 @@
       </div>
     </section>
 
-    <script src="app.js?v=22"></script>
+    <script src="supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js?v=23"></script>
   </body>
 </html>

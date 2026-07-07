@@ -3086,6 +3086,16 @@ const PAYMENT_LINKS = {
   member: "https://buy.stripe.com/7sYbJ25UEfzwerb5Ta3oA01",
 };
 const SUPPORT_EMAIL = "brad.s.johnson666@gmail.com";
+const SUPABASE_CONFIG = {
+  url: window.PSYCHEIQ_SUPABASE?.url || "",
+  anonKey: window.PSYCHEIQ_SUPABASE?.anonKey || "",
+  functionsUrl: window.PSYCHEIQ_SUPABASE?.functionsUrl || "",
+};
+const SUPABASE_FUNCTIONS = {
+  createCheckout: "create-checkout",
+  checkoutStatus: "checkout-status",
+  supportTicket: "support-ticket",
+};
 
 const dom = {
   grid: document.querySelector("[data-test-grid]"),
@@ -3188,6 +3198,8 @@ const state = {
     email: "",
     issue: "",
   },
+  supabaseClient: null,
+  supabaseReady: false,
 };
 
 const storageKeys = {
@@ -3221,6 +3233,71 @@ function removeStorageItem(key) {
   } catch (error) {
     // Optional cleanup only.
   }
+}
+
+function cleanSupabaseSetting(value) {
+  const setting = String(value || "").trim();
+  return /^YOUR[-_]/i.test(setting) ? "" : setting;
+}
+
+function isSupabaseConfigured() {
+  return Boolean(cleanSupabaseSetting(SUPABASE_CONFIG.url) && cleanSupabaseSetting(SUPABASE_CONFIG.anonKey));
+}
+
+function getSupabaseClient() {
+  if (!isSupabaseConfigured()) return null;
+  if (!window.supabase?.createClient) return null;
+
+  if (!state.supabaseClient) {
+    state.supabaseClient = window.supabase.createClient(
+      cleanSupabaseSetting(SUPABASE_CONFIG.url),
+      cleanSupabaseSetting(SUPABASE_CONFIG.anonKey),
+      {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true,
+        },
+      }
+    );
+    state.supabaseReady = true;
+  }
+
+  return state.supabaseClient;
+}
+
+function supabaseFunctionBaseUrl() {
+  const configured = cleanSupabaseSetting(SUPABASE_CONFIG.functionsUrl);
+  if (configured) return configured.replace(/\/$/, "");
+  return `${cleanSupabaseSetting(SUPABASE_CONFIG.url).replace(/\/$/, "")}/functions/v1`;
+}
+
+async function callSupabaseFunction(name, body) {
+  const client = getSupabaseClient();
+  if (!client) throw new Error("Supabase is not configured yet.");
+
+  if (client.functions?.invoke) {
+    const { data, error } = await client.functions.invoke(name, { body });
+    if (error) throw error;
+    return data;
+  }
+
+  const response = await fetch(`${supabaseFunctionBaseUrl()}/${name}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: cleanSupabaseSetting(SUPABASE_CONFIG.anonKey),
+      Authorization: `Bearer ${cleanSupabaseSetting(SUPABASE_CONFIG.anonKey)}`,
+    },
+    body: JSON.stringify(body),
+  });
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.error || "Supabase function failed.");
+  }
+
+  return data;
 }
 
 function getSavedResults() {
@@ -3353,9 +3430,129 @@ function updateAccountUi() {
   if (dom.menuLogin) dom.menuLogin.textContent = label;
 }
 
+function accountFromSupabaseUser(user, profile = {}) {
+  return {
+    id: user?.id || profile.id || "",
+    provider: "supabase",
+    name: profile.name || user?.user_metadata?.name || user?.email?.split("@")[0] || "PsycheIQ User",
+    email: (profile.email || user?.email || "").toLowerCase(),
+    age: profile.age || user?.user_metadata?.age || "",
+    sex: profile.sex || user?.user_metadata?.sex || "Prefer not to say",
+    createdAt: profile.created_at || user?.created_at || new Date().toISOString(),
+  };
+}
+
+async function loadSupabaseProfile(user) {
+  const client = getSupabaseClient();
+  if (!client || !user?.id) return accountFromSupabaseUser(user);
+
+  const { data, error } = await client
+    .from("profiles")
+    .select("id,email,name,age,sex,created_at")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (error || !data) return accountFromSupabaseUser(user);
+  return accountFromSupabaseUser(user, data);
+}
+
+async function upsertSupabaseProfile(account, userId = account?.id) {
+  const client = getSupabaseClient();
+  if (!client || !userId) return false;
+
+  const { error } = await client.from("profiles").upsert({
+    id: userId,
+    email: account.email,
+    name: account.name,
+    age: Number(account.age) || null,
+    sex: account.sex,
+  });
+
+  return !error;
+}
+
+function mergeSupabaseAccess(access = {}) {
+  const current = getAccessState();
+  const nextCoreUnlocks = { ...(current.coreUnlocks || {}) };
+  const now = new Date().toISOString();
+
+  (access.coreUnlocks || []).forEach((testId) => {
+    if (!testId) return;
+    nextCoreUnlocks[testId] = {
+      source: "supabase",
+      grantedAt: nextCoreUnlocks[testId]?.grantedAt || now,
+    };
+  });
+
+  writeAccessState({
+    ...current,
+    member: Boolean(current.member || access.member),
+    memberSource: access.member ? "supabase" : current.memberSource,
+    memberGrantedAt: access.member ? current.memberGrantedAt || now : current.memberGrantedAt,
+    coreUnlocks: nextCoreUnlocks,
+  });
+}
+
+async function refreshAccessFromSupabase() {
+  const client = getSupabaseClient();
+  if (!client || !state.account?.id) return false;
+
+  const { data, error } = await client
+    .from("entitlements")
+    .select("access_type,test_id,active,current_period_end")
+    .eq("active", true);
+
+  if (error || !Array.isArray(data)) return false;
+
+  const now = Date.now();
+  const access = data.reduce(
+    (result, entitlement) => {
+      const expiry = entitlement.current_period_end ? new Date(entitlement.current_period_end).getTime() : null;
+      const stillActive = !expiry || expiry > now;
+      if (!stillActive) return result;
+
+      if (entitlement.access_type === "member") result.member = true;
+      if (entitlement.access_type === "core" && entitlement.test_id) result.coreUnlocks.push(entitlement.test_id);
+      return result;
+    },
+    { member: false, coreUnlocks: [] }
+  );
+
+  mergeSupabaseAccess(access);
+  return true;
+}
+
 function initializeAccount() {
   state.account = readJsonStorage(storageKeys.account, null);
   updateAccountUi();
+}
+
+async function initializeSupabaseSession() {
+  const client = getSupabaseClient();
+  if (!client) return;
+
+  const { data } = await client.auth.getSession();
+  const user = data?.session?.user;
+
+  if (user) {
+    const account = await loadSupabaseProfile(user);
+    saveAccount(account);
+    await refreshAccessFromSupabase();
+  }
+
+  client.auth.onAuthStateChange(async (event, session) => {
+    if (event === "SIGNED_OUT") {
+      state.account = null;
+      removeStorageItem(storageKeys.account);
+      updateAccountUi();
+      return;
+    }
+
+    if (!session?.user) return;
+    const account = await loadSupabaseProfile(session.user);
+    saveAccount(account);
+    await refreshAccessFromSupabase();
+  });
 }
 
 function setAuthMessage(message) {
@@ -3380,7 +3577,7 @@ function showAuthPanel(panel = "signin", message = "") {
 function saveCurrentResultToAccount() {
   if (!state.account || !state.currentResult) return false;
   const savedResults = getSavedResults();
-  savedResults.unshift({
+  const savedResult = {
     id: `${Date.now()}-${state.activeTest.id}`,
     email: state.account.email,
     testTitle: state.activeTest.title,
@@ -3388,9 +3585,41 @@ function saveCurrentResultToAccount() {
     score: state.currentResult.score,
     summary: state.currentResult.summary,
     createdAt: new Date().toISOString(),
-  });
+  };
+  savedResults.unshift(savedResult);
   writeJsonStorage(storageKeys.results, savedResults.slice(0, 25));
+  saveCurrentResultToSupabase(savedResult);
   return true;
+}
+
+async function saveCurrentResultToSupabase(savedResult) {
+  const client = getSupabaseClient();
+  if (!client || !state.account?.id || !state.currentResult || !state.activeTest) return false;
+
+  const resultJson = {
+    title: state.currentResult.title,
+    score: state.currentResult.score,
+    summary: state.currentResult.summary,
+    strengths: state.currentResult.strengths,
+    weaknesses: state.currentResult.weaknesses,
+    analytics: state.currentResult.analytics,
+    examples: state.currentResult.examples,
+    characterFeature: state.currentResult.characterFeature || null,
+  };
+
+  const { error } = await client.from("assessment_results").insert({
+    user_id: state.account.id,
+    email: state.account.email,
+    test_id: state.activeTest.id,
+    test_title: state.activeTest.title,
+    result_title: savedResult.resultTitle,
+    score: savedResult.score,
+    summary: savedResult.summary,
+    mode: state.lastMode,
+    result_json: resultJson,
+  });
+
+  return !error;
 }
 
 function formatResultEmail(profile) {
@@ -3628,8 +3857,37 @@ function buildSupportEmailBody() {
     .join("\n");
 }
 
-function prepareSupportEmail() {
+async function submitSupportTicket() {
+  return callSupabaseFunction(SUPABASE_FUNCTIONS.supportTicket, {
+    email: state.supportConversation.email,
+    page: window.location.href,
+    activeTest: state.activeTest?.title || "",
+    currentResult: state.currentResult?.title || "",
+    message: state.supportConversation.issue || "Support request",
+  });
+}
+
+async function prepareSupportEmail() {
   const issue = state.supportConversation.issue || "Support request";
+
+  if (getSupabaseClient()) {
+    try {
+      const data = await submitSupportTicket();
+      appendSupportBubble(
+        "agent",
+        "Support Ticket Sent",
+        data?.emailed
+          ? `I sent this to ${SUPPORT_EMAIL} and saved ticket ${data.ticketId}.`
+          : `I saved ticket ${data?.ticketId || ""} for support. Email forwarding will turn on after the email provider key is added.`
+      );
+      if (dom.supportMessage) dom.supportMessage.textContent = "Support ticket saved.";
+      resetSupportEscalation();
+      return;
+    } catch (error) {
+      appendSupportBubble("agent", "Fallback", "I could not reach the support backend, so I will prepare an email instead.");
+    }
+  }
+
   const subject = encodeURIComponent(`PsycheIQ Support: ${issue.slice(0, 52)}`);
   const body = encodeURIComponent(buildSupportEmailBody());
   window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
@@ -3642,7 +3900,7 @@ function prepareSupportEmail() {
   resetSupportEscalation();
 }
 
-function handleSupportEscalation(message) {
+async function handleSupportEscalation(message) {
   const conversation = state.supportConversation;
 
   if (conversation.awaiting === "email") {
@@ -3673,7 +3931,7 @@ function handleSupportEscalation(message) {
 
   if (conversation.awaiting === "confirm") {
     if (isSendIntent(message)) {
-      prepareSupportEmail();
+      await prepareSupportEmail();
       return;
     }
 
@@ -3682,14 +3940,14 @@ function handleSupportEscalation(message) {
   }
 }
 
-function answerSupportQuestion(question) {
+async function answerSupportQuestion(question) {
   const trimmed = question.trim();
   if (!trimmed) return;
 
   appendSupportBubble("user", "", trimmed);
 
   if (state.supportConversation.awaiting !== "idle") {
-    handleSupportEscalation(trimmed);
+    await handleSupportEscalation(trimmed);
     return;
   }
 
@@ -4003,6 +4261,35 @@ function checkoutUrlFor(mode) {
   return PAYMENT_LINKS[mode] || "";
 }
 
+function checkoutReturnUrl(mode) {
+  const url = new URL(window.location.href);
+  url.searchParams.set(CHECKOUT_RETURN_PARAM, mode);
+  url.searchParams.set("session_id", "__SESSION_ID__");
+  return url.toString().replace("__SESSION_ID__", "{CHECKOUT_SESSION_ID}");
+}
+
+function checkoutCancelUrl() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete(CHECKOUT_RETURN_PARAM);
+  url.searchParams.delete("session_id");
+  return url.toString();
+}
+
+async function createSupabaseCheckout(mode) {
+  if (!getSupabaseClient()) return "";
+
+  const data = await callSupabaseFunction(SUPABASE_FUNCTIONS.createCheckout, {
+    mode,
+    testId: state.activeTest?.id || "",
+    intent: state.pendingCheckoutIntent,
+    email: state.account?.email || "",
+    successUrl: checkoutReturnUrl(mode),
+    cancelUrl: checkoutCancelUrl(),
+  });
+
+  return data?.url || "";
+}
+
 function hasNativeBilling() {
   return Boolean(window.PsycheIQBilling && typeof window.PsycheIQBilling.purchase === "function");
 }
@@ -4090,7 +4377,7 @@ function completePaidUnlock(mode, source = "checkout") {
   setPaywallMessage(successCopy, "success");
 }
 
-function requestPaidUnlock(mode) {
+async function requestPaidUnlock(mode) {
   if (!state.activeTest) return;
   const requestedMode = requiresMemberAccess() ? "member" : mode;
 
@@ -4116,6 +4403,23 @@ function requestPaidUnlock(mode) {
       setPaywallMessage("Google Play checkout could not start. Try again in a moment.", "error");
     }
     return;
+  }
+
+  if (getSupabaseClient()) {
+    try {
+      setPaywallMessage("Opening secure checkout...", "neutral");
+      const supabaseCheckoutUrl = await createSupabaseCheckout(requestedMode);
+      if (supabaseCheckoutUrl) {
+        window.location.href = supabaseCheckoutUrl;
+        return;
+      }
+    } catch (error) {
+      setPaywallMessage(
+        error instanceof Error ? error.message : "Secure checkout could not start. Try again in a moment.",
+        "error"
+      );
+      return;
+    }
   }
 
   const checkoutUrl = checkoutUrlFor(requestedMode);
@@ -4210,14 +4514,63 @@ window.handlePlayBillingStatus = (message) => {
   setPaywallMessage(message || "Google Play checkout is working...", "neutral");
 };
 
-function handleCheckoutReturn() {
+function restorePendingCheckoutToPaywall(message) {
+  const pending = readJsonStorage(storageKeys.pendingCheckout, null);
+  const test = tests.find((item) => item.id === pending?.testId);
+
+  if (!pending || !test) return false;
+
+  state.activeTest = test;
+  state.questionIndex = test.questions.length;
+  state.answerHistory = Array.isArray(pending.answerHistory) ? pending.answerHistory : [];
+  state.pendingCheckoutIntent = pending.intent || "result";
+  rebuildScoresFromHistory();
+
+  dom.modalTitle.textContent = test.title;
+  dom.modalCategory.textContent = test.category;
+  dom.modalDescription.textContent = test.description;
+  openModal();
+  resetPaywallControls();
+  setPaywallMessage(message, "error");
+  setModalView("paywall");
+  return true;
+}
+
+async function verifySupabaseCheckoutReturn(mode, sessionId) {
+  const pending = readJsonStorage(storageKeys.pendingCheckout, null);
+  const data = await callSupabaseFunction(SUPABASE_FUNCTIONS.checkoutStatus, {
+    mode,
+    sessionId,
+    testId: pending?.testId || state.activeTest?.id || "",
+    email: state.account?.email || "",
+  });
+
+  mergeSupabaseAccess(data?.access || {});
+  const restored = restoreCheckoutResult(data?.mode === "member" ? "member" : mode, "stripe");
+  if (!restored) grantAccess(data?.mode === "member" ? "member" : mode, "stripe");
+}
+
+async function handleCheckoutReturn() {
   const url = new URL(window.location.href);
   const mode = url.searchParams.get(CHECKOUT_RETURN_PARAM);
+  const sessionId = url.searchParams.get("session_id");
   if (mode !== "core" && mode !== "member") return;
 
-  restoreCheckoutResult(mode);
-  url.searchParams.delete(CHECKOUT_RETURN_PARAM);
-  window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
+  try {
+    if (sessionId && getSupabaseClient()) {
+      await verifySupabaseCheckoutReturn(mode, sessionId);
+    } else {
+      restoreCheckoutResult(mode);
+    }
+  } catch (error) {
+    restorePendingCheckoutToPaywall(
+      error instanceof Error ? error.message : "Payment could not be verified yet. Try refreshing in a moment."
+    );
+  } finally {
+    url.searchParams.delete(CHECKOUT_RETURN_PARAM);
+    url.searchParams.delete("session_id");
+    window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
+  }
 }
 
 function showPaywall() {
@@ -5139,9 +5492,31 @@ dom.authTabs.forEach((button) => {
   button.addEventListener("click", () => showAuthPanel(button.dataset.authTab));
 });
 
-dom.signinForm.addEventListener("submit", (event) => {
+dom.signinForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const email = dom.signinForm.elements.email.value.trim().toLowerCase();
+  const password = dom.signinForm.elements.password?.value || "";
+
+  if (getSupabaseClient()) {
+    if (!password) {
+      setAuthMessage("Enter your password to sign in to your cloud account.");
+      return;
+    }
+
+    try {
+      const { data, error } = await getSupabaseClient().auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      const account = await loadSupabaseProfile(data.user);
+      saveAccount(account);
+      await refreshAccessFromSupabase();
+      setAuthMessage(`Signed in as ${account.email}.`);
+      completeAuthFlow(`Signed in as ${account.email}.`);
+    } catch (error) {
+      setAuthMessage(error instanceof Error ? error.message : "Sign in failed. Check the email and password.");
+    }
+    return;
+  }
+
   const savedAccount = readJsonStorage(storageKeys.account, null);
 
   if (!savedAccount || savedAccount.email !== email) {
@@ -5155,9 +5530,10 @@ dom.signinForm.addEventListener("submit", (event) => {
   completeAuthFlow(`Signed in as ${savedAccount.email}.`);
 });
 
-dom.signupForm.addEventListener("submit", (event) => {
+dom.signupForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = dom.signupForm;
+  const password = form.elements.password?.value || "";
   const account = {
     name: form.elements.name.value.trim(),
     email: form.elements.email.value.trim().toLowerCase(),
@@ -5168,6 +5544,48 @@ dom.signupForm.addEventListener("submit", (event) => {
 
   if (!account.name || !account.email || !account.age || !account.sex) {
     setAuthMessage("Please fill out name, email, age, and sex to create the account.");
+    return;
+  }
+
+  if (getSupabaseClient()) {
+    if (password.length < 8) {
+      setAuthMessage("Use a password with at least 8 characters for your cloud account.");
+      return;
+    }
+
+    try {
+      const { data, error } = await getSupabaseClient().auth.signUp({
+        email: account.email,
+        password,
+        options: {
+          data: {
+            name: account.name,
+            age: account.age,
+            sex: account.sex,
+          },
+        },
+      });
+      if (error) throw error;
+
+      const cloudAccount = accountFromSupabaseUser(data.user, {
+        ...account,
+        id: data.user?.id,
+      });
+
+      if (data.session?.user) {
+        await upsertSupabaseProfile(cloudAccount, data.session.user.id);
+      }
+
+      saveAccount(cloudAccount);
+      setAuthMessage(
+        data.session
+          ? `Account created for ${cloudAccount.email}.`
+          : `Account created for ${cloudAccount.email}. Check your email if Supabase asks you to confirm it.`
+      );
+      completeAuthFlow(`Account created for ${cloudAccount.email}. Result saved to your account when cloud access is active.`);
+    } catch (error) {
+      setAuthMessage(error instanceof Error ? error.message : "Sign up failed. Try again in a moment.");
+    }
     return;
   }
 
@@ -5221,6 +5639,7 @@ if ("serviceWorker" in navigator) {
 
 initializeTheme();
 initializeAccount();
+initializeSupabaseSession();
 applyNativeStoreMode();
 renderTests();
 handleCheckoutReturn();
