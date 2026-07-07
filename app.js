@@ -3456,6 +3456,13 @@ function sendCurrentResultEmail() {
 
 const supportTopics = [
   {
+    title: "Membership Benefits",
+    route: false,
+    matches: ["what do i get", "what do you get", "included", "benefit", "benefits", "unlimited", "membership include", "member include", "membership", "monthly access"],
+    answer:
+      "Membership gives you unlimited access to all PsycheIQ tests, unlimited retakes, and unlimited access to your unlocked result pages. It also opens the deeper member result sections where available, lets you compare patterns across tests over time, and is the Play Store app's required access option.",
+  },
+  {
     title: "Payments and Checkout",
     route: false,
     matches: ["payment", "checkout", "stripe", "$1", "dollar", "paid", "paywall", "unlock"],
@@ -3463,9 +3470,9 @@ const supportTopics = [
       "On the website, the $1 report and $12.99 monthly membership open secure Stripe checkout. In the Android Play Store app, membership uses Google Play Billing instead. If checkout does not open, refresh the page once so the latest payment script loads.",
   },
   {
-    title: "Membership and Canceling",
+    title: "Canceling or Billing Help",
     route: true,
-    matches: ["cancel", "subscription", "membership", "monthly", "12.99", "billing", "refund"],
+    matches: ["cancel", "subscription problem", "billing problem", "charged", "refund", "wrong charge"],
     answer:
       "Monthly access unlocks unlimited tests, retakes, and result access. Billing changes or refund requests should be routed to support with the email used at checkout so the purchase can be found.",
   },
