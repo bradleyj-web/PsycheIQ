@@ -4414,11 +4414,11 @@ async function requestPaidUnlock(mode) {
         return;
       }
     } catch (error) {
+      console.warn("Supabase checkout unavailable; falling back to Stripe payment link.", error);
       setPaywallMessage(
-        error instanceof Error ? error.message : "Secure checkout could not start. Try again in a moment.",
-        "error"
+        "Secure checkout is still connecting. Opening the standard Stripe payment page...",
+        "warning"
       );
-      return;
     }
   }
 

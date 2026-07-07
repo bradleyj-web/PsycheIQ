@@ -5,5 +5,8 @@
   "description": "PsycheIQ static psychology and personality test app.",
   "dependencies": {
     "@supabase/supabase-js": "^2.110.1"
+  },
+  "devDependencies": {
+    "supabase": "^2.109.1"
   }
 }
