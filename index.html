@@ -59,6 +59,7 @@
           </svg>
           <span data-theme-label>Dark</span>
         </button>
+        <button class="text-button" type="button" data-open-support>Support</button>
         <button class="text-button" type="button" data-open-login>Log In</button>
         <a class="button button-small" href="#tests">Start Test</a>
       </div>
@@ -78,6 +79,7 @@
         <a href="#reports" data-menu-link>Reports</a>
         <a href="#pricing" data-menu-link>Pricing</a>
         <a href="#faq" data-menu-link>FAQ</a>
+        <button type="button" data-open-support data-menu-link>Support Agent</button>
       </nav>
       <div class="site-menu-feature">
         <p class="mini-label">Quick Start</p>
@@ -537,6 +539,49 @@
       </div>
     </div>
 
-    <script src="app.js?v=18"></script>
+    <button class="support-fab" type="button" data-open-support aria-label="Open support assistant">
+      <span>Help</span>
+    </button>
+
+    <section class="support-agent" data-support-agent hidden aria-label="PsycheIQ support assistant">
+      <div class="support-panel">
+        <div class="support-head">
+          <div>
+            <p class="mini-label">Customer Support</p>
+            <h2>PsycheIQ Support Agent</h2>
+          </div>
+          <button class="menu-close" type="button" data-close-support aria-label="Close support">x</button>
+        </div>
+        <div class="support-log" data-support-log aria-live="polite"></div>
+        <div class="support-suggestions" aria-label="Common support questions">
+          <button type="button" data-support-question="How do payments work?">Payments</button>
+          <button type="button" data-support-question="How do I cancel membership?">Cancel</button>
+          <button type="button" data-support-question="My result did not unlock.">Result issue</button>
+          <button type="button" data-support-question="How does sign up work?">Account</button>
+        </div>
+        <form class="support-form" data-support-form>
+          <label for="support-question">Ask a question</label>
+          <div>
+            <input id="support-question" name="question" type="text" placeholder="Type your question or issue" autocomplete="off" required />
+            <button class="button button-small" type="submit">Ask</button>
+          </div>
+        </form>
+        <form class="support-route" data-support-route-form>
+          <h3>Route this to support</h3>
+          <label>
+            Your email
+            <input name="email" type="email" placeholder="you@example.com" required />
+          </label>
+          <label>
+            What happened?
+            <textarea name="message" rows="4" placeholder="Describe the question, payment issue, result problem, or bug." required></textarea>
+          </label>
+          <button class="button button-full" type="submit">Send to Support</button>
+          <p data-support-message aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <script src="app.js?v=19"></script>
   </body>
 </html>

@@ -3085,6 +3085,7 @@ const PAYMENT_LINKS = {
   core: "https://buy.stripe.com/aFaeVeaaU0EC82N4P63oA00",
   member: "https://buy.stripe.com/7sYbJ25UEfzwerb5Ta3oA01",
 };
+const SUPPORT_EMAIL = "BRADJ@SMARTRENDZZ.COM";
 
 const dom = {
   grid: document.querySelector("[data-test-grid]"),
@@ -3159,6 +3160,14 @@ const dom = {
   unlockCopy: document.querySelector("[data-unlock-copy]"),
   reportCopy: document.querySelector("[data-report-copy]"),
   pricingCopy: document.querySelector("[data-pricing-copy]"),
+  openSupportButtons: document.querySelectorAll("[data-open-support]"),
+  supportAgent: document.querySelector("[data-support-agent]"),
+  closeSupport: document.querySelector("[data-close-support]"),
+  supportLog: document.querySelector("[data-support-log]"),
+  supportForm: document.querySelector("[data-support-form]"),
+  supportRouteForm: document.querySelector("[data-support-route-form]"),
+  supportMessage: document.querySelector("[data-support-message]"),
+  supportQuestions: document.querySelectorAll("[data-support-question]"),
 };
 
 const state = {
@@ -3439,6 +3448,174 @@ function sendCurrentResultEmail() {
   const body = encodeURIComponent(formatResultEmail(state.currentResult));
   window.location.href = `mailto:${encodeURIComponent(state.account.email)}?subject=${subject}&body=${body}`;
   setResultAccountMessage(`Prepared this result for ${state.account.email}. Your email app may ask you to press send.`);
+}
+
+const supportTopics = [
+  {
+    title: "Payments and Checkout",
+    route: false,
+    matches: ["payment", "checkout", "stripe", "$1", "dollar", "paid", "paywall", "unlock"],
+    answer:
+      "On the website, the $1 report and $12.99 monthly membership open secure Stripe checkout. In the Android Play Store app, membership uses Google Play Billing instead. If checkout does not open, refresh the page once so the latest payment script loads.",
+  },
+  {
+    title: "Membership and Canceling",
+    route: true,
+    matches: ["cancel", "subscription", "membership", "monthly", "12.99", "billing", "refund"],
+    answer:
+      "Monthly access unlocks unlimited tests, retakes, and result access. Billing changes or refund requests should be routed to support with the email used at checkout so the purchase can be found.",
+  },
+  {
+    title: "Result Did Not Unlock",
+    route: true,
+    matches: ["did not unlock", "not unlock", "locked", "result issue", "missing result", "after paying", "paid but"],
+    answer:
+      "If you paid but the result stayed locked, refresh the page once and return to the same test. If it still does not unlock, route the issue to support with your checkout email, test name, and roughly when it happened.",
+  },
+  {
+    title: "Accounts and Emailing Results",
+    route: false,
+    matches: ["account", "sign up", "signup", "login", "log in", "email result", "save result"],
+    answer:
+      "You do not need an account to pay for the $1 result. Sign up is only needed when you want the app to prepare an emailed result or save local result history on this device.",
+  },
+  {
+    title: "Tests and Accuracy",
+    route: false,
+    matches: ["test", "questions", "accurate", "iq", "mbti", "enneagram", "attachment", "career", "score"],
+    answer:
+      "PsycheIQ tests are educational and entertainment assessments. Most major tests are 42 questions and show charts, strengths, watchouts, relationships, and famous or fictional examples. They are not clinical diagnoses.",
+  },
+  {
+    title: "Images and Character Examples",
+    route: true,
+    matches: ["image", "picture", "photo", "character", "fictional", "famous", "not showing"],
+    answer:
+      "Result images use local image slots and encyclopedia-style fallback images. If a specific person or character image is missing, route it to support with the test and result name so it can be corrected.",
+  },
+  {
+    title: "Mobile and Play Store",
+    route: false,
+    matches: ["mobile", "android", "play store", "google play", "app"],
+    answer:
+      "The website runs in the browser, and the Android wrapper opens the hosted PsycheIQ app. On Android, paid membership is handled through Google Play Billing.",
+  },
+  {
+    title: "Privacy and Data",
+    route: false,
+    matches: ["privacy", "data", "delete", "personal", "age", "sex"],
+    answer:
+      "Current web accounts and saved results are stored locally on the device unless you choose to email a result. The privacy policy is linked in the footer and explains what the app collects.",
+  },
+  {
+    title: "Bug or Technical Problem",
+    route: true,
+    matches: ["bug", "broken", "problem", "error", "crash", "wrong", "doesn't work", "does not work"],
+    answer:
+      "That sounds like something support should see. Include what device you are using, which test/result you were on, and what you expected to happen.",
+  },
+];
+
+function supportIntroMessage() {
+  return {
+    title: "How can I help?",
+    answer:
+      "Ask about payments, accounts, results, mobile access, privacy, or a technical problem. I can answer common questions and prepare an email to support when a person should look at it.",
+    route: false,
+  };
+}
+
+function findSupportAnswer(question) {
+  const normalized = question.toLowerCase();
+  return (
+    supportTopics.find((topic) => topic.matches.some((match) => normalized.includes(match))) || {
+      title: "Route to Support",
+      route: true,
+      answer:
+        "I am not fully sure on that one. Add the details below and I will prepare an email to PsycheIQ support so it can be handled by a person.",
+    }
+  );
+}
+
+function appendSupportBubble(role, title, body) {
+  if (!dom.supportLog) return;
+  dom.supportLog.insertAdjacentHTML(
+    "beforeend",
+    `<article class="support-bubble ${role}">
+      ${title ? `<strong>${escapeHtml(title)}</strong>` : ""}
+      <p>${escapeHtml(body)}</p>
+    </article>`
+  );
+  dom.supportLog.scrollTop = dom.supportLog.scrollHeight;
+}
+
+function seedSupportAgent() {
+  if (!dom.supportLog || dom.supportLog.childElementCount) return;
+  const intro = supportIntroMessage();
+  appendSupportBubble("agent", intro.title, intro.answer);
+}
+
+function openSupportAgent(prefill = "") {
+  if (!dom.supportAgent) return;
+  closeSiteMenu();
+  dom.supportAgent.hidden = false;
+  seedSupportAgent();
+
+  if (prefill && dom.supportRouteForm) {
+    dom.supportRouteForm.elements.message.value = prefill;
+  }
+
+  const input = dom.supportForm?.elements.question;
+  if (input) input.focus();
+}
+
+function closeSupportAgent() {
+  if (dom.supportAgent) dom.supportAgent.hidden = true;
+}
+
+function answerSupportQuestion(question) {
+  const trimmed = question.trim();
+  if (!trimmed) return;
+
+  appendSupportBubble("user", "", trimmed);
+  const response = findSupportAnswer(trimmed);
+  appendSupportBubble("agent", response.title, response.answer);
+
+  if (response.route && dom.supportRouteForm) {
+    dom.supportRouteForm.elements.message.value = trimmed;
+    if (dom.supportMessage) dom.supportMessage.textContent = "This looks like something support should review. Add your email and send it over.";
+  }
+}
+
+function routeSupportEmail(event) {
+  event.preventDefault();
+  const form = dom.supportRouteForm;
+  const replyEmail = form.elements.email.value.trim();
+  const message = form.elements.message.value.trim();
+
+  if (!replyEmail || !message) {
+    if (dom.supportMessage) dom.supportMessage.textContent = "Add your email and the issue details first.";
+    return;
+  }
+
+  const subject = encodeURIComponent(`PsycheIQ Support: ${message.slice(0, 52)}`);
+  const context = [
+    "PsycheIQ support request",
+    "",
+    `Reply to: ${replyEmail}`,
+    `Page: ${window.location.href}`,
+    state.activeTest ? `Active test: ${state.activeTest.title}` : "",
+    state.currentResult ? `Current result: ${state.currentResult.title}` : "",
+    "",
+    "Message:",
+    message,
+  ]
+    .filter(Boolean)
+    .join("\n");
+  window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${encodeURIComponent(context)}`;
+  if (dom.supportMessage) {
+    dom.supportMessage.textContent = `Prepared an email to ${SUPPORT_EMAIL}. Your email app may ask you to press send.`;
+  }
 }
 
 function setTheme(theme) {
@@ -4831,6 +5008,25 @@ if (dom.menuToggle) dom.menuToggle.addEventListener("click", openSiteMenu);
 if (dom.menuClose) dom.menuClose.addEventListener("click", closeSiteMenu);
 if (dom.menuBackdrop) dom.menuBackdrop.addEventListener("click", closeSiteMenu);
 dom.menuLinks.forEach((link) => link.addEventListener("click", closeSiteMenu));
+dom.openSupportButtons.forEach((button) => button.addEventListener("click", () => openSupportAgent()));
+if (dom.closeSupport) dom.closeSupport.addEventListener("click", closeSupportAgent);
+
+if (dom.supportForm) {
+  dom.supportForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const input = dom.supportForm.elements.question;
+    answerSupportQuestion(input.value);
+    input.value = "";
+  });
+}
+
+dom.supportQuestions.forEach((button) => {
+  button.addEventListener("click", () => answerSupportQuestion(button.dataset.supportQuestion || button.textContent));
+});
+
+if (dom.supportRouteForm) {
+  dom.supportRouteForm.addEventListener("submit", routeSupportEmail);
+}
 
 if (dom.promoForm) {
   dom.promoForm.addEventListener("submit", (event) => {
@@ -4934,6 +5130,7 @@ document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
   closeModal();
   closeSiteMenu();
+  closeSupportAgent();
   dom.login.hidden = true;
 });
 
