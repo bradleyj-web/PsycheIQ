@@ -548,7 +548,7 @@
         <div class="support-head">
           <div>
             <p class="mini-label">Customer Support</p>
-            <h2>PsycheIQ Support Agent</h2>
+            <h2>PsycheIQ Chatbot</h2>
           </div>
           <button class="menu-close" type="button" data-close-support aria-label="Close support">x</button>
         </div>
@@ -560,28 +560,16 @@
           <button type="button" data-support-question="How does sign up work?">Account</button>
         </div>
         <form class="support-form" data-support-form>
-          <label for="support-question">Ask a question</label>
+          <label for="support-question">Message the bot</label>
           <div>
-            <input id="support-question" name="question" type="text" placeholder="Type your question or issue" autocomplete="off" required />
-            <button class="button button-small" type="submit">Ask</button>
+            <input id="support-question" name="question" type="text" placeholder="Ask a question or describe a problem" autocomplete="off" required />
+            <button class="button button-small" type="submit">Send</button>
           </div>
         </form>
-        <form class="support-route" data-support-route-form>
-          <h3>Route this to support</h3>
-          <label>
-            Your email
-            <input name="email" type="email" placeholder="you@example.com" required />
-          </label>
-          <label>
-            What happened?
-            <textarea name="message" rows="4" placeholder="Describe the question, payment issue, result problem, or bug." required></textarea>
-          </label>
-          <button class="button button-full" type="submit">Send to Support</button>
-          <p data-support-message aria-live="polite"></p>
-        </form>
+        <p class="support-status" data-support-message aria-live="polite"></p>
       </div>
     </section>
 
-    <script src="app.js?v=20"></script>
+    <script src="app.js?v=21"></script>
   </body>
 </html>

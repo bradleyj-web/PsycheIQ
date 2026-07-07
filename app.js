@@ -3165,7 +3165,6 @@ const dom = {
   closeSupport: document.querySelector("[data-close-support]"),
   supportLog: document.querySelector("[data-support-log]"),
   supportForm: document.querySelector("[data-support-form]"),
-  supportRouteForm: document.querySelector("[data-support-route-form]"),
   supportMessage: document.querySelector("[data-support-message]"),
   supportQuestions: document.querySelectorAll("[data-support-question]"),
 };
@@ -3184,6 +3183,11 @@ const state = {
   answerHistory: [],
   pendingCheckoutIntent: "result",
   adContinuation: null,
+  supportConversation: {
+    awaiting: "idle",
+    email: "",
+    issue: "",
+  },
 };
 
 const storageKeys = {
@@ -3518,9 +3522,9 @@ const supportTopics = [
 
 function supportIntroMessage() {
   return {
-    title: "How can I help?",
+    title: "PsycheIQ Bot",
     answer:
-      "Ask about payments, accounts, results, mobile access, privacy, or a technical problem. I can answer common questions and prepare an email to support when a person should look at it.",
+      "Hi, I am the PsycheIQ support bot. Ask me about payments, accounts, results, mobile access, privacy, or a technical problem. If I cannot solve it, I will collect the right details and route it to support.",
     route: false,
   };
 }
@@ -3539,10 +3543,11 @@ function findSupportAnswer(question) {
 
 function appendSupportBubble(role, title, body) {
   if (!dom.supportLog) return;
+  const label = title || (role === "user" ? "You" : "PsycheIQ Bot");
   dom.supportLog.insertAdjacentHTML(
     "beforeend",
     `<article class="support-bubble ${role}">
-      ${title ? `<strong>${escapeHtml(title)}</strong>` : ""}
+      <strong>${escapeHtml(label)}</strong>
       <p>${escapeHtml(body)}</p>
     </article>`
   );
@@ -3561,9 +3566,7 @@ function openSupportAgent(prefill = "") {
   dom.supportAgent.hidden = false;
   seedSupportAgent();
 
-  if (prefill && dom.supportRouteForm) {
-    dom.supportRouteForm.elements.message.value = prefill;
-  }
+  if (prefill) startSupportEscalation(prefill);
 
   const input = dom.supportForm?.elements.question;
   if (input) input.focus();
@@ -3573,49 +3576,120 @@ function closeSupportAgent() {
   if (dom.supportAgent) dom.supportAgent.hidden = true;
 }
 
-function answerSupportQuestion(question) {
-  const trimmed = question.trim();
-  if (!trimmed) return;
-
-  appendSupportBubble("user", "", trimmed);
-  const response = findSupportAnswer(trimmed);
-  appendSupportBubble("agent", response.title, response.answer);
-
-  if (response.route && dom.supportRouteForm) {
-    dom.supportRouteForm.elements.message.value = trimmed;
-    if (dom.supportMessage) dom.supportMessage.textContent = "This looks like something support should review. Add your email and send it over.";
-  }
+function resetSupportEscalation() {
+  state.supportConversation = {
+    awaiting: "idle",
+    email: "",
+    issue: "",
+  };
 }
 
-function routeSupportEmail(event) {
-  event.preventDefault();
-  const form = dom.supportRouteForm;
-  const replyEmail = form.elements.email.value.trim();
-  const message = form.elements.message.value.trim();
+function extractEmail(text) {
+  const match = String(text).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  return match ? match[0] : "";
+}
 
-  if (!replyEmail || !message) {
-    if (dom.supportMessage) dom.supportMessage.textContent = "Add your email and the issue details first.";
-    return;
-  }
+function isSendIntent(text) {
+  return /\b(send|route|submit|yes|ready|go ahead)\b/i.test(text);
+}
 
-  const subject = encodeURIComponent(`PsycheIQ Support: ${message.slice(0, 52)}`);
-  const context = [
+function startSupportEscalation(issue) {
+  state.supportConversation.awaiting = "email";
+  state.supportConversation.issue = issue;
+  state.supportConversation.email = "";
+  if (dom.supportMessage) dom.supportMessage.textContent = "The bot is collecting details to route this to support.";
+  appendSupportBubble(
+    "agent",
+    "Route to Support",
+    "I can route this to a person. What email should support use to reply to you?"
+  );
+}
+
+function buildSupportEmailBody() {
+  return [
     "PsycheIQ support request",
     "",
-    `Reply to: ${replyEmail}`,
+    `Reply to: ${state.supportConversation.email}`,
     `Page: ${window.location.href}`,
     state.activeTest ? `Active test: ${state.activeTest.title}` : "",
     state.currentResult ? `Current result: ${state.currentResult.title}` : "",
     "",
     "Message:",
-    message,
+    state.supportConversation.issue,
   ]
     .filter(Boolean)
     .join("\n");
-  window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${encodeURIComponent(context)}`;
-  if (dom.supportMessage) {
-    dom.supportMessage.textContent = `Prepared an email to ${SUPPORT_EMAIL}. Your email app may ask you to press send.`;
+}
+
+function prepareSupportEmail() {
+  const issue = state.supportConversation.issue || "Support request";
+  const subject = encodeURIComponent(`PsycheIQ Support: ${issue.slice(0, 52)}`);
+  const body = encodeURIComponent(buildSupportEmailBody());
+  window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+  appendSupportBubble(
+    "agent",
+    "Email Prepared",
+    `I prepared an email to ${SUPPORT_EMAIL}. Your email app may ask you to press send.`
+  );
+  if (dom.supportMessage) dom.supportMessage.textContent = `Prepared an email to ${SUPPORT_EMAIL}.`;
+  resetSupportEscalation();
+}
+
+function handleSupportEscalation(message) {
+  const conversation = state.supportConversation;
+
+  if (conversation.awaiting === "email") {
+    const email = extractEmail(message);
+    if (!email) {
+      appendSupportBubble("agent", "Email Needed", "Please type the email address support should reply to.");
+      return;
+    }
+
+    conversation.email = email;
+    conversation.awaiting = conversation.issue.length > 24 ? "confirm" : "details";
+    appendSupportBubble(
+      "agent",
+      "Got It",
+      conversation.awaiting === "confirm"
+        ? "I have your email and the issue summary. Type 'send' to prepare the support email, or add any extra details first."
+        : "Thanks. Now tell me what happened, including the test name, payment email, device, or error if you have it."
+    );
+    return;
   }
+
+  if (conversation.awaiting === "details") {
+    conversation.issue = conversation.issue ? `${conversation.issue}\n\n${message}` : message;
+    conversation.awaiting = "confirm";
+    appendSupportBubble("agent", "Ready To Route", "Thanks. Type 'send' and I will prepare the support email, or add more details.");
+    return;
+  }
+
+  if (conversation.awaiting === "confirm") {
+    if (isSendIntent(message)) {
+      prepareSupportEmail();
+      return;
+    }
+
+    conversation.issue = `${conversation.issue}\n\n${message}`;
+    appendSupportBubble("agent", "Added", "I added that. Type 'send' when you want me to prepare the email to support.");
+  }
+}
+
+function answerSupportQuestion(question) {
+  const trimmed = question.trim();
+  if (!trimmed) return;
+
+  appendSupportBubble("user", "", trimmed);
+
+  if (state.supportConversation.awaiting !== "idle") {
+    handleSupportEscalation(trimmed);
+    return;
+  }
+
+  const response = findSupportAnswer(trimmed);
+  appendSupportBubble("agent", response.title, response.answer);
+
+  if (response.route) startSupportEscalation(trimmed);
 }
 
 function setTheme(theme) {
@@ -5023,10 +5097,6 @@ if (dom.supportForm) {
 dom.supportQuestions.forEach((button) => {
   button.addEventListener("click", () => answerSupportQuestion(button.dataset.supportQuestion || button.textContent));
 });
-
-if (dom.supportRouteForm) {
-  dom.supportRouteForm.addEventListener("submit", routeSupportEmail);
-}
 
 if (dom.promoForm) {
   dom.promoForm.addEventListener("submit", (event) => {

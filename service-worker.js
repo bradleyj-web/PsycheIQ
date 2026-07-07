@@ -1,10 +1,10 @@
-const CACHE_NAME = "psycheiq-v20";
+const CACHE_NAME = "psycheiq-v21";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./privacy.html",
   "./styles.css",
-  "./app.js?v=20",
+  "./app.js?v=21",
   "./manifest.json",
   "./assets/psyche-hero.svg",
   "./assets/icon.svg"

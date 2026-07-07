@@ -354,7 +354,10 @@ summary:focus-visible {
 .support-log {
   display: grid;
   gap: 10px;
-  min-height: 88px;
+  min-height: 220px;
+  max-height: 330px;
+  padding: 4px;
+  overflow-y: auto;
 }
 
 .support-bubble {
@@ -408,14 +411,12 @@ summary:focus-visible {
   font-weight: 850;
 }
 
-.support-form,
-.support-route {
+.support-form {
   display: grid;
   gap: 10px;
 }
 
-.support-form label,
-.support-route label {
+.support-form label {
   display: grid;
   gap: 7px;
   color: var(--muted);
@@ -428,9 +429,7 @@ summary:focus-visible {
   gap: 8px;
 }
 
-.support-form input,
-.support-route input,
-.support-route textarea {
+.support-form input {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -438,33 +437,16 @@ summary:focus-visible {
   background: var(--white);
 }
 
-.support-form input,
-.support-route input {
+.support-form input {
   min-height: 46px;
   padding: 0 12px;
 }
 
-.support-route textarea {
-  padding: 12px;
-  resize: vertical;
-}
-
-.support-route {
-  padding: 16px;
-  border: 1px solid rgba(15, 118, 110, 0.32);
-  border-radius: 8px;
-  background: rgba(15, 118, 110, 0.07);
-}
-
-.support-route h3 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.support-route p {
+.support-status {
   margin: 0;
   color: var(--muted);
   line-height: 1.45;
+  min-height: 20px;
 }
 
 .text-button {
@@ -2234,10 +2216,6 @@ html[data-theme="dark"] .support-panel {
     radial-gradient(circle at 15% 8%, rgba(240, 191, 99, 0.12), transparent 28%),
     radial-gradient(circle at 88% 10%, rgba(167, 153, 255, 0.14), transparent 30%),
     #202c38;
-}
-
-html[data-theme="dark"] .support-route {
-  background: rgba(103, 213, 202, 0.08);
 }
 
 html[data-theme="dark"] .brand-mark {
