@@ -41,6 +41,11 @@
         </span>
         <span>PsycheIQ</span>
       </a>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-controls="site-menu" aria-expanded="false" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+      </button>
       <nav class="main-nav" aria-label="Primary navigation">
         <a href="#tests">Tests</a>
         <a href="#reports">Reports</a>
@@ -58,6 +63,33 @@
         <a class="button button-small" href="#tests">Start Test</a>
       </div>
     </header>
+
+    <div class="site-menu-backdrop" data-menu-backdrop hidden></div>
+    <aside class="site-menu" id="site-menu" data-site-menu hidden aria-label="Site menu">
+      <div class="site-menu-head">
+        <div>
+          <p class="mini-label">Menu</p>
+          <h2>PsycheIQ</h2>
+        </div>
+        <button class="menu-close" type="button" data-menu-close aria-label="Close menu">x</button>
+      </div>
+      <nav class="site-menu-nav" aria-label="Menu navigation">
+        <a href="#tests" data-menu-link>Tests</a>
+        <a href="#reports" data-menu-link>Reports</a>
+        <a href="#pricing" data-menu-link>Pricing</a>
+        <a href="#faq" data-menu-link>FAQ</a>
+      </nav>
+      <div class="site-menu-feature">
+        <p class="mini-label">Quick Start</p>
+        <a href="#tests" data-menu-link>Browse every test</a>
+        <button type="button" data-start-test="iq" data-menu-link>Start IQ Test</button>
+        <button type="button" data-start-test="attachment" data-menu-link>Start Attachment Style</button>
+      </div>
+      <div class="site-menu-actions">
+        <button class="button button-quiet" type="button" data-menu-login>Log In</button>
+        <a class="button" href="#pricing" data-menu-link>See Plans</a>
+      </div>
+    </aside>
 
     <main id="top">
       <section class="hero-section" aria-labelledby="hero-title">

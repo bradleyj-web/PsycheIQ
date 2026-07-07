@@ -3141,6 +3141,12 @@ const dom = {
   requestForm: document.querySelector("[data-request-form]"),
   requestOutput: document.querySelector("[data-request-output]"),
   dropList: document.querySelector(".drop-list"),
+  menuToggle: document.querySelector("[data-menu-toggle]"),
+  siteMenu: document.querySelector("[data-site-menu]"),
+  menuBackdrop: document.querySelector("[data-menu-backdrop]"),
+  menuClose: document.querySelector("[data-menu-close]"),
+  menuLinks: document.querySelectorAll("[data-menu-link]"),
+  menuLogin: document.querySelector("[data-menu-login]"),
   login: document.querySelector("[data-login]"),
   openLogin: document.querySelector("[data-open-login]"),
   closeLogin: document.querySelector("[data-close-login]"),
@@ -3329,7 +3335,9 @@ function saveAccount(account) {
 
 function updateAccountUi() {
   if (!dom.openLogin) return;
-  dom.openLogin.textContent = state.account ? state.account.name.split(" ")[0] : "Log In";
+  const label = state.account ? state.account.name.split(" ")[0] : "Log In";
+  dom.openLogin.textContent = label;
+  if (dom.menuLogin) dom.menuLogin.textContent = label;
 }
 
 function initializeAccount() {
@@ -3569,9 +3577,28 @@ function closeModal() {
   state.adContinuation = null;
 }
 
+function openSiteMenu() {
+  if (!dom.siteMenu || !dom.menuBackdrop || !dom.menuToggle) return;
+  dom.siteMenu.hidden = false;
+  dom.menuBackdrop.hidden = false;
+  dom.menuToggle.setAttribute("aria-expanded", "true");
+  dom.menuToggle.setAttribute("aria-label", "Close menu");
+  document.body.classList.add("menu-open");
+}
+
+function closeSiteMenu() {
+  if (!dom.siteMenu || !dom.menuBackdrop || !dom.menuToggle) return;
+  dom.siteMenu.hidden = true;
+  dom.menuBackdrop.hidden = true;
+  dom.menuToggle.setAttribute("aria-expanded", "false");
+  dom.menuToggle.setAttribute("aria-label", "Open menu");
+  document.body.classList.remove("menu-open");
+}
+
 function startTest(testId) {
   const test = tests.find((item) => item.id === testId);
   if (!test || test.status === "Coming Soon") return;
+  closeSiteMenu();
 
   state.activeTest = test;
   state.questionIndex = 0;
@@ -4801,6 +4828,11 @@ if (dom.adSkip) dom.adSkip.addEventListener("click", finishMemberAd);
 dom.restart.addEventListener("click", restartActiveTest);
 dom.closeButtons.forEach((button) => button.addEventListener("click", closeModal));
 
+if (dom.menuToggle) dom.menuToggle.addEventListener("click", openSiteMenu);
+if (dom.menuClose) dom.menuClose.addEventListener("click", closeSiteMenu);
+if (dom.menuBackdrop) dom.menuBackdrop.addEventListener("click", closeSiteMenu);
+dom.menuLinks.forEach((link) => link.addEventListener("click", closeSiteMenu));
+
 if (dom.promoForm) {
   dom.promoForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -4815,6 +4847,13 @@ dom.modal.addEventListener("click", (event) => {
 dom.openLogin.addEventListener("click", () => {
   showAuthPanel(state.account ? "signin" : "signup", state.account ? `Signed in as ${state.account.email}.` : "Create an account only when you want saved or emailed results.");
 });
+
+if (dom.menuLogin) {
+  dom.menuLogin.addEventListener("click", () => {
+    closeSiteMenu();
+    showAuthPanel(state.account ? "signin" : "signup", state.account ? `Signed in as ${state.account.email}.` : "Create an account only when you want saved or emailed results.");
+  });
+}
 
 dom.closeLogin.addEventListener("click", () => {
   dom.login.hidden = true;
@@ -4895,6 +4934,7 @@ if (dom.themeToggle) {
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
   closeModal();
+  closeSiteMenu();
   dom.login.hidden = true;
 });
 
