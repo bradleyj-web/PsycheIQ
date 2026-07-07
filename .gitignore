@@ -1,6 +1,7 @@
 .agents/
 screenshots/
 node_modules/
+supabase/.temp/
 *.log
 android/.gradle/
 android/**/build/
