@@ -41,6 +41,7 @@ This repository now includes an App Store preparation checklist and metadata tem
 
 - `APP_STORE_READINESS.md`
 - `APP_STORE_METADATA_TEMPLATE.md`
+- `APP_STORE_CONNECT_SUBMISSION_PACKET.md`
 - Public support URL page: `support.html`
 
 Use those files to prepare App Store Connect metadata, compliance answers, TestFlight rollout, and launch readiness.

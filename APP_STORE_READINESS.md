@@ -36,12 +36,12 @@
 
 ## 4) Metadata Assets
 
-- [ ] Finalize title, subtitle, keywords, promotional text, and description.
+- [x] Finalize title, subtitle, keywords, promotional text, and description.
 - [ ] Capture required iPhone screenshots for App Store listing.
-- [ ] Set category and age rating.
-- [ ] Add review contact and demo account details if needed.
+- [x] Set category and age rating.
+- [x] Add review contact and demo account details template.
 
-See `/APP_STORE_METADATA_TEMPLATE.md` for copy-ready fields.
+See `/APP_STORE_METADATA_TEMPLATE.md` and `/APP_STORE_CONNECT_SUBMISSION_PACKET.md` for copy-ready fields.
 
 ## 5) Quality Validation
 
