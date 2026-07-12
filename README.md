@@ -35,6 +35,16 @@ $env:ANDROID_HOME = "C:\Users\plzdo\AppData\Local\Android\Sdk"
 
 See `PLAY_STORE_READINESS.md` for the Play Console checklist.
 
+## iOS / App Store Notes
+
+This repository now includes an App Store preparation checklist and metadata template:
+
+- `APP_STORE_READINESS.md`
+- `APP_STORE_METADATA_TEMPLATE.md`
+- Public support URL page: `support.html`
+
+Use those files to prepare App Store Connect metadata, compliance answers, TestFlight rollout, and launch readiness.
+
 ## Supabase Backend
 
 The app now includes a Supabase-ready backend scaffold in `supabase/`.
