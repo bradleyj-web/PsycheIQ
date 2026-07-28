@@ -1,6 +1,6 @@
 # PsycheIQ
 
-PsycheIQ is a static psychology and personality test app with IQ-style scoring, archetype, MBTI-style, Enneagram, and pop culture tests.
+PsycheIQ is a static psychology and personality test app with IQ-style scoring, archetype, MBTI-style, Enneagram, starseed, and pop culture tests.
 
 ## GitHub Pages Deployment
 

@@ -1310,6 +1310,145 @@ const tests = [
     },
   },
   {
+    id: "starseed",
+    title: "Starseed Origin Match",
+    category: "Pop Culture",
+    tone: "violet",
+    symbol: "SS",
+    status: "Live",
+    time: "5 min",
+    items: "20 prompts",
+    price: "$1 report",
+    description:
+      "A cosmic identity test for your intuitive style, mission energy, and how you move through Earth life.",
+    questions: [
+      {
+        kicker: "Signal",
+        prompt: "When you enter a new space, your first instinct is to...",
+        options: [
+          { label: "Feel the emotional field", detail: "You notice people before structure.", value: "pleiadian" },
+          { label: "Scan for distortions", detail: "You track where truth is blocked.", value: "sirian" },
+          { label: "Map the pattern", detail: "You seek systems and hidden architecture.", value: "arcturian" },
+          { label: "Anchor your power", detail: "You stabilize the room with presence.", value: "andromedan" },
+        ],
+      },
+      {
+        kicker: "Purpose",
+        prompt: "Your mission feels strongest when you are...",
+        options: [
+          { label: "Healing relationships", detail: "You restore trust and softness.", value: "pleiadian" },
+          { label: "Protecting standards", detail: "You defend what is clean and real.", value: "sirian" },
+          { label: "Teaching frameworks", detail: "You translate complexity clearly.", value: "arcturian" },
+          { label: "Leading transformation", detail: "You move people through big thresholds.", value: "andromedan" },
+        ],
+      },
+      {
+        kicker: "Stress",
+        prompt: "Under pressure, your shadow pattern is most likely...",
+        options: [
+          { label: "Over-absorbing others", detail: "Compassion turns into overload.", value: "pleiadian" },
+          { label: "Going rigid", detail: "Control can replace connection.", value: "sirian" },
+          { label: "Over-analyzing", detail: "You can stay in theory too long.", value: "arcturian" },
+          { label: "Pushing too hard", detail: "Intensity can outrun timing.", value: "andromedan" },
+        ],
+      },
+      {
+        kicker: "Relationships",
+        prompt: "The connection style you trust most is...",
+        options: [
+          { label: "Warm and empathic", detail: "You open through emotional safety.", value: "pleiadian" },
+          { label: "Loyal and direct", detail: "Respect and honesty come first.", value: "sirian" },
+          { label: "Mentally resonant", detail: "Shared ideas create intimacy.", value: "arcturian" },
+          { label: "Bold and growth-oriented", detail: "You bond through evolution.", value: "andromedan" },
+        ],
+      },
+      {
+        kicker: "Earth lesson",
+        prompt: "Your current growth edge is to...",
+        options: [
+          { label: "Keep boundaries while staying open", detail: "Care without self-erasure.", value: "pleiadian" },
+          { label: "Soften certainty with compassion", detail: "Strength with tenderness.", value: "sirian" },
+          { label: "Embody what you know", detail: "Wisdom in lived action.", value: "arcturian" },
+          { label: "Trust timing, not only force", detail: "Power with patience.", value: "andromedan" },
+        ],
+      },
+    ],
+    profiles: {
+      pleiadian: {
+        title: "Pleiadian Match",
+        score: "Starseed theme: heart-centered harmonizer",
+        summary:
+          "You lead with empathy, emotional intelligence, and a natural instinct to heal social tension without losing depth.",
+        strengths: ["Compassion", "Relational intuition", "Gentle influence"],
+        weaknesses: ["Absorbing too much", "Loose boundaries", "Conflict avoidance"],
+        situations:
+          "You are strongest where people need repair, trust-building, and a reminder that softness can still be powerful.",
+        relationships:
+          "You connect through warmth and presence. Love works best when care includes clear limits and direct asks.",
+        parenting:
+          "You may create emotional safety and deep attunement. The edge is teaching resilience alongside sensitivity.",
+        examples:
+          "Famous echoes: Fred Rogers, Maya Angelou. Fictional echoes: Galadriel, Aang.",
+        member:
+          "Monthly access would compare this cosmic style with your archetype, attachment, and character-match results.",
+      },
+      sirian: {
+        title: "Sirian Match",
+        score: "Starseed theme: disciplined guardian",
+        summary:
+          "You carry protector energy: clear standards, moral backbone, and a strong instinct to shield what matters.",
+        strengths: ["Integrity", "Steadiness", "Protective leadership"],
+        weaknesses: ["Rigidity", "High expectations", "Difficulty delegating"],
+        situations:
+          "You excel in moments that require courage, boundaries, and someone willing to hold the line under pressure.",
+        relationships:
+          "You show love through loyalty and reliability. Growth comes from showing vulnerability, not only competence.",
+        parenting:
+          "You may raise grounded, responsible people. The edge is making room for softness, play, and imperfection.",
+        examples:
+          "Famous echoes: Nelson Mandela, Eleanor Roosevelt. Fictional echoes: Wonder Woman, Samwise Gamgee.",
+        member:
+          "Monthly access would map this guardian signature against IQ-style, Enneagram, and career-driver patterns.",
+      },
+      arcturian: {
+        title: "Arcturian Match",
+        score: "Starseed theme: systems sage",
+        summary:
+          "You are pattern-aware and future-minded, often translating complexity into frameworks that help others orient.",
+        strengths: ["Strategic insight", "Pattern recognition", "Concept clarity"],
+        weaknesses: ["Mental overdrive", "Emotional distance", "Perfectionism"],
+        situations:
+          "You shine where chaos needs structure and where big ideas must become practical maps people can use.",
+        relationships:
+          "You bond through curiosity and depth of thought. Connection deepens when you name feelings as clearly as ideas.",
+        parenting:
+          "You may teach independent thinking and discernment. The edge is prioritizing presence over precision.",
+        examples:
+          "Famous echoes: Carl Jung, Grace Hopper. Fictional echoes: Spock, Hermione Granger.",
+        member:
+          "Monthly access would pair this systems profile with MBTI-style, IQ, and relationship analytics.",
+      },
+      andromedan: {
+        title: "Andromedan Match",
+        score: "Starseed theme: catalytic liberator",
+        summary:
+          "You bring breakthrough energy, challenge stale systems, and push people toward freer, truer versions of life.",
+        strengths: ["Visionary drive", "Courage", "Transformational leadership"],
+        weaknesses: ["Impatience", "Intensity spikes", "All-or-nothing swings"],
+        situations:
+          "You are magnetic in transition points where old structures are collapsing and bold action is required.",
+        relationships:
+          "You need honesty, autonomy, and shared growth. Love stabilizes when momentum is balanced with listening.",
+        parenting:
+          "You may raise brave, self-trusting children. The edge is modeling pacing, rest, and emotional regulation.",
+        examples:
+          "Famous echoes: Harriet Tubman, David Bowie. Fictional echoes: Jean Grey, Moana.",
+        member:
+          "Monthly access would connect this catalytic pattern with attachment, archetype, and future pop-culture tests.",
+      },
+    },
+  },
+  {
     id: "attachment",
     title: "Attachment Style",
     category: "Coming Soon",
