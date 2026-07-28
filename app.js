@@ -1339,6 +1339,21 @@ const tests = [
     questions: [],
     profiles: {},
   },
+  {
+    id: "starseed",
+    title: "Starseed Origins",
+    category: "Coming Soon",
+    tone: "teal",
+    symbol: "SS",
+    status: "Coming Soon",
+    time: "10 min",
+    items: "42 planned",
+    price: "Member library",
+    description:
+      "A cosmic identity profile for people exploring origin archetypes, intuitive gifts, grounding style, and purpose themes.",
+    questions: [],
+    profiles: {},
+  },
 ];
 
 const iqStyleProfiles = {
