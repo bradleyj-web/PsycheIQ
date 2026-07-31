@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsycheIQ Result Card - Arcturian</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; background: #1a1a2e;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .card {
+            width: 1080px; height: 1920px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 50%, #00ff88 100%);
+            position: relative; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; padding: 80px;
+        }
+        .stars {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 40px 70px, white, transparent),
+                radial-gradient(2px 2px at 50px 160px, white, transparent),
+                radial-gradient(2px 2px at 90px 40px, white, transparent),
+                radial-gradient(2px 2px at 130px 80px, white, transparent),
+                radial-gradient(2px 2px at 160px 120px, white, transparent);
+            background-repeat: repeat; background-size: 200px 200px; opacity: 0.3;
+        }
+        .logo {
+            position: absolute; top: 60px; right: 60px;
+            width: 120px; height: 120px;
+        }
+        .logo svg { width: 100%; height: 100%; }
+        .logo-path { fill: white; opacity: 0.9; }
+        .origin-badge {
+            margin-top: 100px; background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px); padding: 20px 50px;
+            border-radius: 50px; border: 2px solid rgba(255,255,255,0.3);
+        }
+        .origin-text {
+            color: white; font-size: 32px; letter-spacing: 4px;
+            text-transform: uppercase; font-weight: 500;
+        }
+        .title {
+            margin-top: 60px; font-size: 120px; font-weight: 700;
+            color: white; text-align: center; line-height: 1.1;
+            text-shadow: 0 4px 30px rgba(0,0,0,0.2);
+        }
+        .subtitle {
+            margin-top: 30px; font-size: 48px; color: rgba(255,255,255,0.9);
+            text-align: center; font-weight: 300; letter-spacing: 2px;
+        }
+        .traits-container {
+            margin-top: 100px; background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px); border-radius: 40px;
+            padding: 60px; width: 100%; max-width: 900px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .traits-title {
+            color: white; font-size: 36px; margin-bottom: 40px;
+            text-align: center; text-transform: uppercase; letter-spacing: 3px;
+        }
+        .trait {
+            display: flex; align-items: center; margin-bottom: 30px;
+            color: white; font-size: 42px;
+        }
+        .trait:last-child { margin-bottom: 0; }
+        .trait-icon {
+            width: 60px; height: 60px; margin-right: 30px;
+            background: rgba(255,255,255,0.2); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
+        }
+        .summary {
+            margin-top: 80px; font-size: 36px; color: rgba(255,255,255,0.85);
+            text-align: center; line-height: 1.6; max-width: 900px; font-style: italic;
+        }
+        .cta-container { margin-top: auto; padding-top: 80px; text-align: center; }
+        .cta-text { color: rgba(255,255,255,0.8); font-size: 32px; margin-bottom: 20px; }
+        .link { color: white; font-size: 48px; font-weight: 600; text-decoration: none; letter-spacing: 2px; }
+        .qr-placeholder {
+            margin-top: 40px; width: 200px; height: 200px; background: white;
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            color: #11998e; font-size: 24px; margin-left: auto; margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="stars"></div>
+        <div class="logo">
+            <svg viewBox="0 0 64 48" fill="none">
+                <path class="logo-path" d="M22 36c-8 0-14-6-14-14S14 8 22 8c2-4 8-5 12-2 4-3 11-2 13 4 6 1 10 6 10 12 0 8-6 14-14 14H22Z"/>
+                <path class="logo-path" d="M15 21c5-7 12-10 20-10s15 3 20 10c-5 8-12 12-20 12S20 29 15 21Z" opacity="0.7"/>
+                <circle class="logo-path" cx="35" cy="21" r="6"/>
+                <circle cx="35" cy="21" r="2.4" fill="#11998e"/>
+                <path class="logo-path" d="M18 8 12 2M46 8l6-6M35 5V0" stroke="white" stroke-width="2"/>
+            </svg>
+        </div>
+        
+        <div class="origin-badge">
+            <div class="origin-text">Cosmic Origin</div>
+        </div>
+        
+        <h1 class="title">Arcturian<br>Resonance</h1>
+        
+        <div class="subtitle">The Healing Gate</div>
+        
+        <div class="traits-container">
+            <div class="traits-title">Your Soul Signature</div>
+            
+            <div class="trait">
+                <span class="trait-icon">💚</span>
+                <span>Healing presence</span>
+            </div>
+            
+            <div class="trait">
+                <span class="trait-icon">🌀</span>
+                <span>Transformation energy</span>
+            </div>
+            
+            <div class="trait">
+                <span class="trait-icon">🤝</span>
+                <span>Service orientation</span>
+            </div>
+            
+            <div class="trait">
+                <span class="trait-icon">🌐</span>
+                <span>Group consciousness</span>
+            </div>
+        </div>
+        
+        <div class="summary">
+            "You carry the frequency of healing, transformation, and service. Your soul remembers being part of a collective dedicated to elevating consciousness."
+        </div>
+        
+        <div class="cta-container">
+            <div class="cta-text">Discover your cosmic origin</div>
+            <a href="#" class="link">PSYCHEIQ.APP</a>
+            <div class="qr-placeholder">QR</div>
+        </div>
+    </div>
+</body>
+</html>
