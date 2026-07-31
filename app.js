@@ -1339,6 +1339,145 @@ const tests = [
     questions: [],
     profiles: {},
   },
+  {
+    id: "starseed",
+    title: "Starseed Origins",
+    category: "Spiritual",
+    tone: "indigo",
+    symbol: "ST",
+    status: "Live",
+    time: "8 min",
+    items: "20 questions",
+    price: "$1 report",
+    description:
+      "A cosmic soul-profile that explores which star system your essence resonates with and what gifts you carry into this world.",
+    questions: [
+      {
+        kicker: "Core frequency",
+        prompt: "The feeling that has been with you longest is...",
+        options: [
+          { label: "A quiet longing for somewhere beautiful", detail: "You remember a place of harmony and light.", value: "pleiadian" },
+          { label: "A deep commitment to truth", detail: "You cannot tolerate deception or superficiality.", value: "sirian" },
+          { label: "A drive to heal and transform", detail: "You see broken things and want to mend them.", value: "arcturian" },
+          { label: "A restlessness with limits", detail: "Reality never quite feels big enough for you.", value: "andromedan" },
+        ],
+      },
+      {
+        kicker: "Emotional signature",
+        prompt: "When you are most yourself, you tend to...",
+        options: [
+          { label: "Create beauty and connection", detail: "Art, relationships, and harmony come naturally.", value: "pleiadian" },
+          { label: "Seek understanding and mastery", detail: "You dive deep until the system reveals itself.", value: "sirian" },
+          { label: "Hold space for others", detail: "Your presence calms and transforms the room.", value: "arcturian" },
+          { label: "Question and explore", detail: "You cannot help but probe the edges of what is known.", value: "andromedan" },
+        ],
+      },
+      {
+        kicker: "Childhood memory",
+        prompt: "As a child, you were probably...",
+        options: [
+          { label: "Sensitive and artistic", detail: "Colors, music, and feelings were vivid and important.", value: "pleiadian" },
+          { label: "Studious and observant", detail: "You watched patterns and asked why things work.", value: "sirian" },
+          { label: "The peacemaker", detail: "You noticed who was hurting and tried to help.", value: "arcturian" },
+          { label: "The dreamer", detail: "You lived in worlds others could not yet see.", value: "andromedan" },
+        ],
+      },
+      {
+        kicker: "Present struggle",
+        prompt: "Your recurring challenge in this life is...",
+        options: [
+          { label: "Feeling like you don't quite fit", detail: "Earth can feel heavy and slow.", value: "pleiadian" },
+          { label: "Impatience with human chaos", detail: "You see solutions others seem blind to.", value: "sirian" },
+          { label: "Absorbing too much pain", detail: "You feel what others feel, sometimes too deeply.", value: "arcturian" },
+          { label: "Restlessness and escape", detail: "Commitment can feel like a cage.", value: "andromedan" },
+        ],
+      },
+      {
+        kicker: "Gift to the world",
+        prompt: "You are here to help others by bringing...",
+        options: [
+          { label: "Beauty and emotional truth", detail: "You remind people what matters most.", value: "pleiadian" },
+          { label: "Wisdom and clarity", detail: "You illuminate what is hidden or confused.", value: "sirian" },
+          { label: "Healing and transformation", detail: "You help others become who they could be.", value: "arcturian" },
+          { label: "Possibility and expansion", detail: "You show people they are bigger than they knew.", value: "andromedan" },
+        ],
+      },
+    ],
+    profiles: {
+      pleiadian: {
+        title: "Pleiadian Resonance",
+        score: "Cosmic origin: the Seven Sisters",
+        summary:
+          "You carry the frequency of beauty, emotion, and connection. Your soul remembers a place where art and heart were the primary languages.",
+        strengths: ["Empathic sensitivity", "Creative expression", "Relational warmth", "Aesthetic intelligence"],
+        weaknesses: ["Can absorb others' emotions", "May idealize love", "Can struggle with earth's density", "Sometimes avoids hard truths"],
+        situations:
+          "You are most alive when creating, connecting, or bringing beauty into spaces that have gone gray.",
+        relationships:
+          "You love deeply and romantically. Your growth is learning that real intimacy includes shadow as well as light.",
+        parenting:
+          "You may raise sensitive, expressive children. The edge is teaching resilience alongside feeling.",
+        examples:
+          "Resonant patterns: Frida Kahlo, Prince, Van Gogh. You bring color to a monochrome world.",
+        member:
+          "Monthly access would connect your Pleiadian pattern to emotional intelligence, attachment style, and archetype results.",
+      },
+      sirian: {
+        title: "Sirian Resonance",
+        score: "Cosmic origin: the Blue Star",
+        summary:
+          "You carry the frequency of knowledge, integrity, and spiritual technology. Your soul remembers libraries of wisdom and sacred geometry.",
+        strengths: ["Intellectual depth", "Technical-spiritual integration", "Moral clarity", "Pattern recognition"],
+        weaknesses: ["Can be intellectually rigid", "May dismiss emotion as noise", "Can isolate in study", "Sometimes impatient with beginners"],
+        situations:
+          "You excel where complexity needs simplification, systems need upgrading, or truth needs defending.",
+        relationships:
+          "You connect through ideas and integrity. Loved ones may need warmth alongside your wisdom.",
+        parenting:
+          "You may raise curious, competent children. The edge is valuing their hearts as much as their minds.",
+        examples:
+          "Resonant patterns: Leonardo da Vinci, Marie Curie, Spock. You build bridges between seen and unseen.",
+        member:
+          "Monthly access would compare your Sirian pattern with IQ-style reasoning, archetype (Sage), and MBTI-style INTJ/INTP profiles.",
+      },
+      arcturian: {
+        title: "Arcturian Resonance",
+        score: "Cosmic origin: the Healing Gate",
+        summary:
+          "You carry the frequency of healing, transformation, and service. Your soul remembers being part of a collective dedicated to elevating consciousness.",
+        strengths: ["Healing presence", "Emotional transformation", "Service orientation", "Group consciousness"],
+        weaknesses: ["Can overgive", "May lose boundaries", "Can carry others' pain", "Sometimes sacrifices self for mission"],
+        situations:
+          "You are indispensable where pain needs holding, systems need healing, or groups need cohesion.",
+        relationships:
+          "You love through healing and support. The work is receiving care without having to earn it.",
+        parenting:
+          "You may raise compassionate, aware children. The edge is letting them suffer enough to grow strong.",
+        examples:
+          "Resonant patterns: Mother Teresa, Fred Rogers, Yoda. You hold the light so others can find their way.",
+        member:
+          "Monthly access would connect your Arcturian pattern to Enneagram Type Two, Guardian archetype, and attachment style results.",
+      },
+      andromedan: {
+        title: "Andromedan Resonance",
+        score: "Cosmic origin: the Wanderers",
+        summary:
+          "You carry the frequency of freedom, exploration, and cosmic perspective. Your soul has traveled widely and resists being confined.",
+        strengths: ["Visionary thinking", "Comfort with paradox", "Adventurous spirit", "Multidimensional awareness"],
+        weaknesses: ["Can resist commitment", "May feel perpetually displaced", "Can idealize elsewhere", "Sometimes struggles with the mundane"],
+        situations:
+          "You awaken others when systems have grown too small, rigid, or forgetful of possibility.",
+        relationships:
+          "You need space within connection. Partners may need reassurance that freedom and loyalty can coexist.",
+        parenting:
+          "You may raise independent, open-minded children. The edge is creating anchors they can count on.",
+        examples:
+          "Resonant patterns: Josephine Baker, David Bowie, The Doctor. You remind people that reality is negotiable.",
+        member:
+          "Monthly access would compare your Andromedan pattern with Explorer archetype, Enneagram Type Seven, and relationship style results.",
+      },
+    },
+  },
 ];
 
 const iqStyleProfiles = {
