@@ -28,6 +28,10 @@ Plus: a Major Arcana reading room, daily competitive Trials with a leaderboard, 
 - Storage uses a `window.storage` API where available (Claude artifacts), falling back to `localStorage`, falling back to an in-memory shim — so it degrades gracefully anywhere.
 - Payments, accounts, and the leaderboard's cross-device sync are currently **stubbed** for the prototype. Wiring notes for Stripe/Play Billing, auth, and a shared leaderboard backend are commented at the bottom of the `<script>` block in `index.html`.
 
+## Continuing this project
+
+**There's a pending task, fully specced in [`HANDOFF.md`](./HANDOFF.md):** the Deck/tarot page needs a rebuild into an interactive shuffle-and-draw reading (22 Major Arcana × 4 categories = 88 written responses). Read that file before making changes — it also covers the app's architecture and points to `tests/verify-content-pools.js` for validating data changes.
+
 ## Deploying
 
 This repo is GitHub Pages-ready as-is:
