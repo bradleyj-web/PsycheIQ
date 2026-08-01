@@ -763,6 +763,7 @@ select{width:100%;padding:12px 13px;background:rgba(0,0,0,.32);border:1px solid 
 </div>
 
 <div id="modal-root"></div>
+<script src="iq_module.js"></script>
 <script>
 /* ============================================================
    THE HERMETIC NOUS — application
@@ -976,15 +977,17 @@ const orn = '<div class="orn"><i>◆</i></div>';
 const isUnlocked = which => State.pro || State.unlocked.has(which);
 
 /* ---------------- routing ---------------- */
-const VIEWS = ["home","oracle","pneuma","logos","anima","typology","soulq","past","readings","tarot","trials","results","tiers","essays","community","about"];
+const VIEWS = ["home","oracle","pneuma","logos","anima","typology","soulq","past","readings","tarot","trials","results","tiers","essays","community","about","iq"];
 function go(name){
   if (name === "pneuma-intro"){ renderPneumaIntro(); name = "pneuma"; }
   else if (name === "logos-intro"){ renderLogosIntro(); name = "logos"; }
+  else if (name === "iq-intro"){ renderIQTest(); name = "iq"; }
   else if (name === "typology"){ quizIntro(TYPOLOGY); }
   else if (name === "soulq"){ quizIntro(SOULIQ); }
   else if (name === "past"){ State.past ? renderPastSummary() : renderPastIntro(); }
   else if (name === "readings"){ renderReadings(); wireReadings(); }
   else if (name === "tarot"){ renderTarot(); }
+  else if (name === "iq"){ renderIQTest(); }
   else if (name === "trials"){ renderTrials(); }
   else if (name === "anima" || name === "anima-intro"){ if (!State.anima || name === "anima-intro") renderAnimaIntro(); else renderAnimaSummary(); name = "anima"; }
   else if (name === "results"){ renderResults(); }
@@ -1155,13 +1158,31 @@ function renderHomeEssays(){
 }
 function renderOracle(){
   const el = $("#oracle-cards"); el.className = "stack";
-  el.innerHTML = ["Mind","Character","Soul"].map(g =>
+  el.innerHTML = ["Mind","Character","Soul","Intelligence"].map(g =>
     '<div class="grouprow"><p class="eyebrow center">'+g+'</p><div class="grid-3">'+
     TESTS.filter(t => t.group === g).map(t => {
       const done = t.done();
       return card(t.sigil, t.name, t.meta, t.desc, done ? "Complete · "+esc(t.status()) : null,
                   t.view, done ? "Take it again" : "Begin", t.reg);
     }).join("")+'</div></div>').join("");
+  // Add IQ test as a standalone module
+  el.innerHTML += `
+    <div class="grouprow"><p class="eyebrow center">Classic</p>
+      <div class="grid-3">
+        <div class="frame gate" data-go="iq">
+          <div class="h-md" style="color:var(--ink)">Classic IQ Challenge</div>
+          <p style="font-size:12.5px;color:var(--ink-3);margin-top:6px">21 questions to measure logical, verbal, and spatial intelligence.</p>
+          <div style="margin-top:14px">
+            <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round">
+              <path d="M12 2L13.5 6.5L18 7.5L14.5 10.5L15.5 15L12 13L8.5 15L9.5 10.5L6 7.5L10.5 6.5L12 2Z"/>
+              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke-dasharray="4 4"/>
+            </svg>
+          </div>
+          <button class="btn btn--wide" data-go="iq">Begin</button>
+        </div>
+      </div>
+    </div>`;
+}
   const anyDone = TESTS.some(t => t.done());
   $("#oracle-profile").hidden = !anyDone;
   $("#oracle-profile").onclick = () => go("results");
@@ -3514,9 +3535,9 @@ function radarSVG(){
     labels+'</svg>';
 }
 function renderResults(){
-  const p = State.pneuma, l = State.logos, a = State.anima;
+  const p = State.pneuma, l = State.logos, a = State.anima, iq = State.iq;
   const open = isTestUnlocked("pneuma");
-  const any = p || l || a || State.typology || State.soulq || State.past;
+  const any = p || l || a || State.typology || State.soulq || State.past || iq;
   const V = $("#view-results");
   if (!any){
     V.innerHTML = '<div class="frame center" style="max-width:620px;margin:0 auto"><p class="eyebrow">No profile yet</p>'+
@@ -3537,6 +3558,7 @@ function renderResults(){
     scoreBlock()+
     '<div class="grid-2">'+pneumaPanel(p)+typologyPanel()+'</div>'+
     '<div class="grid-2" style="margin-top:20px">'+logosPanel(l)+soulqPanel()+'</div>'+
+    '<div class="grid-2" style="margin-top:20px">'+iqPanel(iq)+'</div>'+
     '<div class="frame" style="margin-top:20px;text-align:center">'+
       '<p class="eyebrow">Hermetic synthesis</p>'+
       '<h2 class="dsp h-md" style="color:var(--ink)">Your Life Path</h2>'+orn+
@@ -3573,6 +3595,35 @@ function renderResults(){
         '</div>'+
         '<p class="terms">Completed in '+Math.floor(l.seconds/60)+' min '+(l.seconds%60)+' s \u00b7 speed factor '+l.speed+'%, worth up to ten points of the total. Unsupervised and unnormed: treat the band as a label inside PsycheIQ, not a psychometric score.</p></div>' : "")+
     '<div class="btn-row" style="margin-top:24px"><button class="btn" data-go="oracle">Run another instrument</button></div>';
+
+  wireProfileBar();
+  const dl = $("#crest-dl"); if (dl) dl.onclick = downloadCrest;
+  $$(".js-upgrade").forEach(b => b.onclick = () => openUpgrade("results"));
+  setTimeout(() => $$(".bar-track i").forEach(i => i.style.width = i.dataset.w+"%"), 60);
+  maybeInterstitial();
+}
+
+function iqPanel(iq) {
+  if (!iq) return '<div class="frame center"><p class="eyebrow">Classic IQ Challenge</p>'+
+    '<h2 class="dsp h-md" style="color:var(--ink)">Not yet taken</h2>'+orn+
+    '<p style="font-size:14px">21 questions, about 10 minutes.</p>'+
+    '<button class="btn btn--gold btn--wide" data-go="iq">Take the IQ test</button></div>';
+  
+  return '<div class="frame center">'+
+    '<p class="eyebrow">Your Classic IQ</p>'+
+    '<h2 class="dsp h-md gilt">'+iq.score+'</h2>'+
+    '<svg class="crest" style="color:var(--gold);width:104px;height:104px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">'+
+      '<path d="M12 2L13.5 6.5L18 7.5L14.5 10.5L15.5 15L12 13L8.5 15L9.5 10.5L6 7.5L10.5 6.5L12 2Z"/>'+
+      '<path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke-dasharray="4 4"/>'+
+    '</svg>'+
+    '<p style="font-size:13px;color:var(--ink-3);margin:8px 0 18px">'+iq.band+' ('+iq.percentile+'%)</p>'+
+    '<div class="stat"><span>Logical reasoning</span><b>'+iq.logical+'/'+iq.logicalTotal+'</b></div>'+
+    '<div class="stat"><span>Verbal ability</span><b>'+iq.verbal+'/'+iq.verbalTotal+'</b></div>'+
+    '<div class="stat"><span>Spatial intelligence</span><b>'+iq.spatial+'/'+iq.spatialTotal+'</b></div>'+
+    '<p class="terms">Unsupervised and unnormed: treat this as a label inside PsycheIQ, not a psychometric score.</p>'+
+    '<button class="btn btn--wide" data-go="iq" style="margin-top:12px">Take it again</button>'+
+  '</div>';
+}
 
   wireProfileBar();
   const dl = $("#crest-dl"); if (dl) dl.onclick = downloadCrest;
