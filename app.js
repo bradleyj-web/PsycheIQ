@@ -18,10 +18,10 @@ const tests = [
         domain: "pattern reasoning",
         prompt: "What number comes next? 3, 7, 15, 31, ?",
         options: [
-          { label: "47", correct: false },
-          { label: "62", correct: false },
           { label: "63", correct: true },
           { label: "64", correct: false },
+          { label: "65", correct: false },
+          { label: "127", correct: false },
         ],
       },
       {
@@ -30,9 +30,9 @@ const tests = [
         prompt: "What number comes next? 2, 6, 12, 20, 30, ?",
         options: [
           { label: "36", correct: false },
+          { label: "38", correct: false },
           { label: "40", correct: false },
           { label: "42", correct: true },
-          { label: "44", correct: false },
         ],
       },
       {
@@ -150,10 +150,10 @@ const tests = [
         domain: "pattern reasoning",
         prompt: "What number comes next? 5, 10, 20, 40, ?",
         options: [
-          { label: "45", correct: false },
-          { label: "60", correct: false },
           { label: "80", correct: true },
+          { label: "90", correct: false },
           { label: "100", correct: false },
+          { label: "120", correct: false },
         ],
       },
       {
@@ -162,9 +162,9 @@ const tests = [
         prompt: "What number comes next? 1, 4, 9, 16, 25, ?",
         options: [
           { label: "30", correct: false },
-          { label: "34", correct: false },
+          { label: "32", correct: false },
+          { label: "35", correct: false },
           { label: "36", correct: true },
-          { label: "40", correct: false },
         ],
       },
       {
@@ -271,10 +271,10 @@ const tests = [
         domain: "quantitative reasoning",
         prompt: "If x + 7 = 19, what is x?",
         options: [
-          { label: "10", correct: false },
-          { label: "11", correct: false },
           { label: "12", correct: true },
           { label: "13", correct: false },
+          { label: "19", correct: false },
+          { label: "26", correct: false },
         ],
       },
       {
@@ -284,8 +284,8 @@ const tests = [
         options: [
           { label: "59", correct: false },
           { label: "69", correct: false },
+          { label: "75", correct: false },
           { label: "79", correct: true },
-          { label: "89", correct: false },
         ],
       },
       {
@@ -764,7 +764,7 @@ const tests = [
     items: "42 questions",
     price: "$1 report",
     description:
-      "A type-map inspired by the familiar MBTI framework, focused on how you gain energy, process information, decide, and plan.",
+      "A complete 16-outcome type map inspired by the familiar MBTI framework, scored across energy, information, decisions, and structure.",
     questions: [
       {
         kicker: "Energy",
@@ -899,11 +899,11 @@ const tests = [
     tone: "gold",
     symbol: "EN",
     status: "Live",
-    time: "10 min",
+    time: "12 min",
     items: "42 questions",
     price: "$1 report",
     description:
-      "A motivation test that looks beneath behavior to the fear, desire, and coping pattern that quietly steers you.",
+      "A full 9-type motivation test that looks beneath behavior to the fear, desire, and coping pattern that quietly steers you.",
     questions: [
       {
         kicker: "Hidden aim",
@@ -1177,8 +1177,8 @@ const tests = [
     tone: "teal",
     symbol: "SF",
     status: "Live",
-    time: "5 min",
-    items: "20 prompts",
+    time: "10 min",
+    items: "42 questions",
     price: "$1 report",
     description:
       "A trend-ready culture test for fans of bunker mysteries, future societies, and high-stakes sci-fi worlds.",
@@ -1312,30 +1312,30 @@ const tests = [
   {
     id: "attachment",
     title: "Attachment Style",
-    category: "Coming Soon",
+    category: "Psychology",
     tone: "gold",
     symbol: "AT",
-    status: "Coming Soon",
-    time: "8 min",
-    items: "42 planned",
-    price: "Member library",
+    status: "Live",
+    time: "12 min",
+    items: "42 questions",
+    price: "$1 report",
     description:
-      "A relationship-focused test for closeness, conflict, reassurance, independence, and emotional repair.",
+      "A relationship-focused test for closeness, reassurance, independence, conflict repair, and emotional safety.",
     questions: [],
     profiles: {},
   },
   {
     id: "career",
     title: "Career Drivers",
-    category: "Coming Soon",
+    category: "Psychology",
     tone: "violet",
     symbol: "CD",
-    status: "Coming Soon",
-    time: "9 min",
-    items: "42 planned",
-    price: "Member library",
+    status: "Live",
+    time: "12 min",
+    items: "42 questions",
+    price: "$1 report",
     description:
-      "A practical profile for what motivates your best work: mastery, status, autonomy, mission, security, or creativity.",
+      "A practical career motivation test for mastery, recognition, autonomy, security, mission, and creativity.",
     questions: [],
     profiles: {},
   },
@@ -1346,8 +1346,8 @@ const tests = [
     tone: "indigo",
     symbol: "ST",
     status: "Live",
-    time: "8 min",
-    items: "20 questions",
+    time: "12 min",
+    items: "42 questions",
     price: "$1 report",
     description:
       "A cosmic soul-profile that explores which star system your essence resonates with and what gifts you carry into this world.",
@@ -1740,140 +1740,599 @@ const visualExampleLibrary = {
 
 const archetypeChoiceCopy = {
   sage: {
-    labels: ["Find the pattern", "Ask the sharper question", "Study the signal", "Clarify what matters"],
-    details: [
-      "You calm the room by making it understandable.",
-      "Truth feels more useful than speed.",
-      "You prefer meaning over noise.",
-      "A clear model helps everyone choose.",
-    ],
+    themes: {
+      mind: [
+        ["Find the underlying pattern", "You calm the room by making it understandable."],
+        ["Ask the sharper question", "Truth feels more useful than speed."],
+        ["Build a clearer model", "A clean frame helps everyone choose."],
+        ["Separate signal from noise", "You prefer meaning over volume."],
+        ["Test the assumption first", "You want to know what is actually true."],
+      ],
+      bond: [
+        ["Understand what they really mean", "You listen for the thing under the words."],
+        ["Say the honest thing kindly", "Clarity is its own form of respect."],
+        ["Give them room to think", "Pressure rarely produces truth."],
+        ["Name what is actually happening", "You help people see their own pattern."],
+        ["Offer perspective, not advice", "People choose better when they see wider."],
+      ],
+      drive: [
+        ["Understand it before moving", "You want the map before the march."],
+        ["Choose the wisest option", "The right call beats the fast call."],
+        ["Explain the reasoning", "People commit when the logic is visible."],
+        ["Work out what matters most", "Priorities do the hard work for you."],
+        ["Wait for the clearer moment", "Timing is part of judgement."],
+      ],
+      strain: [
+        ["Withdraw and think it through", "Distance restores your clarity."],
+        ["Analyse what went wrong", "Understanding is how you regain footing."],
+        ["Get quiet until it makes sense", "Noise makes the pattern harder to see."],
+        ["Look for the missed signal", "You reread the situation for what you skipped."],
+        ["Explain it to yourself honestly", "Naming it takes some of its power."],
+      ],
+      path: [
+        ["Understand something deeply", "Meaning and mastery pull you forward."],
+        ["See the whole picture clearly", "You want the view, not just the step."],
+        ["Learn what you did not know", "Growth feels like sight returning."],
+        ["Live by what is actually true", "Integrity starts with accuracy."],
+        ["Make sense of your own story", "A pattern understood stops repeating."],
+      ],
+    },
   },
   catalyst: {
-    labels: ["Create movement", "Name the bold next step", "Turn energy into action", "Start the spark"],
-    details: [
-      "You wake people up when the moment has gone stale.",
-      "Momentum feels like medicine.",
-      "You would rather try than circle forever.",
-      "A strong signal is better than a perfect plan.",
-    ],
+    themes: {
+      mind: [
+        ["Try it and find out", "You learn fastest by doing."],
+        ["Cut to the real question", "Most complexity is avoidance."],
+        ["Back the bold idea", "A strong signal beats a perfect plan."],
+        ["Skip ahead to the point", "You lose patience with circling."],
+        ["Push the idea until it breaks", "Pressure reveals what holds."],
+      ],
+      bond: [
+        ["Say the hard thing out loud", "You push the energy into the open."],
+        ["Challenge them to move", "Care sometimes sounds like a push."],
+        ["Be direct about what you want", "Ambiguity wastes everyone's time."],
+        ["Break the polite silence", "The unsaid thing is doing the damage."],
+        ["Bring the energy back", "Flat rooms need someone to move first."],
+      ],
+      drive: [
+        ["Create movement", "You wake people up when things go stale."],
+        ["Name the bold next step", "Momentum feels like medicine."],
+        ["Start before it is perfect", "You would rather try than wait."],
+        ["Take the decisive shot", "Hesitation costs more than error."],
+        ["Force the decision", "Stalling is also a choice."],
+      ],
+      strain: [
+        ["Push harder than you should", "You mistake intensity for progress."],
+        ["Do something, anything", "Stillness feels worse than a wrong move."],
+        ["Get loud before you get clear", "Heat arrives before language does."],
+        ["Burn through it", "You would rather exhaust it than sit in it."],
+        ["Force a change too early", "Movement can be its own avoidance."],
+      ],
+      path: [
+        ["Start something bold", "You like the spark before the path is obvious."],
+        ["Make a real dent", "You want the effect to be visible."],
+        ["Live at full intensity", "Half-speed feels like sleeping."],
+        ["Prove it can be done", "You are drawn to the supposedly impossible."],
+        ["Leave things changed", "You measure a life by what moved."],
+      ],
+    },
   },
   guardian: {
-    labels: ["Protect the bond", "Steady the people", "Make it safe enough", "Hold the center"],
-    details: [
-      "Trust matters more than looking impressive.",
-      "You notice who is carrying too much.",
-      "People do better when they feel held.",
-      "Care is a form of leadership.",
-    ],
+    themes: {
+      mind: [
+        ["Check who it affects", "You think in consequences, not abstractions."],
+        ["Slow it down for everyone", "Speed leaves people behind."],
+        ["Ask what could go wrong", "Care means looking at the downside."],
+        ["Keep it practical and clear", "Useful beats clever."],
+        ["Make sure nobody is lost", "Understanding should be shared."],
+      ],
+      bond: [
+        ["Protect the bond", "Trust matters more than being right."],
+        ["Make it safe enough to be honest", "People open up when they feel held."],
+        ["Repair before it hardens", "You want the thread mended early."],
+        ["Notice who is struggling", "You see who is carrying too much."],
+        ["Stay steady with them", "Presence is what you actually offer."],
+      ],
+      drive: [
+        ["Steady the people first", "Care is a form of leadership."],
+        ["Make sure it holds", "You build things that last."],
+        ["Take responsibility for it", "You carry weight without announcing it."],
+        ["Keep the promises already made", "Reliability is your quiet standard."],
+        ["Protect what is working", "Not everything needs disrupting."],
+      ],
+      strain: [
+        ["Over-function for everyone", "You help until resentment appears."],
+        ["Absorb it quietly", "You would rather carry it than share it."],
+        ["Hold the center anyway", "You stay standing because someone must."],
+        ["Keep going past your limit", "You notice your own cost last."],
+        ["Take on what is not yours", "Other people's weight finds your shoulders."],
+      ],
+      path: [
+        ["Make people feel safe", "Your attention moves toward trust and care."],
+        ["Build something dependable", "You want what you make to hold."],
+        ["Be someone people can rely on", "Constancy is the legacy you want."],
+        ["Leave people steadier", "You measure yourself by who felt held."],
+        ["Learn to receive care too", "Your growth edge runs the other direction."],
+      ],
+    },
   },
   explorer: {
-    labels: ["Look for the open door", "Choose the unknown", "Follow the wider map", "Find another route"],
-    details: [
-      "You sense when life has gotten too small.",
-      "Possibility returns when the frame changes.",
-      "Freedom helps you think clearly.",
-      "A new angle can change the whole story.",
-    ],
+    themes: {
+      mind: [
+        ["Look at it from outside", "A new angle changes the whole story."],
+        ["Question the frame itself", "The assumption is usually the problem."],
+        ["Follow the interesting thread", "Curiosity is your best instrument."],
+        ["Imagine the other version", "You think in alternatives."],
+        ["Refuse the given options", "The list is rarely complete."],
+      ],
+      bond: [
+        ["Keep it honest and unforced", "Freedom is how you stay close."],
+        ["Give each other room", "Space is not distance."],
+        ["Take them somewhere new", "You share by widening the world."],
+        ["Resist the expected script", "You want the real thing, not the role."],
+        ["Ask what they actually want", "Assumptions shrink people."],
+      ],
+      drive: [
+        ["Find another route", "You sense when the path has closed."],
+        ["Choose the unknown", "Possibility returns when the frame changes."],
+        ["Bet on the wider option", "You would rather risk than shrink."],
+        ["Leave the safe version behind", "Comfort is expensive."],
+        ["Open a door nobody tried", "The unattempted interests you most."],
+      ],
+      strain: [
+        ["Leave before deciding", "Freedom can become avoidance."],
+        ["Look for the exit", "Escape feels like oxygen."],
+        ["Change everything at once", "You reach for a new frame too fast."],
+        ["Detach and drift", "You go somewhere else in your head."],
+        ["Resist being pinned down", "Constraint reads as threat."],
+      ],
+      path: [
+        ["Cross a real threshold", "A new place or identity wakes you up."],
+        ["Keep the world large", "You cannot live in a small frame."],
+        ["Follow the wider map", "There is always more than this."],
+        ["Stay free enough to change", "You want room to become someone else."],
+        ["See what is actually out there", "The unlived option pulls at you."],
+      ],
+    },
   },
 };
 
 const archetypePrompts = [
-  ["Decision pressure", "When a decision feels emotionally loaded, your natural move is to..."],
-  ["Group role", "In a team that has lost direction, you usually try to..."],
-  ["Stress signal", "When stress starts showing, you are most likely to..."],
-  ["Best compliment", "When people praise your best self, they are usually praising how you..."],
-  ["Friendship", "When a friend is in trouble, your first helpful move is to..."],
-  ["Leadership", "When you lead well, you most often..."],
-  ["Learning", "When learning something new, you instinctively try to..."],
-  ["Conflict repair", "After a disagreement, your repair instinct is to..."],
-  ["Energy", "When life starts draining you, you usually need to..."],
-  ["Growth edge", "The growth move that would stretch you most is to..."],
-  ["Creativity", "When a creative idea is forming, you tend to..."],
-  ["Trust", "You begin trusting someone when they help you..."],
-  ["Change", "When everything changes at once, you first try to..."],
-  ["Boundaries", "When you need a boundary, you usually try to..."],
-  ["Motivation", "The inner reward you chase without meaning to is found when you..."],
-  ["Work style", "Your best workday gives you enough room to..."],
-  ["Shadow", "Your pattern can hurt you when you overuse the habit of trying to..."],
-  ["Courage", "The brave thing you do most naturally is to..."],
-  ["Planning", "A good plan should mostly help people..."],
-  ["Belonging", "You feel most yourself with people who encourage you to..."],
-  ["Crisis", "In a crisis, your attention goes first toward trying to..."],
-  ["Communication", "People understand you best when you..."],
-  ["Purpose", "A meaningful life should include chances to..."],
-  ["Romance", "In romance, you are most likely to show love by trying to..."],
-  ["Parenting", "A child would probably remember you teaching them to..."],
-  ["Feedback", "When feedback lands well, it helps you..."],
-  ["Risk", "The risk you are most willing to take is the risk to..."],
-  ["Success", "Success feels hollow unless it also helps you..."],
-  ["Habits", "Your habits stick when they help you..."],
-  ["Attention", "You automatically notice when it is time to..."],
-  ["Problem solving", "A hard problem becomes easier when you can..."],
-  ["Values", "You would rather be known as someone who knows how to..."],
-  ["Recovery", "When you are depleted, you recover by giving yourself permission to..."],
-  ["Influence", "You change people most often when you..."],
-  ["Mistake pattern", "Your most common mistake is overdoing the impulse to..."],
-  ["Inner compass", "Your inner compass points toward the chance to..."],
-  ["Future self", "The future version of you wants more room to..."],
+  ["Decision pressure", "When a decision feels emotionally loaded, your natural move is to...", "drive"],
+  ["Group role", "In a team that has lost direction, you usually try to...", "drive"],
+  ["Stress signal", "When stress starts showing, you are most likely to...", "strain"],
+  ["Best compliment", "When people praise your best self, they are usually praising how you...", "path"],
+  ["Friendship", "When a friend is in trouble, your first helpful move is to...", "bond"],
+  ["Leadership", "When you lead well, you most often...", "drive"],
+  ["Learning", "When learning something new, you instinctively try to...", "mind"],
+  ["Conflict repair", "After a disagreement, your repair instinct is to...", "bond"],
+  ["Energy", "When life starts draining you, you usually need to...", "strain"],
+  ["Growth edge", "The growth move that would stretch you most is to...", "path"],
+  ["Creativity", "When a creative idea is forming, you tend to...", "mind"],
+  ["Trust", "You begin trusting someone when they help you...", "bond"],
+  ["Change", "When everything changes at once, you first try to...", "strain"],
+  ["Boundaries", "When you need a boundary, you usually try to...", "bond"],
+  ["Motivation", "The inner reward you chase without meaning to is found when you...", "path"],
+  ["Work style", "Your best workday gives you enough room to...", "drive"],
+  ["Shadow", "Your pattern can hurt you when you overuse the habit of trying to...", "strain"],
+  ["Courage", "The brave thing you do most naturally is to...", "drive"],
+  ["Planning", "A good plan should mostly help people...", "mind"],
+  ["Belonging", "You feel most yourself with people who encourage you to...", "bond"],
+  ["Crisis", "In a crisis, your attention goes first toward trying to...", "strain"],
+  ["Communication", "People understand you best when you...", "bond"],
+  ["Purpose", "A meaningful life should include chances to...", "path"],
+  ["Romance", "In romance, you are most likely to show love by trying to...", "bond"],
+  ["Parenting", "A child would probably remember you teaching them to...", "bond"],
+  ["Feedback", "When feedback lands well, it helps you...", "mind"],
+  ["Risk", "The risk you are most willing to take is the risk to...", "drive"],
+  ["Success", "Success feels hollow unless it also helps you...", "path"],
+  ["Habits", "Your habits stick when they help you...", "path"],
+  ["Attention", "You automatically notice when it is time to...", "mind"],
+  ["Problem solving", "A hard problem becomes easier when you can...", "mind"],
+  ["Values", "You would rather be known as someone who knows how to...", "path"],
+  ["Recovery", "When you are depleted, you recover by giving yourself permission to...", "strain"],
+  ["Influence", "You change people most often when you...", "drive"],
+  ["Mistake pattern", "Your most common mistake is overdoing the impulse to...", "strain"],
+  ["Inner compass", "Your inner compass points toward the chance to...", "path"],
+  ["Future self", "The future version of you wants more room to...", "path"],
 ];
 
 const scifiChoiceCopy = {
   engineer: {
-    labels: ["Fix the system", "Trace the failure", "Keep the machine alive", "Make the world work"],
-    details: ["Infrastructure tells the truth.", "You solve through practical competence.", "Function matters before speeches.", "The hidden mechanism is usually the clue."],
+    themes: {
+      mind: [
+        ["Trace the failure back", "Infrastructure tells the truth."],
+        ["Test what actually works", "You trust results over reports."],
+        ["Read the schematics", "The hidden mechanism is usually the clue."],
+        ["Rule out the simple cause", "Most mysteries are maintenance."],
+        ["Measure it properly", "You want numbers, not impressions."],
+      ],
+      bond: [
+        ["Show them how it works", "Competence shared is trust earned."],
+        ["Be useful without being asked", "You help with your hands."],
+        ["Trust the ones who do the work", "Talk is cheap down here."],
+        ["Fix what they depend on", "Care looks like a working door."],
+        ["Keep your word exactly", "Reliability is your language."],
+      ],
+      drive: [
+        ["Fix the system", "Function matters before speeches."],
+        ["Keep the machine alive", "Everything else depends on it."],
+        ["Do the practical thing now", "The problem will not wait for consensus."],
+        ["Build the workaround", "You make do with what exists."],
+        ["Get it running again", "Restoration beats debate."],
+      ],
+      strain: [
+        ["Bury yourself in the work", "Tasks keep the fear at a distance."],
+        ["Over-trust the machine", "You would rather debug than feel."],
+        ["Try to fix the unfixable", "Some things are not a repair problem."],
+        ["Keep working past exhaustion", "You stop when it stops."],
+        ["Miss the human failure", "You watch the system, not the crew."],
+      ],
+      path: [
+        ["Make the world work again", "You want to leave it functioning."],
+        ["Build something that outlasts you", "Good work is the argument."],
+        ["Keep people alive with what you know", "Skill is how you love."],
+        ["Repair what others abandoned", "Nothing is automatically beyond saving."],
+        ["Leave the systems better", "You measure a life in what still runs."],
+      ],
+    },
   },
   archivist: {
-    labels: ["Protect the record", "Find the missing file", "Remember the pattern", "Recover the old truth"],
-    details: ["History keeps receipts.", "You notice what got edited out.", "Memory can become resistance.", "A buried detail can save everyone."],
+    themes: {
+      mind: [
+        ["Find the missing file", "You notice what got edited out."],
+        ["Compare it to the record", "History keeps receipts."],
+        ["Remember the earlier pattern", "This has happened before."],
+        ["Look for what was removed", "The gap is the evidence."],
+        ["Check the original source", "Copies drift; originals do not."],
+      ],
+      bond: [
+        ["Remember what they told you", "Being known is being remembered."],
+        ["Hold their story carefully", "You keep what people entrust."],
+        ["Tell them the true version", "People deserve their own history."],
+        ["Notice what they leave out", "Silence is also a record."],
+        ["Keep the promise on the record", "You do not let things be rewritten."],
+      ],
+      drive: [
+        ["Protect the record", "Memory can become resistance."],
+        ["Recover the old truth", "A buried detail can save everyone."],
+        ["Document what is happening", "Someone has to write this down."],
+        ["Preserve it before it is lost", "Erasure moves fast."],
+        ["Get the evidence out", "Proof outlives the moment."],
+      ],
+      strain: [
+        ["Retreat into the archive", "The past is quieter than now."],
+        ["Get lost in the detail", "You research instead of acting."],
+        ["Replay what went wrong", "You reread your own history."],
+        ["Hoard information", "Knowing feels like control."],
+        ["Distrust the present account", "Everything sounds like a revision."],
+      ],
+      path: [
+        ["Make sure it is remembered", "Forgetting is how it repeats."],
+        ["Leave an honest account", "The truth should survive you."],
+        ["Recover what was erased", "You restore what others buried."],
+        ["Give people back their past", "Memory is a kind of freedom."],
+        ["Be the one who kept it", "Someone must hold the thread."],
+      ],
+    },
   },
   sentinel: {
-    labels: ["Hold the line", "Protect the group", "Read the danger", "Stabilize the room"],
-    details: ["People need steadiness under pressure.", "Safety is practical, not abstract.", "You watch the emotional perimeter.", "Order can keep panic from spreading."],
+    themes: {
+      mind: [
+        ["Read the danger first", "You watch the perimeter, not the theory."],
+        ["Watch how people react", "Behaviour tells you more than data."],
+        ["Think in worst cases", "Preparation is a form of thought."],
+        ["Judge who can be trusted", "You read people quickly."],
+        ["Keep the plan simple", "Complexity fails under pressure."],
+      ],
+      bond: [
+        ["Protect the group", "Safety is practical, not abstract."],
+        ["Stay between them and it", "You put yourself in front."],
+        ["Keep everyone accounted for", "Nobody gets left."],
+        ["Be the steady one", "People need somewhere to stand."],
+        ["Hold the group together", "Fracture kills faster than the threat."],
+      ],
+      drive: [
+        ["Hold the line", "People need steadiness under pressure."],
+        ["Stabilize the room", "Order keeps panic from spreading."],
+        ["Take command if nobody will", "Vacuum is the real danger."],
+        ["Secure it before moving", "You do not advance into the unknown."],
+        ["Make the hard call", "Someone has to decide."],
+      ],
+      strain: [
+        ["Grip tighter than needed", "Control feels like safety."],
+        ["Refuse to stand down", "You cannot put the watch down."],
+        ["Mistake obedience for order", "Rules become the point."],
+        ["Carry it alone", "You do not show the crack."],
+        ["Suspect everyone", "Vigilance curdles into distrust."],
+      ],
+      path: [
+        ["Get everyone home", "You count the living, not the wins."],
+        ["Be the reason people made it", "Protection is your purpose."],
+        ["Hold the line long enough", "Time bought is lives saved."],
+        ["Keep order worth having", "Safety without freedom is a cage."],
+        ["Learn when to let go", "Your growth edge is trusting others."],
+      ],
+    },
   },
   outlier: {
-    labels: ["Question the walls", "Follow the forbidden clue", "Break the frame", "Step outside the script"],
-    details: ["The rule against looking is the clue.", "You want truth, not just survival.", "False limits bother you.", "A door matters more once someone calls it impossible."],
+    themes: {
+      mind: [
+        ["Question the walls", "The rule against looking is the clue."],
+        ["Follow the forbidden thread", "You want truth, not just survival."],
+        ["Distrust the official version", "Someone benefits from this story."],
+        ["Ask who wrote the rules", "Authorship explains a lot."],
+        ["Look where you were told not to", "Prohibition is a signpost."],
+      ],
+      bond: [
+        ["Tell them what nobody will", "Honesty is the loyalty you offer."],
+        ["Refuse to keep the secret", "Silence protects the wrong people."],
+        ["Trust the other doubters", "You find your people at the edges."],
+        ["Let them choose for themselves", "Withheld truth is control."],
+        ["Stay when it costs you", "You are loyal to people, not systems."],
+      ],
+      drive: [
+        ["Break the frame", "False limits bother you."],
+        ["Step outside the script", "A door matters once called impossible."],
+        ["Go past the boundary", "You have to see for yourself."],
+        ["Refuse the given choice", "The options offered are not all of them."],
+        ["Act before permission", "Asking guarantees a no."],
+      ],
+      strain: [
+        ["Burn it all down", "You break what you cannot fix."],
+        ["Push away the people helping", "Trust feels like a trap."],
+        ["Chase the thread too far", "You follow it past your own safety."],
+        ["Refuse every constraint", "Even the useful ones."],
+        ["Isolate yourself", "You decide nobody else sees it."],
+      ],
+      path: [
+        ["Show people the real shape", "Sight is what you offer."],
+        ["Open the door for everyone", "Escape alone is not escape."],
+        ["Refuse the world as given", "It could be otherwise."],
+        ["Find out what is really out there", "The unknown pulls harder than safety."],
+        ["Be the one who asked", "Someone had to."],
+      ],
+    },
   },
 };
 
 const scifiPrompts = [
-  ["First move", "When the official story starts cracking, your first move is to..."],
-  ["Hidden talent", "When people underestimate you, the strength you reveal is how you..."],
-  ["Risk", "When the stakes get risky, you are most likely to..."],
-  ["Trust", "Before you trust the room, you try to..."],
-  ["Pressure", "Under pressure, your mind instinctively tries to..."],
-  ["Authority", "When authority feels wrong, you tend to..."],
-  ["Mystery", "When a mystery pulls you in, you want to..."],
-  ["Leadership", "When people need leadership, you tend to..."],
-  ["Weakness", "Your survival flaw is that you may over-focus on trying to..."],
-  ["Alliance", "The ally role you naturally take is to..."],
-  ["Truth", "When truth becomes dangerous, you try to..."],
-  ["Escape", "An escape plan should begin by trying to..."],
-  ["Memory", "When the past matters, you try to..."],
-  ["Repair", "A broken world asks someone to..."],
-  ["Morality", "When your moral line is crossed, you tend to..."],
-  ["Discovery", "When a discovery changes everything, you want to..."],
-  ["Community", "A community survives when someone is willing to..."],
-  ["Rebellion", "A rebellion becomes justified when someone must..."],
-  ["Sacrifice", "You would sacrifice comfort if it helped you..."],
-  ["Fear", "Fear is easiest to manage when you can..."],
-  ["Skill", "Your most valuable crisis skill is knowing how to..."],
-  ["Evidence", "When evidence is confusing, you trust the path that lets you..."],
-  ["Power", "Power should be used by people willing to..."],
-  ["Unknown", "The unknown feels less frightening when you can..."],
-  ["Ending", "The ending you want most lets someone..."],
-  ["Failure", "The mistake you would regret most is failing to..."],
-  ["Signal", "The signal you never ignore is the moment to..."],
-  ["Order", "Rules are worth keeping when they help people..."],
-  ["Hope", "Hope returns when someone can still..."],
-  ["Legacy", "You would want to be remembered as the one who knew how to..."],
-  ["Tension", "In a tense room, you usually try to..."],
-  ["Secrets", "Secrets become unbearable when they force someone to..."],
-  ["Work", "Your best contribution is usually the ability to..."],
-  ["Warning", "Your warning to the group would be that it is time to..."],
-  ["Future", "A better future begins when people are brave enough to..."],
-  ["Courage", "Your courage looks like being willing to..."],
-  ["Home", "Home is worth protecting when someone will..."],
+  ["First move", "When the official story starts cracking, your first move is to...", "drive"],
+  ["Hidden talent", "When people underestimate you, the strength you reveal is how you...", "path"],
+  ["Risk", "When the stakes get risky, you are most likely to...", "drive"],
+  ["Trust", "Before you trust the room, you try to...", "bond"],
+  ["Pressure", "Under pressure, your mind instinctively tries to...", "strain"],
+  ["Authority", "When authority feels wrong, you tend to...", "drive"],
+  ["Mystery", "When a mystery pulls you in, you want to...", "mind"],
+  ["Leadership", "When people need leadership, you tend to...", "drive"],
+  ["Weakness", "Your survival flaw is that you may over-focus on trying to...", "strain"],
+  ["Alliance", "The ally role you naturally take is to...", "bond"],
+  ["Truth", "When truth becomes dangerous, you try to...", "mind"],
+  ["Escape", "An escape plan should begin by trying to...", "drive"],
+  ["Memory", "When the past matters, you try to...", "mind"],
+  ["Repair", "A broken world asks someone to...", "path"],
+  ["Morality", "When your moral line is crossed, you tend to...", "path"],
+  ["Discovery", "When a discovery changes everything, you want to...", "mind"],
+  ["Community", "A community survives when someone is willing to...", "bond"],
+  ["Rebellion", "A rebellion becomes justified when someone must...", "drive"],
+  ["Sacrifice", "You would sacrifice comfort if it helped you...", "path"],
+  ["Fear", "Fear is easiest to manage when you can...", "strain"],
+  ["Skill", "Your most valuable crisis skill is knowing how to...", "mind"],
+  ["Evidence", "When evidence is confusing, you trust the path that lets you...", "mind"],
+  ["Power", "Power should be used by people willing to...", "path"],
+  ["Unknown", "The unknown feels less frightening when you can...", "strain"],
+  ["Ending", "The ending you want most lets someone...", "path"],
+  ["Failure", "The mistake you would regret most is failing to...", "strain"],
+  ["Signal", "The signal you never ignore is the moment to...", "mind"],
+  ["Order", "Rules are worth keeping when they help people...", "bond"],
+  ["Hope", "Hope returns when someone can still...", "path"],
+  ["Legacy", "You would want to be remembered as the one who knew how to...", "path"],
+  ["Tension", "In a tense room, you usually try to...", "strain"],
+  ["Secrets", "Secrets become unbearable when they force someone to...", "bond"],
+  ["Work", "Your best contribution is usually the ability to...", "path"],
+  ["Warning", "Your warning to the group would be that it is time to...", "strain"],
+  ["Future", "A better future begins when people are brave enough to...", "path"],
+  ["Courage", "Your courage looks like being willing to...", "drive"],
+  ["Home", "Home is worth protecting when someone will...", "bond"],
+];
+
+const starseedChoiceCopy = {
+  pleiadian: {
+    themes: {
+      mind: [
+        ["Feel your way toward it", "You know things before you can argue them."],
+        ["Notice the beauty in it", "Aesthetics are information to you."],
+        ["Follow what moves you", "Feeling points before logic catches up."],
+        ["Sense the mood underneath", "The emotional weather is the real data."],
+        ["Imagine how it could be lovelier", "You see the better version first."],
+      ],
+      bond: [
+        ["Create beauty and connection", "Art, warmth, and harmony come naturally."],
+        ["Love them openly", "You do not hold affection back."],
+        ["Make the space feel warm", "Atmosphere is how you care."],
+        ["Feel what they are feeling", "You meet people in their emotion."],
+        ["Reach for closeness first", "Distance is the thing you cannot settle for."],
+      ],
+      drive: [
+        ["Choose what feels most alive", "You follow warmth, not strategy."],
+        ["Make it beautiful as well as useful", "Function alone is not enough."],
+        ["Bring people together", "You gather rather than command."],
+        ["Trust the tender option", "Softness is a real strategy."],
+        ["Refuse the cold version", "You will not win it that way."],
+      ],
+      strain: [
+        ["Absorb everyone else's feelings", "You take on what is not yours."],
+        ["Retreat into the beautiful", "You go where it is gentle."],
+        ["Idealize how it should be", "The real version disappoints."],
+        ["Avoid the ugly conversation", "Harmony can become avoidance."],
+        ["Feel it all at once", "Earth's density lands heavily on you."],
+      ],
+      path: [
+        ["Bring beauty and emotional truth", "You remind people what matters."],
+        ["Love without armour", "Openness is the gift you carry."],
+        ["Make the world gentler", "Softness is what you came to add."],
+        ["Help people feel again", "Numbness is the thing you undo."],
+        ["Live from the heart outward", "Feeling is your first language."],
+      ],
+    },
+  },
+  sirian: {
+    themes: {
+      mind: [
+        ["Seek understanding and mastery", "You dive until the system reveals itself."],
+        ["Find the underlying law", "Everything obeys something."],
+        ["Strip away the superficial", "You cannot tolerate the decorative."],
+        ["Study it until it is clear", "Depth is the only satisfying route."],
+        ["Test whether it is actually true", "Belief is not evidence."],
+      ],
+      bond: [
+        ["Tell them the unvarnished truth", "You cannot perform a feeling."],
+        ["Show up with real competence", "You help by knowing how."],
+        ["Respect them enough to be direct", "Softening it would be condescension."],
+        ["Keep your commitments exactly", "Your word is the whole thing."],
+        ["Go deep or not at all", "Small talk costs you energy."],
+      ],
+      drive: [
+        ["Do it properly or not at all", "Half-done is worse than undone."],
+        ["Follow the disciplined path", "Mastery is earned slowly."],
+        ["Cut through the noise", "You see the solution others miss."],
+        ["Hold the standard", "Standards are a form of respect."],
+        ["Act on what you actually know", "Certainty before movement."],
+      ],
+      strain: [
+        ["Grow impatient with the chaos", "You see solutions others seem blind to."],
+        ["Go cold and precise", "Feeling gets filed away."],
+        ["Judge harshly, including yourself", "The standard turns into a weapon."],
+        ["Isolate to think", "People become interference."],
+        ["Insist on being right", "Correctness replaces connection."],
+      ],
+      path: [
+        ["Bring wisdom and clarity", "You illuminate what is hidden or confused."],
+        ["Master something completely", "Depth is the point of a life."],
+        ["Hold the line on truth", "You will not trade it for comfort."],
+        ["Teach what you have earned", "Knowledge should be passed on."],
+        ["Learn that warmth is not weakness", "Your growth edge is the heart."],
+      ],
+    },
+  },
+  arcturian: {
+    themes: {
+      mind: [
+        ["Sense what is really wrong", "You read the wound, not the symptom."],
+        ["Look beneath the behaviour", "Everything difficult is protecting something."],
+        ["Hold the question open", "Not everything wants solving yet."],
+        ["See the whole person", "Context explains almost all of it."],
+        ["Trust the quiet knowing", "Insight arrives without argument."],
+      ],
+      bond: [
+        ["Hold space for them", "Your presence calms and transforms."],
+        ["Stay with them in it", "You do not rush anyone's process."],
+        ["Help them become themselves", "You see the version they could be."],
+        ["Listen without fixing", "Being witnessed is the medicine."],
+        ["Forgive before it is earned", "You lead with repair."],
+      ],
+      drive: [
+        ["Heal what is broken", "You see damage and want to mend it."],
+        ["Choose the transforming option", "Change is worth the discomfort."],
+        ["Work quietly and steadily", "You do not need the credit."],
+        ["Serve the deeper need", "Surface fixes do not interest you."],
+        ["Do the patient thing", "Real change is slow."],
+      ],
+      strain: [
+        ["Absorb too much of their pain", "You feel what others feel, too deeply."],
+        ["Give past your own limit", "You notice your own cost last."],
+        ["Try to heal what is not yours", "Not every wound is your assignment."],
+        ["Disappear into service", "You vanish behind other people's needs."],
+        ["Carry it silently", "You would rather hold it than name it."],
+      ],
+      path: [
+        ["Bring healing and transformation", "You help others become who they could be."],
+        ["Leave people more whole", "Repair is the work you came for."],
+        ["Turn pain into something usable", "Nothing has to be wasted."],
+        ["Be a safe place for others", "Safety is what you generate."],
+        ["Learn to receive as well", "Your growth edge is being held."],
+      ],
+    },
+  },
+  andromedan: {
+    themes: {
+      mind: [
+        ["Question and explore", "You probe the edges of the known."],
+        ["Imagine what else is possible", "The given version is one of many."],
+        ["Refuse the accepted frame", "You cannot stop asking why this way."],
+        ["Follow the strange thread", "Curiosity outweighs comfort."],
+        ["Think past the boundary", "Limits read as invitations."],
+      ],
+      bond: [
+        ["Keep it free and honest", "Freedom is how you stay close."],
+        ["Give each other space to change", "You will not hold anyone still."],
+        ["Take them beyond the familiar", "You share by widening the world."],
+        ["Refuse the expected role", "You want the real person, not the part."],
+        ["Stay only if it is chosen", "Obligation would hollow it out."],
+      ],
+      drive: [
+        ["Break out of the limit", "Reality never feels big enough."],
+        ["Choose the wider unknown", "Expansion over safety."],
+        ["Go where nobody went", "The unattempted calls you."],
+        ["Refuse the small version", "You will not shrink to fit."],
+        ["Move before you are ready", "Waiting is its own cage."],
+      ],
+      strain: [
+        ["Run when it gets close", "Commitment can feel like a cage."],
+        ["Detach and drift", "You leave without moving."],
+        ["Chase the next horizon", "Motion substitutes for feeling."],
+        ["Resist every constraint", "Even the ones holding you up."],
+        ["Lose interest once it is known", "The mystery was the attachment."],
+      ],
+      path: [
+        ["Bring possibility and expansion", "You show people they are bigger than they knew."],
+        ["Keep the world wide open", "Smallness is the only real enemy."],
+        ["Live past the given limits", "You came to test the edges."],
+        ["Free someone from their frame", "Sight is the gift you carry."],
+        ["Learn that staying is also brave", "Your growth edge is roots."],
+      ],
+    },
+  },
+};
+
+const starseedPrompts = [
+  ["Soul memory", "The place your mind drifts to when it is finally quiet is somewhere you...", "path"],
+  ["First instinct", "When something feels off in a room, you instinctively...", "mind"],
+  ["Love language", "The way people know you care is that you...", "bond"],
+  ["Under pressure", "When life presses hard, your oldest habit is to...", "strain"],
+  ["Life purpose", "The reason you are here seems to involve learning how to...", "path"],
+  ["Knowing", "You trust a decision most when it lets you...", "mind"],
+  ["Closeness", "Intimacy feels safest when you and the other person can...", "bond"],
+  ["Old wound", "The ache you have carried longest comes from having to...", "strain"],
+  ["Natural gift", "The thing you do effortlessly that others find hard is to...", "path"],
+  ["Conflict", "When a conflict opens up, your first movement is to...", "bond"],
+  ["Solitude", "Time alone restores you when it lets you...", "strain"],
+  ["Curiosity", "The questions that keep you up at night are about how to...", "mind"],
+  ["Vocation", "Work feels meaningful when it asks you to...", "drive"],
+  ["Fear", "The fear underneath the others is of never getting to...", "strain"],
+  ["Beauty", "What stops you in your tracks is the chance to...", "path"],
+  ["Guidance", "When you need direction, you tend to...", "mind"],
+  ["Friendship", "Your closest people are the ones who let you...", "bond"],
+  ["Body", "Being in a body feels most bearable when you can...", "strain"],
+  ["Anger", "What makes you genuinely angry is watching people refuse to...", "drive"],
+  ["Service", "You would give your energy freely to...", "path"],
+  ["Discernment", "You know something is true when it lets you...", "mind"],
+  ["Children", "Around children, you naturally...", "bond"],
+  ["Ambition", "The future you want most would let you...", "drive"],
+  ["Grief", "When you lose something, you eventually...", "strain"],
+  ["Creation", "When you make something, you are usually trying to...", "path"],
+  ["Authority", "When someone claims authority over you, you tend to...", "drive"],
+  ["Rest", "Real rest looks like being allowed to...", "strain"],
+  ["Signal", "The synchronicity you notice most is the nudge to...", "mind"],
+  ["Home", "A place becomes home once you can...", "bond"],
+  ["Risk", "You would risk your safety in order to...", "drive"],
+  ["Shadow", "The part of you that needs the most compassion is the part that will...", "strain"],
+  ["Legacy", "You would want to be remembered as someone who could...", "path"],
+  ["Awakening", "The moment things shifted for you involved starting to...", "path"],
+  ["Boundaries", "Holding a boundary is hardest when it means you must...", "bond"],
+  ["Devotion", "What you are quietly devoted to is the chance to...", "path"],
+  ["Courage", "Your bravery shows up as a willingness to...", "drive"],
+  ["Return", "If you could send one thing back to where you came from, it would be how to...", "path"],
 ];
 
 const mbtiDimensions = [
@@ -2466,31 +2925,104 @@ const fantasyCharacterDetails = Object.fromEntries(
   ])
 );
 
-function buildChoiceQuestion(blueprint, choiceCopy, index) {
-  const [kicker, prompt] = blueprint;
+function hashSeed(input) {
+  let hash = 2166136261;
+
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return hash >>> 0;
+}
+
+function seededShuffle(items, seed) {
+  const result = [...items];
+  let state = seed >>> 0 || 1;
+
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    // Low-order LCG bits cycle with a very short period, so draw from the high bits.
+    const j = Math.floor((state / 4294967296) * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+
+  return result;
+}
+
+// Question banks are authored with their options in a fixed trait order, which makes
+// the Nth option always score the same trait. Reordering per question breaks that
+// without touching the scoring, since the trait travels on the option itself.
+function shuffleQuestionOptions(questions, testId) {
+  return questions.map((question, index) => ({
+    ...question,
+    options: seededShuffle(question.options, hashSeed(`${testId}:${index}:${question.prompt}`)),
+  }));
+}
+
+const catchAllOptionPattern = /^(cannot be determined|none of the above|all of the above|neither|both)\b/i;
+
+// The IQ bank was authored with the correct answer clustered in one slot, which rewards
+// picking that column over actually reasoning. Reordering spreads the key out.
+function orderIqOptions(questions, testId) {
+  return questions.map((question, index) => {
+    // Thinking-style items have no right answer, but their options are authored in a
+    // fixed style order, so they need the same reordering as any other trait question.
+    if (!question.options.some((option) => typeof option.correct === "boolean")) {
+      return { ...question, options: seededShuffle(question.options, hashSeed(`${testId}:style:${index}:${question.prompt}`)) };
+    }
+
+    const isCatchAll = (option) => catchAllOptionPattern.test(String(option.label).trim());
+    const choices = question.options.filter((option) => !isCatchAll(option));
+    const catchAll = question.options.filter(isCatchAll);
+    const allNumeric = choices.every((option) => /^-?\d+(\.\d+)?$/.test(String(option.label).trim()));
+
+    // Numeric choices read as broken unless they ascend, and sorting by value already
+    // decouples the key's position from the order the item was written in.
+    const ordered = allNumeric
+      ? [...choices].sort((a, b) => Number(a.label) - Number(b.label))
+      : seededShuffle(choices, hashSeed(`${testId}:${index}:${question.prompt}`));
+
+    return { ...question, options: [...ordered, ...catchAll] };
+  });
+}
+
+// Prompts are tagged with the life area they ask about so each trait can answer in
+// language that fits the question. Without this a romance prompt could be answered
+// with "Find the pattern", which reads as filler and weakens the signal.
+function buildChoiceQuestion(blueprint, choiceCopy, themeIndex) {
+  const [kicker, prompt, theme] = blueprint;
 
   return {
     kicker,
     prompt,
-    options: Object.entries(choiceCopy).map(([value, copy]) => ({
-      label: copy.labels[index % copy.labels.length],
-      detail: copy.details[index % copy.details.length],
-      value,
-    })),
+    options: Object.entries(choiceCopy).map(([value, copy]) => {
+      const pool = copy.themes[theme] || copy.themes.path;
+      const [label, detail] = pool[themeIndex % pool.length];
+
+      return { label, detail, value };
+    }),
   };
 }
 
-function extendChoiceTest(test, prompts, choiceCopy, target = 42) {
+function extendChoiceTest(test, prompts, choiceCopy, target = 42, time = "10 min") {
   let promptIndex = 0;
+  // Counted per theme rather than globally so each theme walks its own pool from the
+  // start and the phrasing spreads evenly instead of clustering on a few labels.
+  const themeCounts = {};
 
   while (test.questions.length < target) {
-    test.questions.push(buildChoiceQuestion(prompts[promptIndex % prompts.length], choiceCopy, promptIndex));
+    const blueprint = prompts[promptIndex % prompts.length];
+    const theme = blueprint[2];
+    themeCounts[theme] = (themeCounts[theme] || 0) + 1;
+    test.questions.push(buildChoiceQuestion(blueprint, choiceCopy, themeCounts[theme] - 1));
     promptIndex += 1;
   }
 
-  test.questions = test.questions.slice(0, target);
-  test.items = "42 questions";
-  test.time = test.id === "archetype" ? "12 min" : "10 min";
+  test.questions = shuffleQuestionOptions(test.questions.slice(0, target), test.id);
+
+  test.items = `${test.questions.length} questions`;
+  test.time = time;
 }
 
 function buildDimensionQuestion(left, right, item) {
@@ -2547,7 +3079,10 @@ function buildMbtiProfiles() {
 }
 
 function buildEnneagramQuestions() {
-  return enneagramQuestionBank;
+  // Authored three-per-question in a repeating type order, which pinned every type to
+  // a single column: always answering in one column could only ever return three of
+  // the nine types.
+  return shuffleQuestionOptions(enneagramQuestionBank, "enneagram");
 }
 
 function attachExamplePeopleToEnneagramProfiles() {
@@ -3137,8 +3672,11 @@ function buildCareerProfiles() {
 }
 
 function configureAssessmentCatalog() {
+  const iq = tests.find((test) => test.id === "iq");
+  if (iq) iq.questions = orderIqOptions(iq.questions, "iq");
+
   const archetype = tests.find((test) => test.id === "archetype");
-  if (archetype) extendChoiceTest(archetype, archetypePrompts, archetypeChoiceCopy, 42);
+  if (archetype) extendChoiceTest(archetype, archetypePrompts, archetypeChoiceCopy, 42, "12 min");
 
   const mbti = tests.find((test) => test.id === "mbti");
   if (mbti) {
@@ -3147,9 +3685,6 @@ function configureAssessmentCatalog() {
     mbti.totalPossibilities = 16;
     mbti.questions = buildMbtiQuestions();
     mbti.profiles = buildMbtiProfiles();
-    mbti.items = "42 questions";
-    mbti.time = "12 min";
-    mbti.description = "A complete 16-outcome type map inspired by the familiar MBTI framework, scored across energy, information, decisions, and structure.";
   }
 
   const enneagram = tests.find((test) => test.id === "enneagram");
@@ -3157,45 +3692,31 @@ function configureAssessmentCatalog() {
     attachExamplePeopleToEnneagramProfiles();
     enneagram.questions = buildEnneagramQuestions();
     enneagram.profiles = enneagramProfiles;
-    enneagram.items = "42 questions";
-    enneagram.time = "12 min";
-    enneagram.description = "A full 9-type motivation test that looks beneath behavior to the fear, desire, and coping pattern that quietly steers you.";
   }
 
   const fantasySeedIndex = tests.findIndex((test) => test.id === "fantasy-seed");
   if (fantasySeedIndex >= 0) tests.splice(fantasySeedIndex, 1, createFantasyScifiTest());
 
   const scifi = tests.find((test) => test.id === "scifi");
-  if (scifi) extendChoiceTest(scifi, scifiPrompts, scifiChoiceCopy, 42);
+  if (scifi) extendChoiceTest(scifi, scifiPrompts, scifiChoiceCopy, 42, "10 min");
+
+  const starseed = tests.find((test) => test.id === "starseed");
+  if (starseed) extendChoiceTest(starseed, starseedPrompts, starseedChoiceCopy, 42, "12 min");
 
   const attachment = tests.find((test) => test.id === "attachment");
   if (attachment) {
-    attachment.category = "Psychology";
-    attachment.status = "Live";
-    attachment.time = "12 min";
-    attachment.items = "42 questions";
-    attachment.price = "$1 report";
     attachment.scoring = "dimensions";
     attachment.totalPossibilities = 4;
     attachment.dimensions = attachmentDimensions;
-    attachment.description =
-      "A relationship-focused test for closeness, reassurance, independence, conflict repair, and emotional safety.";
     attachment.questions = buildAttachmentQuestions();
     attachment.profiles = attachmentProfiles;
   }
 
   const career = tests.find((test) => test.id === "career");
   if (career) {
-    career.category = "Psychology";
-    career.status = "Live";
-    career.time = "12 min";
-    career.items = "42 questions";
-    career.price = "$1 report";
     career.scoring = "dimensions";
     career.totalPossibilities = 8;
     career.dimensions = careerDimensions;
-    career.description =
-      "A practical career motivation test for mastery, recognition, autonomy, security, mission, and creativity.";
     career.questions = buildCareerQuestions();
     career.profiles = buildCareerProfiles();
   }
