@@ -764,7 +764,7 @@ const tests = [
     items: "42 questions",
     price: "$1 report",
     description:
-      "A type-map inspired by the familiar MBTI framework, focused on how you gain energy, process information, decide, and plan.",
+      "A complete 16-outcome type map inspired by the familiar MBTI framework, scored across energy, information, decisions, and structure.",
     questions: [
       {
         kicker: "Energy",
@@ -899,11 +899,11 @@ const tests = [
     tone: "gold",
     symbol: "EN",
     status: "Live",
-    time: "10 min",
+    time: "12 min",
     items: "42 questions",
     price: "$1 report",
     description:
-      "A motivation test that looks beneath behavior to the fear, desire, and coping pattern that quietly steers you.",
+      "A full 9-type motivation test that looks beneath behavior to the fear, desire, and coping pattern that quietly steers you.",
     questions: [
       {
         kicker: "Hidden aim",
@@ -1177,8 +1177,8 @@ const tests = [
     tone: "teal",
     symbol: "SF",
     status: "Live",
-    time: "5 min",
-    items: "20 prompts",
+    time: "10 min",
+    items: "42 questions",
     price: "$1 report",
     description:
       "A trend-ready culture test for fans of bunker mysteries, future societies, and high-stakes sci-fi worlds.",
@@ -1312,30 +1312,30 @@ const tests = [
   {
     id: "attachment",
     title: "Attachment Style",
-    category: "Coming Soon",
+    category: "Psychology",
     tone: "gold",
     symbol: "AT",
-    status: "Coming Soon",
-    time: "8 min",
-    items: "42 planned",
-    price: "Member library",
+    status: "Live",
+    time: "12 min",
+    items: "42 questions",
+    price: "$1 report",
     description:
-      "A relationship-focused test for closeness, conflict, reassurance, independence, and emotional repair.",
+      "A relationship-focused test for closeness, reassurance, independence, conflict repair, and emotional safety.",
     questions: [],
     profiles: {},
   },
   {
     id: "career",
     title: "Career Drivers",
-    category: "Coming Soon",
+    category: "Psychology",
     tone: "violet",
     symbol: "CD",
-    status: "Coming Soon",
-    time: "9 min",
-    items: "42 planned",
-    price: "Member library",
+    status: "Live",
+    time: "12 min",
+    items: "42 questions",
+    price: "$1 report",
     description:
-      "A practical profile for what motivates your best work: mastery, status, autonomy, mission, security, or creativity.",
+      "A practical career motivation test for mastery, recognition, autonomy, security, mission, and creativity.",
     questions: [],
     profiles: {},
   },
@@ -2466,6 +2466,31 @@ const fantasyCharacterDetails = Object.fromEntries(
   ])
 );
 
+function hashSeed(input) {
+  let hash = 2166136261;
+
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return hash >>> 0;
+}
+
+function seededShuffle(items, seed) {
+  const result = [...items];
+  let state = seed >>> 0 || 1;
+
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    // Low-order LCG bits cycle with a very short period, so draw from the high bits.
+    const j = Math.floor((state / 4294967296) * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+
+  return result;
+}
+
 function buildChoiceQuestion(blueprint, choiceCopy, index) {
   const [kicker, prompt] = blueprint;
 
@@ -2488,8 +2513,14 @@ function extendChoiceTest(test, prompts, choiceCopy, target = 42) {
     promptIndex += 1;
   }
 
-  test.questions = test.questions.slice(0, target);
-  test.items = "42 questions";
+  // Options are authored in a fixed trait order, so without this the Nth option always
+  // scores the same trait and position alone predicts the result.
+  test.questions = test.questions.slice(0, target).map((question, index) => ({
+    ...question,
+    options: seededShuffle(question.options, hashSeed(`${test.id}:${index}:${question.prompt}`)),
+  }));
+
+  test.items = `${target} questions`;
   test.time = test.id === "archetype" ? "12 min" : "10 min";
 }
 
@@ -3147,9 +3178,6 @@ function configureAssessmentCatalog() {
     mbti.totalPossibilities = 16;
     mbti.questions = buildMbtiQuestions();
     mbti.profiles = buildMbtiProfiles();
-    mbti.items = "42 questions";
-    mbti.time = "12 min";
-    mbti.description = "A complete 16-outcome type map inspired by the familiar MBTI framework, scored across energy, information, decisions, and structure.";
   }
 
   const enneagram = tests.find((test) => test.id === "enneagram");
@@ -3157,9 +3185,6 @@ function configureAssessmentCatalog() {
     attachExamplePeopleToEnneagramProfiles();
     enneagram.questions = buildEnneagramQuestions();
     enneagram.profiles = enneagramProfiles;
-    enneagram.items = "42 questions";
-    enneagram.time = "12 min";
-    enneagram.description = "A full 9-type motivation test that looks beneath behavior to the fear, desire, and coping pattern that quietly steers you.";
   }
 
   const fantasySeedIndex = tests.findIndex((test) => test.id === "fantasy-seed");
@@ -3170,32 +3195,18 @@ function configureAssessmentCatalog() {
 
   const attachment = tests.find((test) => test.id === "attachment");
   if (attachment) {
-    attachment.category = "Psychology";
-    attachment.status = "Live";
-    attachment.time = "12 min";
-    attachment.items = "42 questions";
-    attachment.price = "$1 report";
     attachment.scoring = "dimensions";
     attachment.totalPossibilities = 4;
     attachment.dimensions = attachmentDimensions;
-    attachment.description =
-      "A relationship-focused test for closeness, reassurance, independence, conflict repair, and emotional safety.";
     attachment.questions = buildAttachmentQuestions();
     attachment.profiles = attachmentProfiles;
   }
 
   const career = tests.find((test) => test.id === "career");
   if (career) {
-    career.category = "Psychology";
-    career.status = "Live";
-    career.time = "12 min";
-    career.items = "42 questions";
-    career.price = "$1 report";
     career.scoring = "dimensions";
     career.totalPossibilities = 8;
     career.dimensions = careerDimensions;
-    career.description =
-      "A practical career motivation test for mastery, recognition, autonomy, security, mission, and creativity.";
     career.questions = buildCareerQuestions();
     career.profiles = buildCareerProfiles();
   }
