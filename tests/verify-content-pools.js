@@ -106,7 +106,7 @@ if (dupes.length) console.log("    " + dupes.join(", "));
 const TAGS = {
   trait: ["will", "insight", "fusion", "focus", "vision", "shadow"],
   type: ["ENTJ","ESTJ","INTJ","INFP","ISTJ","ISTP","ENTP","ESTP","INFJ","ISFJ","ISFP","ESFJ","INTP","ENFP","ESFP","ENFJ"],
-  module: ["systemic", "geometry", "memory"],
+  module: ["systemic", "geometry", "memory", "applied"],
   soulq: ["cet", "pmp", "ta", "cse"],
   lineage: ["pleiadian","sirian","arcturian","lyran","andromedan","orion","draconian","terran"],
   role: ["warrior", "singer", "builder", "waterman"],
