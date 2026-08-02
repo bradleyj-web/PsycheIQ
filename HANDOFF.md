@@ -1,6 +1,8 @@
 # HANDOFF
 
-> **Positioning note (read first).** The front door of this product is **Mind • Body • Soul** — plain, beginner-friendly language. The Hermetic naming (Pneuma Map, Logos Matrix, Anima Field, Akashic Draw) is now a *deep lore layer*: it appears as a small secondary line under each plain name and in code comments, never as the entry point. See `PLAIN` and `PLAIN_ARCH` in `index.html` for the mapping. When adding anything user-facing, lead with what a beginner already understands; the mythology is the reward for going deeper, not the price of admission.
+> **Read [`CONTEXT.md`](./CONTEXT.md) first** — product direction, the Measured/Modeled/Mythic framing, the synthesis-engine contract, and two unresolved questions for the owner.
+>
+> **Positioning note.** The front door of this product is **Mind • Body • Soul** — plain, beginner-friendly language. The Hermetic naming (Pneuma Map, Logos Matrix, Anima Field, Akashic Draw) is now a *deep lore layer*: it appears as a small secondary line under each plain name and in code comments, never as the entry point. See `PLAIN` and `PLAIN_ARCH` in `index.html` for the mapping. When adding anything user-facing, lead with what a beginner already understands; the mythology is the reward for going deeper, not the price of admission.
 
 Written for whichever agent (or human) picks this up next. There's no chat history attached to this repo, so this doc is the only record of what's pending and why things are built the way they are. Read this before touching `index.html`.
 
@@ -66,7 +68,7 @@ A **limited reading using only the 22 Major Arcana** (no minor arcana cards are 
 
 ## Architecture notes (general)
 
-- **Single file.** Everything — CSS, JS, inline SVG — lives in `index.html`. No build step, no bundler. Edit in place.
+- **Modular source, single-file output.** Author in `src/` (13 ordered modules), run `node build.js` to produce `index.html`. Never hand-edit `index.html`. Module order matters: everything from `03-` onward shares one `<script>` block, so top-level `const` declarations must precede their use at load time (function declarations hoist across the whole script, so cross-module *calls* are order-independent).
 - **State object** (`const State = {...}`, near the top of the script) holds every test result. `saveResult(id, data)` writes into the active profile; `afterTest(id)` navigates to results and fires the post-test conversion funnel.
 - **Rendering is manual DOM string-building**, not a framework — every `render*()` function does `$("#view-x").innerHTML = '...'`. Follow the existing style (template literals via string concatenation, `esc()` on anything user- or data-derived that touches innerHTML).
 - **Design tokens** are CSS custom properties at the top of the `<style>` block (`--gold`, `--void`, `--gold-line`, etc.) — reuse them, don't hardcode new colors.

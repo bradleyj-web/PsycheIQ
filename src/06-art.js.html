@@ -1,0 +1,201 @@
+
+/* ============================================================
+   PSYCHEIQ — ART
+   Everything here is drawn as inline SVG: no external files,
+   no region-locked assets, scales to any screen.
+   ============================================================ */
+
+/* --- schematic star patterns for the twelve zodiac constellations ---
+   Points are normalised 0–100; brightness r drives the dot size.
+   Schematic, in the manner of a star atlas — not survey astrometry. --- */
+const CONSTELLATIONS = {
+  Aries:{s:[[18,64,2.6],[42,52,2.9],[52,48,1.8],[78,30,1.6]], l:[[0,1],[1,2],[2,3]]},
+  Taurus:{s:[[20,26,1.8],[34,44,1.6],[48,56,3.2],[62,46,1.9],[74,30,1.7],[40,70,1.5],[86,58,2.1]], l:[[0,1],[1,2],[2,3],[3,4],[2,5],[3,6]]},
+  Gemini:{s:[[26,18,3.0],[62,22,2.9],[24,44,1.7],[60,46,1.8],[20,72,1.9],[46,70,1.6],[70,74,1.7]], l:[[0,2],[2,4],[2,5],[1,3],[3,6],[3,5]]},
+  Cancer:{s:[[50,26,1.7],[46,48,2.0],[26,68,1.6],[72,64,1.8],[52,70,1.4]], l:[[0,1],[1,2],[1,3],[1,4]]},
+  Leo:{s:[[22,30,1.9],[32,22,1.7],[44,26,1.6],[46,40,1.8],[34,48,1.6],[52,58,3.0],[80,44,2.4],[76,66,1.9]], l:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,7],[7,6],[6,3]]},
+  Virgo:{s:[[16,30,1.7],[34,36,1.6],[50,30,1.8],[46,52,1.6],[62,64,3.0],[76,44,1.7],[30,58,1.5]], l:[[0,1],[1,2],[1,3],[3,4],[2,5],[3,6]]},
+  Libra:{s:[[28,54,2.4],[46,30,2.6],[70,42,1.9],[58,68,1.7]], l:[[0,1],[1,2],[2,3],[3,0]]},
+  Scorpio:{s:[[22,24,1.8],[26,36,1.7],[38,44,3.0],[50,54,1.8],[60,66,1.7],[72,72,1.9],[82,62,1.6],[80,48,1.7]], l:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]]},
+  Sagittarius:{s:[[24,52,1.9],[38,38,2.0],[52,36,1.8],[64,50,1.9],[50,60,1.7],[34,64,1.8],[76,34,1.6],[70,66,1.6]], l:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[2,6],[3,7]]},
+  Capricorn:{s:[[20,34,2.2],[44,44,1.6],[66,56,1.8],[82,40,2.0],[52,66,1.7]], l:[[0,1],[1,2],[2,3],[2,4],[4,0]]},
+  Aquarius:{s:[[24,32,1.9],[40,26,1.7],[54,34,1.8],[46,48,1.6],[58,60,1.5],[70,52,1.7],[80,66,1.6]], l:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6]]},
+  Pisces:{s:[[18,28,1.7],[36,36,1.5],[54,46,1.6],[70,58,2.2],[80,42,1.6],[84,72,1.7],[62,76,1.5]], l:[[0,1],[1,2],[2,3],[3,4],[3,5],[5,6]]}
+};
+function constellationSVG(sign, size){
+  size = size || 150;
+  const c = CONSTELLATIONS[sign]; if (!c) return "";
+  const lines = c.l.map(([a,b]) =>
+    '<line x1="'+c.s[a][0]+'" y1="'+c.s[a][1]+'" x2="'+c.s[b][0]+'" y2="'+c.s[b][1]+
+    '" stroke="#E3BE6D" stroke-width=".7" opacity=".45"/>').join("");
+  const stars = c.s.map(p =>
+    '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+p[2]+'" fill="#F9E7B4"/>'+
+    '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(p[2]*2.4)+'" fill="#F9E7B4" opacity=".14"/>').join("");
+  return '<svg viewBox="0 0 100 100" width="'+size+'" height="'+size+'" aria-label="'+sign+' constellation, schematic">'+
+    lines+stars+'</svg>';
+}
+function zodiacMedallion(sign, size){
+  size = size || 128;
+  const s = SIGNS.find(x => x.n === sign) || SIGNS[0];
+  return '<div class="medallion" style="width:'+size+'px;height:'+size+'px">'+
+    '<svg viewBox="0 0 100 100" class="medallion__ring" aria-hidden="true">'+
+      '<circle cx="50" cy="50" r="47" fill="none" stroke="#E3BE6D" stroke-width=".8" opacity=".55"/>'+
+      '<circle cx="50" cy="50" r="43" fill="none" stroke="#E3BE6D" stroke-width=".4" opacity=".3" stroke-dasharray="1 4"/>'+
+    '</svg>'+
+    '<div class="medallion__sky">'+constellationSVG(sign, size*0.82)+'</div>'+
+    '<span class="medallion__glyph">'+s.g+'</span></div>';
+}
+
+/* --- the twenty-two Major Arcana, drawn as emblems --- */
+const ARCANA = [
+  {r:"0",     n:"The Fool",           k:"the leap taken before the ground is proven"},
+  {r:"I",     n:"The Magician",       k:"will focused into a single channel"},
+  {r:"II",    n:"The High Priestess", k:"what is known and deliberately unspoken"},
+  {r:"III",   n:"The Empress",        k:"generation, abundance, the fertile field"},
+  {r:"IV",    n:"The Emperor",        k:"structure imposed and held"},
+  {r:"V",     n:"The Hierophant",     k:"transmission through established form"},
+  {r:"VI",    n:"The Lovers",         k:"choice between two goods"},
+  {r:"VII",   n:"The Chariot",        k:"direction held by opposing forces"},
+  {r:"VIII",  n:"Strength",           k:"the lion calmed, not defeated"},
+  {r:"IX",    n:"The Hermit",         k:"withdrawal that makes a light for others"},
+  {r:"X",     n:"Wheel of Fortune",   k:"the turn you did not cause"},
+  {r:"XI",    n:"Justice",            k:"weight, measure, consequence"},
+  {r:"XII",   n:"The Hanged Man",     k:"suspension that reverses the view"},
+  {r:"XIII",  n:"Death",              k:"ending as an operation, not a punishment"},
+  {r:"XIV",   n:"Temperance",         k:"two vessels, one exact proportion"},
+  {r:"XV",    n:"The Devil",          k:"chains that are loose, and worn anyway"},
+  {r:"XVI",   n:"The Tower",          k:"the structure that had to come down"},
+  {r:"XVII",  n:"The Star",           k:"repair, in the open, after the fall"},
+  {r:"XVIII", n:"The Moon",           k:"the path walked without full sight"},
+  {r:"XIX",   n:"The Sun",            k:"what survives being seen clearly"},
+  {r:"XX",    n:"Judgement",          k:"the call that requires an answer"},
+  {r:"XXI",   n:"The World",          k:"the circuit closed, the work whole"}
+];
+const G = 'fill="none" stroke="#E3BE6D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';
+const GF = 'fill="#E3BE6D"';
+function arcanaArt(i){
+  const A = [
+    /* 0 Fool */      '<circle cx="50" cy="30" r="9" '+G+'/><path d="M50 39v22M50 46l-11 8M50 46l11 8M50 61l-8 14M50 61l8 14" '+G+'/><path d="M14 82h30l8 10h32" '+G+'/><path d="M76 26l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" '+GF+'/>',
+    /* I Magician */  '<path d="M32 26c0-6 6-9 9-4s5 9 9 9 6-4 9-9 9-2 9 4-6 9-9 4-5-9-9-9-6 4-9 9-9 2-9-4z" '+G+'/><path d="M50 40v14M26 54h48v6H26z" '+G+'/><circle cx="34" cy="72" r="5" '+G+'/><path d="M46 68l8 8M54 68l-8 8M62 66h10v10H62z" '+G+'/>',
+    /* II Priestess */'<path d="M28 22v56M72 22v56" '+G+' stroke-width="2.4"/><path d="M50 34a12 12 0 1 0 0 22 15 15 0 0 1 0-22z" '+G+'/><path d="M22 82h56" '+G+'/><circle cx="50" cy="66" r="2.4" '+GF+'/>',
+    /* III Empress */ '<circle cx="50" cy="34" r="12" '+G+'/><path d="M50 46v18M42 56h16" '+G+'/><path d="M30 78c6-14 14-20 20-20s14 6 20 20z" '+G+'/><path d="M24 84h52" '+G+'/>',
+    /* IV Emperor */  '<path d="M30 40h40v40H30z" '+G+'/><path d="M30 40l20-16 20 16" '+G+'/><path d="M40 24c-4-6 2-10 5-5M60 24c4-6-2-10-5-5" '+G+'/><path d="M42 58h16v22H42z" '+G+'/>',
+    /* V Hierophant */'<path d="M50 20l8 10H42z" '+G+'/><path d="M34 34h32v10H34zM38 46h24v10H38zM42 58h16v10H42z" '+G+'/><path d="M44 78a4 4 0 1 0 0 8M56 78a4 4 0 1 1 0 8M44 82h12" '+G+'/>',
+    /* VI Lovers */   '<circle cx="38" cy="56" r="16" '+G+'/><circle cx="62" cy="56" r="16" '+G+'/><circle cx="50" cy="24" r="8" '+G+'/><path d="M50 24l-6 8M50 24l6 8" '+G+'/>',
+    /* VII Chariot */ '<path d="M28 44h44v22H28z" '+G+'/><circle cx="38" cy="74" r="7" '+G+'/><circle cx="62" cy="74" r="7" '+G+'/><path d="M36 32a8 8 0 0 1 8 8M64 32a8 8 0 0 0-8 8" '+G+'/><path d="M50 26v10" '+G+'/>',
+    /* VIII Strength */'<circle cx="50" cy="56" r="16" '+G+'/><path d="M38 44l-8-6M62 44l8-6M34 60l-10 4M66 60l10 4M44 70l-4 10M56 70l4 10" '+G+'/><path d="M34 24c0-5 5-7 8-3s4 7 8 7 5-3 8-7 8-2 8 3-5 7-8 3-4-7-8-7-5 3-8 7-8 2-8-3z" '+G+'/>',
+    /* IX Hermit */   '<path d="M40 34h20v10l-4 24H44l-4-24z" '+G+'/><path d="M50 44l4 6-4 6-4-6z" '+GF+'/><path d="M50 26v8M50 68v14" '+G+'/><path d="M72 22v60" '+G+' stroke-width="2.2"/>',
+    /* X Wheel */     '<circle cx="50" cy="52" r="24" '+G+'/><circle cx="50" cy="52" r="9" '+G+'/><path d="M50 28v48M26 52h48M33 35l34 34M67 35L33 69" '+G+'/><path d="M18 20h8M74 20h8M18 84h8M74 84h8" '+G+'/>',
+    /* XI Justice */  '<path d="M50 22v50M30 34h40" '+G+'/><path d="M30 34l-8 16h16zM70 34l8 16H62z" '+G+'/><path d="M38 82h24" '+G+'/>',
+    /* XII Hanged */  '<path d="M22 24h44M62 24v14" '+G+'/><circle cx="62" cy="46" r="8" '+G+'/><path d="M62 54v16M62 62l-10 8M62 62l10 8M62 70l-6 12" '+G+'/>',
+    /* XIII Death */  '<path d="M24 78c8-20 20-30 30-30" '+G+'/><path d="M54 48c14 0 20-10 20-18" '+G+'/><path d="M74 30c-10 2-16 8-18 16" '+G+'/><circle cx="50" cy="78" r="3" '+GF+'/><path d="M20 88h60" '+G+'/><path d="M62 66a10 10 0 1 1 20 0" '+G+'/>',
+    /* XIV Temperance*/'<path d="M30 30h16v14H30zM54 56h16v14H54z" '+G+'/><path d="M46 38c14 4 6 14 8 20" '+G+'/><circle cx="50" cy="80" r="6" '+G+'/><path d="M20 22h10M76 78h8" '+G+'/>',
+    /* XV Devil */    '<path d="M50 26l16 34-32 0z" '+G+'/><path d="M50 74l-16-34 32 0z" '+G+'/><circle cx="36" cy="82" r="5" '+G+'/><circle cx="64" cy="82" r="5" '+G+'/><path d="M41 82h18" '+G+'/>',
+    /* XVI Tower */   '<path d="M36 40h28v42H36z" '+G+'/><path d="M32 40l18-14 18 14" '+G+'/><path d="M58 20l-12 18h10l-8 16" '+GF+' opacity=".9"/><path d="M24 62l-6 8M76 62l6 8M28 78l-8 4M72 78l8 4" '+G+'/>',
+    /* XVII Star */   '<path d="M50 18l5 16 16 5-16 5-5 16-5-16-16-5 16-5z" '+GF+'/><path d="M30 62h12v12H30zM58 62h12v12H58z" '+G+'/><path d="M36 74c-4 6-4 10 0 12M64 74c4 6 4 10 0 12" '+G+'/>',
+    /* XVIII Moon */  '<path d="M56 22a18 18 0 1 0 0 32 22 22 0 0 1 0-32z" '+G+'/><path d="M24 46h10v34H24zM66 46h10v34H66z" '+G+'/><path d="M44 86c4-10-4-14 0-24s10-10 12-18" '+G+'/>',
+    /* XIX Sun */     '<circle cx="50" cy="42" r="16" '+G+'/><path d="M50 16v8M50 60v8M24 42h8M68 42h8M32 24l6 6M68 24l-6 6M32 60l6-6M68 60l-6-6" '+G+'/><path d="M24 78h52" '+G+'/><path d="M40 78v-6M60 78v-6" '+G+'/>',
+    /* XX Judgement */'<path d="M20 34l34 10-34 10z" '+G+'/><path d="M54 40h24" '+G+' stroke-width="2.2"/><path d="M32 82a8 8 0 0 1 16 0M52 82a8 8 0 0 1 16 0" '+G+'/><circle cx="40" cy="68" r="5" '+G+'/><circle cx="60" cy="68" r="5" '+G+'/>',
+    /* XXI World */   '<ellipse cx="50" cy="52" rx="22" ry="30" '+G+'/><path d="M42 44l8 8-8 8M58 44l-8 8 8 8" '+G+'/><path d="M18 20l4 6 6-4-4 8 6 2-8 2M82 20l-4 6-6-4 4 8-6 2 8 2M18 84l4-6 6 4-4-8 6-2-8-2M82 84l-4-6-6 4 4-8-6-2 8-2" '+G+' stroke-width="1"/>'
+  ];
+  return A[i] || "";
+}
+function tarotCard(i, opts){
+  opts = opts || {};
+  const a = ARCANA[i];
+  return '<button class="tcard'+(opts.small ? " tcard--sm" : "")+'" data-arcana="'+i+'" aria-label="'+esc(a.n)+'">'+
+    '<span class="tcard__rank">'+a.r+'</span>'+
+    '<svg viewBox="0 0 100 100" class="tcard__art" aria-hidden="true">'+arcanaArt(i)+'</svg>'+
+    '<span class="tcard__name">'+esc(a.n)+'</span></button>';
+}
+function crystalBall(size){
+  size = size || 160;
+  return '<svg viewBox="0 0 100 110" width="'+size+'" height="'+(size*1.1)+'" class="orb" aria-hidden="true">'+
+    '<defs><radialGradient id="orbG" cx="38%" cy="32%"><stop offset="0%" stop-color="#F9E7B4" stop-opacity=".5"/>'+
+    '<stop offset="55%" stop-color="#2A3B7A" stop-opacity=".35"/><stop offset="100%" stop-color="#070A1C" stop-opacity=".8"/></radialGradient></defs>'+
+    '<path d="M26 92h48l-6-10H32z" fill="none" stroke="#E3BE6D" stroke-width="1.6"/>'+
+    '<path d="M20 100h60" stroke="#E3BE6D" stroke-width="2" stroke-linecap="round"/>'+
+    '<circle cx="50" cy="46" r="34" fill="url(#orbG)" stroke="#E3BE6D" stroke-width="1.6"/>'+
+    '<circle class="orb__glint" cx="38" cy="34" r="7" fill="#F9E7B4" opacity=".28"/>'+
+    '<path d="M50 26l3.5 11 11 3.5-11 3.5L50 55l-3.5-11-11-3.5 11-3.5z" fill="#F9E7B4" opacity=".65"/>'+
+    '<circle cx="66" cy="58" r="1.6" fill="#F9E7B4" opacity=".7"/><circle cx="34" cy="60" r="1.2" fill="#F9E7B4" opacity=".5"/>'+
+    '</svg>';
+}
+function moonPhaseSVG(phase, size){
+  size = size || 46;
+  const i = PHASES.indexOf(phase), f = i/8;
+  const lit = Math.abs(Math.cos(f*Math.PI*2)) * 34 * (i > 0 && i < 4 ? 1 : 1);
+  return '<svg viewBox="0 0 80 80" width="'+size+'" height="'+size+'" aria-label="'+phase+'">'+
+    '<circle cx="40" cy="40" r="30" fill="#0B1029" stroke="#E3BE6D" stroke-width="1.2"/>'+
+    (i === 4 ? '<circle cx="40" cy="40" r="29" fill="#F9E7B4" opacity=".85"/>' :
+     i === 0 ? '' :
+     '<path d="M40 10a30 30 0 0 '+(i < 4 ? "1" : "0")+' 0 60a'+lit.toFixed(0)+' 30 0 0 '+(i === 2 || i === 6 ? (i < 4 ? "1" : "0") : (i < 4 ? (i < 2 ? "0" : "1") : (i > 6 ? "1" : "0")))+' 0-60z" fill="#F9E7B4" opacity=".8"/>')+
+    '</svg>';
+}
+
+/* --- the natal wheel: a real chart of computed positions --- */
+function natalWheel(chart, size){
+  size = size || 340;
+  const c = size/2, R = size*0.44, r2 = size*0.34, r3 = size*0.26;
+  let ring = '<circle cx="'+c+'" cy="'+c+'" r="'+R+'" fill="none" stroke="#E3BE6D" stroke-width="1.1" opacity=".7"/>'+
+             '<circle cx="'+c+'" cy="'+c+'" r="'+r2+'" fill="none" stroke="#E3BE6D" stroke-width=".8" opacity=".4"/>'+
+             '<circle cx="'+c+'" cy="'+c+'" r="'+r3+'" fill="none" stroke="#E3BE6D" stroke-width=".6" opacity=".22"/>';
+  const at = (lon, rad) => {
+    const ang = (180 - lon) * Math.PI/180;   // 0° Aries at the left, anticlockwise
+    return [c + Math.cos(ang)*rad, c + Math.sin(ang)*rad];
+  };
+  for (let i = 0; i < 12; i++){
+    const [x1,y1] = at(i*30, r3), [x2,y2] = at(i*30, R);
+    ring += '<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+
+            '" stroke="#E3BE6D" stroke-width=".6" opacity=".3"/>';
+    const [gx,gy] = at(i*30 + 15, (R + r2)/2);
+    ring += '<text x="'+gx.toFixed(1)+'" y="'+(gy+5).toFixed(1)+'" text-anchor="middle" font-size="15" fill="#E3BE6D" opacity=".85">'+SIGNS[i].g+'</text>';
+  }
+  const body = (lon, glyph, label) => {
+    const [x,y] = at(lon, r3 - 14);
+    const [lx,ly] = at(lon, r3 + 2);
+    return '<line x1="'+lx.toFixed(1)+'" y1="'+ly.toFixed(1)+'" x2="'+c+'" y2="'+c+'" stroke="#F9E7B4" stroke-width=".5" opacity=".25"/>'+
+      '<text x="'+x.toFixed(1)+'" y="'+(y+6).toFixed(1)+'" text-anchor="middle" font-size="17" fill="#F9E7B4">'+glyph+'</text>'+
+      '<text x="'+x.toFixed(1)+'" y="'+(y+19).toFixed(1)+'" text-anchor="middle" font-size="7.5" fill="#98A0C2" letter-spacing="1">'+label+'</text>';
+  };
+  let marks = body(chart.sun, "☉", "SUN") + body(chart.moon, "☽", "MOON");
+  if (chart.rising !== null) marks += body(chart.rising, "ASC", "");
+  return '<svg viewBox="0 0 '+size+' '+size+'" width="100%" style="max-width:'+size+'px" class="wheel" role="img" aria-label="Natal wheel">'+
+    ring+marks+'<circle cx="'+c+'" cy="'+c+'" r="2.5" fill="#E3BE6D"/></svg>';
+}
+
+/* --- the Major Arcana gallery --- */
+function renderTarot(){
+  const daily = dailyCardIndex();
+  $("#view-tarot").innerHTML =
+    '<p class="eyebrow center">PsycheIQ · The Deck</p>'+
+    '<div class="gilt-wrap"><h1 class="dsp h-lg gilt center">The Major Arcana</h1></div>'+
+    '<div class="orn"><i>◆</i></div>'+
+    '<div class="grid-2" style="align-items:center;margin-bottom:26px">'+
+      '<div class="frame center">'+crystalBall(150)+
+        '<p class="eyebrow" style="margin-top:10px">Card of the day '+tag("Y")+'</p>'+
+        '<h2 class="dsp h-md gilt">'+esc(ARCANA[daily].n)+'</h2>'+
+        '<p style="font-size:14px;margin-top:8px">'+esc(ARCANA[daily].k)+'</p>'+
+        '<p class="terms">Drawn from the date, so everyone reading today sees the same card. It changes at midnight, your time.</p></div>'+
+      '<div class="frame">'+
+        '<p class="eyebrow">Reading the deck</p>'+
+        '<p style="font-size:14.5px">Twenty-two cards, drawn here as emblems rather than figures — the geometry each card is built on, without the Victorian costume. Tap any card for its working meaning.</p>'+
+        (State.anima ? '<div class="stat"><span>Your significator</span><b>'+esc(State.anima.major.c)+'</b></div>' : "")+
+        '<button class="btn btn--gold btn--wide" data-go="readings" style="margin-top:14px">Have these read live</button></div>'+
+    '</div>'+
+    '<div class="tgrid">'+ARCANA.map((a,i) => tarotCard(i)).join("")+'</div>';
+}
+function dailyCardIndex(){
+  const d = new Date();
+  const n = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())/864e5);
+  return (n * 7 + 3) % 22;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-arcana]"); if (!b) return;
+  const i = +b.dataset.arcana, a = ARCANA[i];
+  modal('<p class="eyebrow center">'+a.r+'</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">'+esc(a.n)+'</h2>'+orn+
+    '<div class="center"><svg viewBox="0 0 100 100" width="180" height="180" style="color:var(--gold)">'+arcanaArt(i)+'</svg></div>'+
+    '<p class="lead center" style="margin-top:10px">'+esc(a.k)+'</p>'+
+    '<button class="btn btn--wide" data-go="readings" style="margin-top:10px">Book a reading with this deck</button>');
+});

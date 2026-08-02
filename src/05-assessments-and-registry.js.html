@@ -1,0 +1,396 @@
+
+/* ============================================================
+   PSYCHEIQ — shared instrument engine + the newer instruments
+   ============================================================ */
+const BOOKING = {
+  calendly:"https://calendly.com/psycheiq",      // ← point at your real scheduling link
+  email:"readings@psycheiq.live",
+  memberDiscount:0.15
+};
+const SPREADS = [
+  {id:"three", n:"Past · Present · Future", cards:3, price:15.99, mins:30,
+   l:"Three cards on one live question. The most direct spread there is: where it came from, where it actually stands, and where the current is running.",
+   good:"Best for a decision in front of you right now, or a situation you cannot name yet.",
+   inc:["30 minutes, one to one on Zoom","Photograph of your spread","Written summary within 24 hours"]},
+  {id:"five", n:"Past Lives · Soul Family", cards:5, price:25.99, mins:45,
+   l:"Five cards read against your Akashic Draw and lineage result — the thread that runs behind this life rather than through it. Choose past lives or soul family when you book.",
+   good:"Best after the Akashic Draw or the Anima Field, when a result has landed and you want it opened.",
+   inc:["45 minutes on Zoom","Read alongside your PsycheIQ profile","Photograph and written summary","One follow-up question by email"]},
+  {id:"celtic", n:"Full Celtic Cross", cards:10, price:45.99, mins:75,
+   l:"The complete ten-card working: the matter, what crosses it, the root, the recent past, the crown, the near future, your own position, the environment, hopes and fears, and the outcome as it currently stands.",
+   good:"Best for a whole chapter — a change of work, a relationship at a turn, a year you want read properly.",
+   inc:["75 minutes on Zoom","Full ten-card working","Photograph and long written summary","Two follow-up questions by email","Recording on request"]}
+];
+
+/* ---------------- shared quiz engine ---------------- */
+const LIKERT = ["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"];
+let QRun = null;
+
+function quizIntro(spec){
+  $("#view-"+spec.view).innerHTML =
+    '<div class="frame" style="max-width:720px;margin:0 auto;text-align:center">'+
+      '<svg viewBox="0 0 200 200" style="width:72px;height:72px;color:var(--gold)"><use href="#'+spec.sigil+'"/></svg>'+
+      '<p class="eyebrow" style="margin-top:14px">'+esc(spec.eyebrow)+'</p>'+
+      '<h1 class="dsp h-lg" style="color:var(--ink)">'+esc(spec.title)+'</h1>'+orn+
+      '<p class="lead">'+esc(spec.blurb)+'</p>'+
+      '<div style="text-align:left;max-width:460px;margin:18px auto 0">'+
+        '<div class="stat"><span>Items</span><b>'+spec.items.length+'</b></div>'+
+        '<div class="stat"><span>Time</span><b>'+spec.mins+' min</b></div>'+
+        '<div class="stat"><span>Register</span><b>'+REGISTERS[spec.reg].label+'</b></div>'+
+      '</div>'+
+      (spec.ground ? '<div class="ground" style="text-align:left;margin-top:18px">'+tag(spec.reg)+
+        '<p style="margin:8px 0 0;font-size:13.5px">'+esc(spec.ground)+'</p></div>' : "")+
+      '<div class="btn-row" style="margin-top:22px"><button class="btn btn--gold" id="q-go">'+esc(spec.cta)+'</button>'+
+      '<button class="btn" data-go="oracle">Back to the Oracle</button></div>'+
+    '</div>';
+  $("#q-go").onclick = () => { QRun = {spec, i:0, ans:[]}; quizRender(); };
+}
+function quizRender(){
+  const s = QRun.spec, it = s.items[QRun.i], n = s.items.length, pct = Math.round(QRun.i/n*100);
+  const opts = s.type === "likert"
+    ? LIKERT.map((t,i) => '<button class="opt" data-q="'+(i+1)+'"><span class="key">'+(i+1)+'</span><span>'+t+'</span></button>').join("")
+    : it.o.map((o,i) => '<button class="opt" data-q="'+i+'"><span class="key">'+"ABCDE"[i]+'</span><span>'+esc(o.t)+'</span></button>').join("");
+  $("#view-"+s.view).innerHTML =
+    '<div class="frame" style="max-width:780px;margin:0 auto">'+
+      '<div class="test-head"><svg style="color:var(--gold)" viewBox="0 0 200 200"><use href="#'+s.sigil+'"/></svg>'+
+        '<h2 class="dsp h-md" style="color:var(--ink)">'+esc(s.title)+'</h2></div>'+
+      '<div class="qmeta"><span>'+(QRun.i+1)+' of '+n+'</span><span>'+pct+'%</span></div>'+
+      '<div class="meter"><i style="width:'+pct+'%"></i></div>'+
+      '<p class="q-text">'+esc(s.type === "likert" ? it.q : it.q)+'</p>'+
+      (s.type === "likert" ? '<p class="q-sub">How true is this of you?</p>' : '<div style="height:12px"></div>')+
+      '<div class="opts">'+opts+'</div>'+
+      '<div class="nav-row">'+(QRun.i > 0 ? '<button class="btn btn--ghost" id="q-prev">← Previous</button>' : '<span></span>')+
+        '<button class="btn btn--ghost" data-go="oracle">← Back to the Oracle</button></div>'+
+    '</div>';
+  $$("[data-q]").forEach(b => b.onclick = () => {
+    b.classList.add("sel"); QRun.ans[QRun.i] = +b.dataset.q;
+    setTimeout(() => { QRun.i++; QRun.i >= n ? s.finish(QRun.ans) : quizRender(); }, 170);
+  });
+  const pv = $("#q-prev"); if (pv) pv.onclick = () => { QRun.i--; quizRender(); };
+}
+
+/* ============================================================
+   TYPOLOGY — sixteen types, four axes
+   ============================================================ */
+const TYPE_ITEMS = [
+  {ax:"EI", q:"A long day of people ends. You feel…", o:[{t:"Charged, and looking for more of it.",s:"E"},{t:"Flat, and needing an empty room.",s:"I"}]},
+  {ax:"EI", q:"In a new group, you…", o:[{t:"Talk first and find out by talking.",s:"E"},{t:"Watch first and speak once you have a read.",s:"I"}]},
+  {ax:"EI", q:"Your best thinking happens…", o:[{t:"Out loud, with someone.",s:"E"},{t:"Alone, on paper.",s:"I"}]},
+  {ax:"EI", q:"An evening comes free unexpectedly.", o:[{t:"Message three people.",s:"E"},{t:"Protect it.",s:"I"}]},
+  {ax:"EI", q:"You learn a new skill fastest by…", o:[{t:"Doing it alongside others and comparing.",s:"E"},{t:"Working through it privately first.",s:"I"}]},
+  {ax:"EI", q:"Being interrupted mid-task…", o:[{t:"Barely registers.",s:"E"},{t:"Costs you the thread for an hour.",s:"I"}]},
+  {ax:"SN", q:"You trust…", o:[{t:"What can be measured and repeated.",s:"S"},{t:"What the pattern implies.",s:"N"}]},
+  {ax:"SN", q:"Handed a plan, you notice…", o:[{t:"The step that will fail in practice.",s:"S"},{t:"What it could become.",s:"N"}]},
+  {ax:"SN", q:"Describing an event, you give…", o:[{t:"The sequence, in order, accurately.",s:"S"},{t:"The meaning, then the details.",s:"N"}]},
+  {ax:"SN", q:"You are more interested in…", o:[{t:"How things actually work now.",s:"S"},{t:"How they could be arranged instead.",s:"N"}]},
+  {ax:"SN", q:"Instructions.", o:[{t:"Read them and follow them.",s:"S"},{t:"Skim, and reconstruct the logic.",s:"N"}]},
+  {ax:"SN", q:"Your memory holds…", o:[{t:"Concrete detail — rooms, faces, numbers.",s:"S"},{t:"Impressions and connections.",s:"N"}]},
+  {ax:"TF", q:"A decision affecting the whole team.", o:[{t:"The best outcome, even if it stings.",s:"T"},{t:"The outcome the group can actually carry.",s:"F"}]},
+  {ax:"TF", q:"Being told you are cold…", o:[{t:"Is probably a compliment about clarity.",s:"T"},{t:"Lands hard, and stays.",s:"F"}]},
+  {ax:"TF", q:"You resolve conflict by establishing…", o:[{t:"What is true.",s:"T"},{t:"What people need.",s:"F"}]},
+  {ax:"TF", q:"Feedback should be…", o:[{t:"Accurate first.",s:"T"},{t:"Usable first.",s:"F"}]},
+  {ax:"TF", q:"You judge an argument by…", o:[{t:"Its internal consistency.",s:"T"},{t:"What it does to the people inside it.",s:"F"}]},
+  {ax:"TF", q:"A rule produces an unfair result.", o:[{t:"The rule stands. Fix the rule.",s:"T"},{t:"The person stands. Bend the rule.",s:"F"}]},
+  {ax:"JP", q:"A plan for the weekend is…", o:[{t:"Made by Wednesday.",s:"J"},{t:"Decided on the day.",s:"P"}]},
+  {ax:"JP", q:"Open loops…", o:[{t:"Bother you until they are closed.",s:"J"},{t:"Feel like options.",s:"P"}]},
+  {ax:"JP", q:"Deadlines.", o:[{t:"You work backwards from them.",s:"J"},{t:"You work best near them.",s:"P"}]},
+  {ax:"JP", q:"The itinerary changes at short notice.", o:[{t:"Irritating.",s:"J"},{t:"Interesting.",s:"P"}]},
+  {ax:"JP", q:"Your workspace is…", o:[{t:"Ordered, or it nags at you.",s:"J"},{t:"Layered, and you know where things are.",s:"P"}]},
+  {ax:"JP", q:"Deciding feels like…", o:[{t:"Relief.",s:"J"},{t:"Closing doors.",s:"P"}]}
+];
+const TYPES = {
+  INTJ:{n:"The Long-Line Architect", st:"Ni · Te · Fi · Se", l:"Builds toward an endpoint only you can see, and treats the intervening decade as a schedule."},
+  INTP:{n:"The Instrument-Maker", st:"Ti · Ne · Si · Fe", l:"Takes the system apart to find the principle, then loses interest in reassembling it for an audience."},
+  ENTJ:{n:"The Field Commander", st:"Te · Ni · Se · Fi", l:"Organises reality into objectives. The cost is that people become resources before you catch it."},
+  ENTP:{n:"The Provocateur", st:"Ne · Ti · Fe · Si", l:"Generates possibilities faster than anyone can implement them, including you."},
+  INFJ:{n:"The Oracle", st:"Ni · Fe · Ti · Se", l:"Reads where people are going and carries the knowledge quietly, often too long."},
+  INFP:{n:"The Keeper of the Flame", st:"Fi · Ne · Si · Te", l:"Holds an internal standard nothing external has yet matched. Compromise registers as damage."},
+  ENFJ:{n:"The Convener", st:"Fe · Ni · Se · Ti", l:"Moves groups toward what they half-wanted. Forgets to ask what you wanted."},
+  ENFP:{n:"The Igniter", st:"Ne · Fi · Te · Si", l:"Starts fires in people and moves on before the heat becomes a hearth."},
+  ISTJ:{n:"The Archivist", st:"Si · Te · Fi · Ne", l:"Keeps the record straight and the promise kept. Change must earn its way past precedent."},
+  ISFJ:{n:"The Warden", st:"Si · Fe · Ti · Ne", l:"Notices what people need and provides it without announcement, then quietly counts."},
+  ESTJ:{n:"The Magistrate", st:"Te · Si · Ne · Fi", l:"Sets the standard and enforces it. Order is a form of care you rarely name as care."},
+  ESFJ:{n:"The Host", st:"Fe · Si · Ne · Ti", l:"Builds the room everyone relaxes in. Being unappreciated in it is the recurring wound."},
+  ISTP:{n:"The Mechanic", st:"Ti · Se · Ni · Fe", l:"Understands by handling. Explanations arrive after the thing already works."},
+  ISFP:{n:"The Artisan", st:"Fi · Se · Ni · Te", l:"Makes what is true to you and dislikes defending it. The work is the argument."},
+  ESTP:{n:"The Operator", st:"Se · Ti · Fe · Ni", l:"Reads the live situation faster than the plan can and acts inside the gap."},
+  ESFP:{n:"The Performer", st:"Se · Fi · Te · Ni", l:"Brings a room alive by being fully in it. Stillness is the unpractised skill."}
+};
+const TYPOLOGY = {
+  view:"typology", sigil:"sig-pneuma", type:"forced", mins:6, reg:"T",
+  eyebrow:"PsycheIQ · Typology", title:"The Sixteen Types", cta:"Begin the typology",
+  blurb:"Twenty-four forced choices across four axes. Traditional in structure, written to be harder to game than most versions you will have taken.",
+  ground:"Type instruments force continuous traits into binaries and show weak test-retest reliability — a substantial minority of people change a letter on retest. Read the letters as a vocabulary for tendencies, never as a container. The axis strengths shown with your result matter more than the letters themselves.",
+  items:TYPE_ITEMS,
+  finish(ans){
+    const sc = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+    ans.forEach((a,i) => sc[TYPE_ITEMS[i].o[a].s]++);
+    const ax = [["E","I"],["S","N"],["T","F"],["J","P"]].map(([x,y]) => {
+      const tot = sc[x]+sc[y], side = sc[x] >= sc[y] ? x : y;
+      const pct = Math.round(Math.max(sc[x],sc[y])/tot*100);
+      return {a:x, b:y, side, pct, clear:pct >= 83 ? "clear" : pct >= 67 ? "moderate" : "slight"};
+    });
+    const code = ax.map(a => a.side).join("");
+    saveResult("typology", {code, ax, type:TYPES[code], kindred:pickKindred("typology","type",code)});
+    afterTest("typology");
+  }
+};
+
+/* ============================================================
+   SOUL IQ — four factors
+   ============================================================ */
+const SQ_FACTORS = {
+  cet:{n:"Existential Reasoning", l:"The habit of thinking about existence, death and reality directly, rather than borrowing a settled answer."},
+  pmp:{n:"Meaning Production", l:"The capacity to build purpose out of ordinary and difficult experience rather than waiting to be given one."},
+  ta: {n:"Transcendent Awareness", l:"Perceiving a dimension of self and others beyond behaviour and body — the faculty most people call intuition and mistrust."},
+  cse:{n:"State Command", l:"Being able to enter and leave heightened states deliberately rather than accidentally."}
+};
+const SQ_ITEMS = [
+  {f:"cet", q:"I think about the nature of existence, reality and time."},
+  {f:"cet", q:"I have spent real time on the question of death and what follows it."},
+  {f:"cet", q:"I question my own beliefs rather than defend them."},
+  {f:"cet", q:"When something cannot be explained, I can sit with the question instead of borrowing an answer.", },
+  {f:"pmp", q:"I can state a purpose for my life that I actually believe."},
+  {f:"pmp", q:"I find meaning in difficult experience, eventually, without forcing it."},
+  {f:"pmp", q:"My ordinary daily activities connect to something larger than the task."},
+  {f:"pmp", q:"I have built my own framework for what matters rather than inheriting one whole."},
+  {f:"ta",  q:"I notice a dimension of myself that is deeper than my thoughts and my body."},
+  {f:"ta",  q:"I sense a connection between myself and others that conversation does not explain."},
+  {f:"ta",  q:"I perceive qualities in people that their behaviour does not account for."},
+  {f:"ta",  q:"I am aware of a non-material aspect to being alive."},
+  {f:"cse", q:"I can enter a state of heightened awareness on purpose."},
+  {f:"cse", q:"I can move into a state where ordinary concerns fall away."},
+  {f:"cse", q:"I use a practice — breath, meditation, prayer, movement — to change my state."},
+  {f:"cse", q:"I can choose when to enter these states and when to leave them."}
+];
+const SOULIQ = {
+  view:"soulq", sigil:"sig-star", type:"likert", mins:5, reg:"T",
+  eyebrow:"PsycheIQ · Soul", title:"Soul IQ", cta:"Begin Soul IQ",
+  blurb:"Sixteen statements across four factors. This is the spiritual half of the composite — and the one most people score unevenly on, which is the useful part.",
+  ground:"Spiritual intelligence is a real if contested research construct. The four-factor structure here follows King and DeCicco's SISRI-24 (2009) — existential reasoning, meaning production, transcendent awareness, conscious state expansion — but these sixteen items are our own and carry none of that instrument's validation. Self-report also rewards people who like the idea of themselves; read a high score as a description of your attention, not your attainment.",
+  items:SQ_ITEMS,
+  finish(ans){
+    const raw = {cet:0,pmp:0,ta:0,cse:0};
+    ans.forEach((v,i) => raw[SQ_ITEMS[i].f] += v);
+    const pct = {}; Object.keys(raw).forEach(k => pct[k] = Math.round((raw[k]-4)/16*100));
+    const index = Math.round(Object.values(pct).reduce((a,b) => a+b, 0)/4);
+    const order = Object.keys(pct).sort((a,b) => pct[b]-pct[a]);
+    saveResult("soulq", {raw, pct, index, order,
+      band: index >= 82 ? "Illuminate" : index >= 64 ? "Adept" : index >= 45 ? "Initiate" : index >= 26 ? "Seeker" : "Latent",
+      kindred:pickKindred("soulq","soulq",order[0])});
+    afterTest("soulq");
+  }
+};
+
+/* ============================================================
+   THE PSYCHEIQ SCORE — the composite
+   ============================================================ */
+function psycheScore(){
+  const parts = [];
+  if (State.logos)  parts.push({k:"Mind",      v:State.logos.percent, s:"Logos Matrix"});
+  if (State.pneuma){
+    const top3 = State.pneuma.order.slice(0,3).map(k => State.pneuma.pct[k]);
+    parts.push({k:"Character", v:Math.round(top3.reduce((a,b)=>a+b,0)/3), s:"Pneuma Map"});
+  }
+  if (State.soulq)  parts.push({k:"Soul",      v:State.soulq.index, s:"Soul IQ"});
+  if (!parts.length) return null;
+  const score = Math.round(parts.reduce((a,p) => a+p.v, 0)/parts.length);
+  const complete = ["logos","pneuma","soulq","typology","anima","past"].filter(k => State[k]).length;
+  return {score, parts, complete, of:6, tier:tierFor(score)};
+}
+function scoreBlock(){
+  const s = psycheScore(); if (!s) return "";
+  return '<div class="frame scoreband">'+
+    '<div class="scoreband__num"><b class="dsp">'+s.score+'</b><em>/100</em></div>'+
+    '<div class="scoreband__body">'+
+      '<p class="eyebrow" style="margin-bottom:6px">Your PsycheIQ Score '+tag("T")+'</p>'+
+      '<h2 class="dsp h-md gilt" style="margin-bottom:8px">'+esc(s.tier.name)+' band</h2>'+
+      '<div class="scorebars">'+s.parts.map(p =>
+        '<div class="bar-row"><span class="lb">'+p.k+' · '+p.s+'</span>'+
+        '<div class="bar-track"><i data-w="'+p.v+'"></i></div><span class="pct">'+p.v+'</span></div>').join("")+
+      '</div>'+
+      '<p class="terms" style="margin-top:12px">A composite of the instruments you have completed ('+s.complete+' of '+s.of+
+      '), on PsycheIQ’s own scale. It is an index inside this site — not an IQ score, and not portable to anything else.</p>'+
+    '</div></div>';
+}
+
+/* ============================================================
+   PANELS for the newer instruments
+   ============================================================ */
+function typologyPanel(){
+  const t = State.typology;
+  if (!t) return miniCTA("Typology", "The Sixteen Types", "24 forced choices, four axes.", "typology");
+  return '<div class="frame">'+
+    '<p class="eyebrow">Typology '+tag("T")+clearLink("typology")+'</p>'+
+    '<h2 class="dsp h-lg gilt" style="letter-spacing:.16em">'+t.code+'</h2>'+
+    '<h3 class="dsp h-md" style="color:var(--ink);margin-top:4px">'+esc(t.type.n)+'</h3>'+
+    '<p style="font-size:13px;color:var(--ink-3);margin:6px 0 14px">Function stack '+t.type.st+'</p>'+
+    '<p style="font-size:14.5px">'+esc(t.type.l)+'</p>'+
+    swBlock("typology", t.code, t.type.n)+
+    '<div class="bars">'+t.ax.map(a =>
+      '<div class="bar-row"><span class="lb">'+a.a+' / '+a.b+' · '+a.clear+' preference for '+a.side+'</span>'+
+      '<div class="bar-track"><i data-w="'+a.pct+'"></i></div><span class="pct">'+a.pct+'</span></div>').join("")+'</div>'+
+    kindredBlock("typology", t.type.n)+'</div>';
+}
+function soulqPanel(){
+  const s = State.soulq;
+  if (!s) return miniCTA("Soul IQ", "The Spiritual Half", "Sixteen statements, four factors.", "soulq");
+  return '<div class="frame">'+
+    '<p class="eyebrow">Soul IQ '+tag("T")+clearLink("soulq")+'</p>'+
+    '<h2 class="dsp h-lg gilt">'+s.index+'<span style="font-size:.5em;color:var(--ink-3)">/100</span></h2>'+
+    '<h3 class="dsp h-md" style="color:var(--ink);margin-top:2px">'+esc(s.band)+'</h3>'+
+    '<div class="bars" style="margin-top:14px">'+Object.keys(SQ_FACTORS).map(k =>
+      '<div class="bar-row"><span class="lb">'+SQ_FACTORS[k].n+'</span>'+
+      '<div class="bar-track"><i data-w="'+s.pct[k]+'"></i></div><span class="pct">'+s.pct[k]+'</span></div>').join("")+'</div>'+
+    '<p style="font-size:14px;margin-top:14px">Strongest: <b style="color:var(--gold-hi)">'+SQ_FACTORS[s.order[0]].n+
+    '</b>. '+esc(SQ_FACTORS[s.order[0]].l)+'</p>'+
+    '<p style="font-size:14px;margin:0">Quietest: <b style="color:var(--gold-hi)">'+SQ_FACTORS[s.order[3]].n+
+    '</b>. '+esc(SQ_FACTORS[s.order[3]].l)+'</p>'+
+    kindredBlock("soulq", SQ_FACTORS[s.order[0]].n)+'</div>';
+}
+function miniCTA(eyebrow, title, line, view){
+  return '<div class="frame center"><p class="eyebrow">'+esc(eyebrow)+'</p>'+
+    '<h2 class="dsp h-md" style="color:var(--ink)">'+esc(title)+'</h2>'+orn+
+    '<p style="font-size:14px">'+esc(line)+'</p>'+
+    '<button class="btn btn--gold btn--wide" data-go="'+view+'">Begin</button></div>';
+}
+
+/* ============================================================
+   READINGS — one to one on Zoom
+   ============================================================ */
+function renderReadings(){
+  const member = State.pro;
+  const price = p => member ? (p*(1-BOOKING.memberDiscount)).toFixed(2) : p.toFixed(2);
+  $("#view-readings").innerHTML =
+    '<p class="eyebrow center">PsycheIQ · Readings</p>'+
+    '<div class="gilt-wrap"><h1 class="dsp h-lg gilt center">Sit With Me, Live</h1></div>'+
+    '<div class="orn"><i>◆</i></div>'+
+    '<div class="center" style="margin-bottom:14px">'+crystalBall(140)+'</div>'+
+    '<p class="lead center" style="max-width:640px;margin:0 auto 26px">One to one on Zoom, cards drawn in front of you. If you have run the instruments, I read your profile first — so the spread starts where you already are instead of at the beginning.</p>'+
+    (member ? '<p class="pill center" style="display:block;width:max-content;margin:0 auto 20px">Adept member · 15% applied · priority scheduling</p>' : "")+
+    '<div class="frame" style="max-width:620px;margin:0 auto 24px;display:grid;gap:12px">'+
+      '<p class="eyebrow center" style="margin:0">Choose a spread</p>'+
+      '<select id="rd-pick">'+SPREADS.map(x => '<option value="'+x.id+'">'+esc(x.n)+' \u00b7 '+x.cards+' cards \u00b7 '+x.mins+' min \u00b7 $'+
+        (member ? (x.price*(1-BOOKING.memberDiscount)).toFixed(2) : x.price.toFixed(2))+'</option>').join("")+'</select>'+
+      '<button class="btn btn--gold btn--wide" id="rd-go">Book this reading</button></div>'+
+    '<div class="grid-3">'+SPREADS.map(s =>
+      '<div class="frame price'+(s.id === "five" ? " price--feature" : "")+'">'+
+        '<p class="eyebrow">'+s.cards+' cards · '+s.mins+' minutes</p>'+
+        '<h2 class="dsp h-md" style="color:var(--ink)">'+esc(s.n)+'</h2>'+
+        '<div class="amt">$'+price(s.price)+'</div>'+
+        (member ? '<div class="per" style="text-decoration:line-through;opacity:.6">$'+s.price.toFixed(2)+'</div>' : '<div class="per">one reading</div>')+
+        '<p style="font-size:14px;margin-top:14px">'+esc(s.l)+'</p>'+
+        '<p style="font-size:13.5px;color:var(--ink-3)">'+esc(s.good)+'</p>'+
+        '<ul>'+s.inc.map(i => '<li>'+esc(i)+'</li>').join("")+'</ul>'+
+        '<button class="btn btn--gold btn--wide" data-book="'+s.id+'">Book this reading</button>'+
+      '</div>').join("")+
+    '</div>'+
+    '<div class="frame" style="margin-top:20px">'+
+      '<p class="eyebrow">How a session runs</p>'+
+      '<p style="font-size:14.5px;margin-bottom:8px">You book a time, send your question in a sentence or two, and choose whether to share your PsycheIQ profile. I draw physically, on camera, and we talk through the spread as it opens rather than after. You get a photograph of the cards and a written summary afterwards, so nothing depends on your memory of the call.</p>'+
+      '<p style="font-size:14.5px;margin:0">Readings are for reflection. They are not medical, psychological, legal or financial advice, and I will say so plainly if a question belongs with a professional instead.</p>'+
+    '</div>'+
+    (State.past || State.anima ? '<div class="frame" style="margin-top:20px;text-align:center">'+
+      '<p class="eyebrow">Suggested for your result</p>'+
+      '<h3 class="dsp h-md gilt">'+(State.past ? "Past Lives · five cards" : "Soul Family · five cards")+'</h3>'+
+      '<p style="font-size:14px;max-width:560px;margin:10px auto 16px">'+
+      (State.past ? "You drew "+esc(State.past.life.title)+". The five-card working opens what that life left you and what it is still charging you for."
+                  : "Your "+esc(State.anima.lineage.n)+" lineage and "+esc(State.anima.family.n)+" family are the natural subject of the five-card spread.")+'</p>'+
+      '<button class="btn btn--gold" data-book="five">Book the five-card reading</button></div>' : "");
+}
+function wireReadings(){ const g = $("#rd-go"); if (g) g.onclick = () => openBooking($("#rd-pick").value); }
+function openBooking(id){
+  const s = SPREADS.find(x => x.id === id); if (!s) return;
+  const member = State.pro;
+  const amount = (member ? s.price*(1-BOOKING.memberDiscount) : s.price).toFixed(2);
+  const hasProfile = !!(State.pneuma || State.logos || State.anima || State.past || State.soulq || State.typology);
+  modal(
+    '<p class="eyebrow center">Booking request</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">'+esc(s.n)+'</h2>'+orn+
+    '<div class="stat"><span>'+s.cards+' cards · '+s.mins+' minutes · Zoom</span><b>$'+amount+'</b></div>'+
+    '<label class="field"><span>Spread</span><select id="bk-spread">'+
+      SPREADS.map(x => '<option value="'+x.id+'"'+(x.id === id ? " selected" : "")+'>'+esc(x.n)+' \u00b7 '+x.cards+' cards \u00b7 $'+
+        (member ? (x.price*(1-BOOKING.memberDiscount)).toFixed(2) : x.price.toFixed(2))+'</option>').join("")+'</select></label>'+
+    '<label class="field"><span>Focus, if the five-card spread</span><select id="bk-focus">'+
+      ['Past lives','Soul family'].map(o => '<option>'+o+'</option>').join("")+'</select></label>'+
+    '<label class="field"><span>Your name</span><input id="bk-name" placeholder="Name"></label>'+
+    '<label class="field"><span>Email</span><input id="bk-mail" type="email" placeholder="you@domain.com"></label>'+
+    '<label class="field"><span>Your question, in a sentence or two</span><input id="bk-q" placeholder="What is this reading for?"></label>'+
+    '<label class="field"><span>When suits you</span><select id="bk-when">'+
+      ['Weekday mornings','Weekday afternoons','Weekday evenings','Weekend mornings','Weekend afternoons','Weekend evenings','I am flexible']
+      .map(o => '<option>'+o+'</option>').join("")+'</select></label>'+
+    '<label class="field"><span>Your time zone</span><select id="bk-tz">'+
+      ['UTC-8 Pacific','UTC-7 Mountain','UTC-6 Central','UTC-5 Eastern','UTC+0 UK','UTC+1 Central Europe','UTC+5:30 India','UTC+8 Singapore','UTC+10 Sydney','Other']
+      .map(o => '<option>'+o+'</option>').join("")+'</select></label>'+
+    (hasProfile ? '<label style="display:flex;gap:10px;align-items:flex-start;font-size:13.5px;margin:0 0 14px;cursor:pointer">'+
+      '<input type="checkbox" id="bk-profile" checked style="width:auto;margin-top:3px">'+
+      '<span>Send my PsycheIQ profile with the request, so the reading starts informed.</span></label>' : "")+
+    '<button class="btn btn--gold btn--wide" id="bk-go">Send booking request</button>'+
+    '<p class="terms">This opens your email client with the request written out — scheduling and payment are handled directly with me. Point BOOKING.calendly at your scheduling link to switch this to instant booking, and take payment on confirmation.</p>'
+  );
+  $("#bk-go").onclick = () => {
+    const name = $("#bk-name").value.trim(), mail = $("#bk-mail").value.trim();
+    if (!name || !/.+@.+\..+/.test(mail)) return toast("Name and a complete email are needed to send the request.");
+    const inc = $("#bk-profile") && $("#bk-profile").checked;
+    const chosen = SPREADS.find(x => x.id === $("#bk-spread").value) || s;
+    const amt = (member ? chosen.price*(1-BOOKING.memberDiscount) : chosen.price).toFixed(2);
+    const focus = chosen.id === "five" ? " (" + $("#bk-focus").value + ")" : "";
+    const body = [
+      "Reading requested: "+chosen.n+focus+" ("+chosen.cards+" cards, "+chosen.mins+" minutes)",
+      "Price: $"+amt+(member ? " (Adept member rate)" : ""),
+      "Name: "+name, "Email: "+mail,
+      "Question: "+($("#bk-q").value.trim() || "—"),
+      "Availability: "+$("#bk-when").value+" ("+$("#bk-tz").value+")",
+      inc ? "\nPsycheIQ profile:\n"+profileText() : ""
+    ].join("\n");
+    window.location.href = "mailto:"+BOOKING.email+"?subject="+encodeURIComponent("Reading request · "+chosen.n)+"&body="+encodeURIComponent(body);
+    closeModal(); toast("Request opened in your email app. Send it and I will reply with times.");
+  };
+}
+function profileText(){
+  const L = [];
+  if (State.pneuma) L.push("Pneuma archetype: "+State.pneuma.archetype.name+" ("+State.pneuma.order.slice(0,3).map(k => TRAITS[k].label+" "+State.pneuma.pct[k]+"%").join(", ")+")");
+  if (State.typology) L.push("Typology: "+State.typology.code+" — "+State.typology.type.n);
+  if (State.logos) L.push("Logos Matrix: "+State.logos.tier.name+" band, "+State.logos.percent+"%");
+  if (State.soulq) L.push("Soul IQ: "+State.soulq.index+" ("+State.soulq.band+"), strongest "+SQ_FACTORS[State.soulq.order[0]].n);
+  if (State.anima){ const a = State.anima;
+    L.push("Anima Field: "+a.lineage.n+" lineage, "+a.family.n+", significator "+a.major.c+
+      (a.chart ? ", Sun in "+signOf(a.chart.sun).n+", Moon in "+signOf(a.chart.moon).n+
+        (a.chart.rising !== null ? ", Rising "+signOf(a.chart.rising).n : "") : "")); }
+  if (State.past) L.push("Akashic Draw: "+State.past.life.title+" — "+State.past.life.sub);
+  const s = psycheScore(); if (s) L.push("PsycheIQ Score: "+s.score+"/100 ("+s.tier.name+" band)");
+  return L.join("\n");
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-book]");
+  if (b) openBooking(b.dataset.book);
+});
+
+/* ---------------- per-test unlocking ---------------- */
+function isTestUnlocked(id){ return State.pro || State.unlocked.has(id); }
+function shareUnlocked(){ return State.pro || State.unlocked.size > 0; }
+
+/* ---------------- instrument registry ---------------- */
+const TESTS = [
+  {id:"pneuma", group:"Mind", sigil:"sig-pneuma", name:"Personality Profile", lore:"The Pneuma Map", meta:"14 dilemmas · 6 min", reg:"T",
+   desc:"Six traits, one dominant archetype, and the shadow material that comes with it.", view:"pneuma-intro",
+   done:() => State.pneuma, status:() => State.pneuma && State.pneuma.archetype.name},
+  {id:"typology", group:"Mind", sigil:"sig-pneuma", name:"Thinking Style", lore:"The Sixteen Types", meta:"24 choices · 6 min", reg:"T",
+   desc:"A traditional four-axis typology, reported with the strength of each preference.", view:"typology",
+   done:() => State.typology, status:() => State.typology && State.typology.code},
+  {id:"logos", group:"Mind", sigil:"sig-logos", name:"Mind IQ", lore:"The Logos Matrix", meta:"3 modules · 12 min", reg:"M",
+   desc:"Matrix reasoning, mental rotation and recall span — the classical core of a cognitive battery.", view:"logos-intro",
+   done:() => State.logos, status:() => State.logos && State.logos.tier.name+" band"},
+  {id:"body", group:"Body", sigil:"sig-nous", name:"Body IQ", lore:"The Corpus Field", meta:"16 statements · 5 min", reg:"T",
+   desc:"Energy rhythm, stress response, habit strength and body awareness. Self-knowledge, not medical assessment.", view:"body",
+   done:() => State.body, status:() => State.body && State.body.type.n},
+  {id:"soulq", group:"Soul", sigil:"sig-star", name:"Soul IQ", lore:"The Anima Sophia", meta:"16 statements · 5 min", reg:"T",
+   desc:"Existential reasoning, meaning production, transcendent awareness and state command.", view:"soulq",
+   done:() => State.soulq, status:() => State.soulq && State.soulq.index+"/100"},
+  {id:"anima", group:"Soul", sigil:"sig-star", name:"Your Birth Sky", lore:"The Anima Field", meta:"Birth data + 10 · 5 min", reg:"Y",
+   desc:"Your birth sky computed from real orbital series, then lineage, soul family and significator.", view:"anima-intro",
+   done:() => State.anima, status:() => State.anima && State.anima.lineage.n+" lineage"},
+  {id:"past", group:"Soul", sigil:"sig-wing", name:"Past Life Story", lore:"The Akashic Draw", meta:"12 questions · 34s each", reg:"Y",
+   desc:"Twelve questions, thirty-four seconds each, sixty-four possible lives.", view:"past",
+   done:() => State.past, status:() => State.past && State.past.life.title}
+];

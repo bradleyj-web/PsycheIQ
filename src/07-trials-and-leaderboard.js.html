@@ -1,0 +1,215 @@
+
+/* ============================================================
+   PSYCHEIQ — TRIALS: daily challenge, metrics, leaderboard
+   ============================================================ */
+
+/* --- storage: artifact store → localStorage → memory, never throws --- */
+const MEM = {};
+const Store = {
+  async get(k, shared){
+    const key = (shared ? "s:" : "")+k;
+    try { if (window.storage){ const r = await window.storage.get(k, !!shared); if (r) return JSON.parse(r.value); } } catch(e){}
+    try { const v = localStorage.getItem(key); if (v) return JSON.parse(v); } catch(e){}
+    return MEM[key] || null;
+  },
+  async set(k, v, shared){
+    const key = (shared ? "s:" : "")+k, s = JSON.stringify(v);
+    MEM[key] = v;                                  // always cached, so a blocked store never loses the session
+    try { if (window.storage){ await window.storage.set(k, s, !!shared); return true; } } catch(e){}
+    try { localStorage.setItem(key, s); } catch(e){}
+    return true;
+  }
+};
+const today = () => new Date().toISOString().slice(0,10);
+const daySeed = () => { const d = today().split("-").map(Number); return d[0]*10000 + d[1]*100 + d[2]; };
+
+/* --- seeded randomness so everyone gets the same trial --- */
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+let RNG = Math.random;
+
+/* --- profile of records --- */
+let Rec = {name:"", best:0, streak:0, longest:0, last:"", spanBest:0, matrixSeen:0, matrixHit:0, history:{}};
+async function loadRec(){
+  const r = await Store.get("pq:records");
+  if (r) Rec = Object.assign(Rec, r);
+  return Rec;
+}
+const saveRec = () => Store.set("pq:records", Rec);
+
+/* --- the daily trial --- */
+let DRun = null;
+function buildDailyItems(){
+  RNG = mulberry32(daySeed());
+  const items = [];
+  for (let i = 0; i < 5; i++) items.push({t:"m", it:genMatrix(i < 2 ? 1 : i < 4 ? 2 : 3)});
+  for (let i = 0; i < 3; i++) items.push({t:"r", it:genRotationItem()});
+  RNG = Math.random;
+  return items;
+}
+function startDaily(){
+  DRun = {items:buildDailyItems(), i:0, correct:0, t0:Date.now(), sel:null};
+  renderDailyItem();
+}
+function renderDailyItem(){
+  const d = DRun, n = d.items.length, cur = d.items[d.i], pct = Math.round(d.i/n*100);
+  const inner = cur.t === "m"
+    ? '<div class="matrix">'+cur.it.grid.map((row,r) => row.map((a,c) =>
+        (r === 2 && c === 2) ? '<div class="mcell miss">?</div>' : '<div class="mcell">'+shapeSVG(a,42)+'</div>').join("")).join("")+'</div>'+
+      '<div class="opt-grid">'+cur.it.options.map((a,i) =>
+        '<button class="opt-tile" data-pick="'+i+'"><em>'+"ABCDEF"[i]+'</em>'+shapeSVG(a,40)+'</button>').join("")+'</div>'
+    : '<p class="eyebrow center" style="margin:16px 0 6px">Target figure</p><div class="center">'+pathSVG(cur.it.target,100)+'</div>'+
+      '<p class="eyebrow center" style="margin:12px 0 0">Which is it, rotated?</p>'+
+      '<div class="opt-grid">'+cur.it.options.map((p,i) =>
+        '<button class="opt-tile" data-pick="'+i+'"><em>'+"ABCD"[i]+'</em>'+pathSVG(p,84)+'</button>').join("")+'</div>';
+  $("#view-trials").innerHTML =
+    '<div class="frame" style="max-width:640px;margin:0 auto">'+
+      '<div class="test-head"><svg style="color:var(--gold)" viewBox="0 0 200 200"><use href="#sig-logos"/></svg>'+
+        '<h2 class="dsp h-md" style="color:var(--ink)">Daily Trial</h2></div>'+
+      '<div class="qmeta"><span>Item '+(d.i+1)+' of '+n+'</span><span id="d-clock">'+Math.floor((Date.now()-d.t0)/1000)+'s</span></div>'+
+      '<div class="meter"><i style="width:'+pct+'%"></i></div>'+
+      inner+
+      '<div class="nav-row"><span></span><button class="btn btn--gold" id="d-go" disabled>Submit</button></div>'+
+    '</div>';
+  $$("[data-pick]").forEach(b => b.onclick = () => {
+    $$("[data-pick]").forEach(x => x.classList.remove("sel"));
+    b.classList.add("sel"); DRun.sel = +b.dataset.pick; $("#d-go").disabled = false;
+  });
+  $("#d-go").onclick = () => {
+    const right = DRun.sel === cur.it.correct;
+    if (right) DRun.correct++;
+    if (cur.t === "m"){ Rec.matrixSeen++; if (right) Rec.matrixHit++; }
+    DRun.i++;
+    DRun.i >= n ? finishDaily() : renderDailyItem();
+  };
+}
+async function finishDaily(){
+  const secs = Math.round((Date.now() - DRun.t0)/1000);
+  const score = DRun.correct*100 + Math.max(0, 240 - secs);
+  const day = today();
+  const yesterday = new Date(Date.now() - 864e5).toISOString().slice(0,10);
+  Rec.streak = Rec.last === yesterday ? Rec.streak + 1 : (Rec.last === day ? Rec.streak : 1);
+  Rec.longest = Math.max(Rec.longest, Rec.streak);
+  Rec.last = day;
+  Rec.best = Math.max(Rec.best, score);
+  Rec.history[day] = Math.max(Rec.history[day] || 0, score);
+  await saveRec();
+  await submitScore(score);
+  renderTrials({justScored:{score, correct:DRun.correct, of:DRun.items.length, secs}});
+}
+async function submitScore(score){
+  if (!Rec.name) return;
+  const key = "pq:lb:"+today();
+  const board = (await Store.get(key, true)) || [];
+  const mine = board.find(e => e.n === Rec.name);
+  if (mine){ mine.s = Math.max(mine.s, score); } else { board.push({n:Rec.name, s:score}); }
+  board.sort((a,b) => b.s - a.s);
+  await Store.set(key, board.slice(0,50), true);
+}
+
+/* --- charts --- */
+function barChartSVG(vals, labels, opts){
+  opts = opts || {};
+  const w = 100, h = 42, n = Math.max(vals.length,1), max = Math.max(1, ...vals);
+  const bw = w/n * 0.62, gap = w/n;
+  const bars = vals.map((v,i) => {
+    const bh = (v/max) * (h - 12);
+    const x = i*gap + (gap-bw)/2, y = h - 6 - bh;
+    return '<rect x="'+x.toFixed(2)+'" y="'+y.toFixed(2)+'" width="'+bw.toFixed(2)+'" height="'+Math.max(bh,0.6).toFixed(2)+
+      '" fill="url(#barG)" opacity="'+(i === vals.length-1 ? 1 : .72)+'"/>'+
+      (v ? '<text x="'+(x+bw/2).toFixed(2)+'" y="'+(y-1.6).toFixed(2)+'" font-size="3.1" fill="#E3BE6D" text-anchor="middle">'+v+'</text>' : "");
+  }).join("");
+  const lab = labels.map((t,i) =>
+    '<text x="'+(i*gap + gap/2).toFixed(2)+'" y="'+(h-1).toFixed(2)+'" font-size="3" fill="#6B739A" text-anchor="middle">'+esc(t)+'</text>').join("");
+  return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" class="chart" role="img" aria-label="'+esc(opts.label || "chart")+'">'+
+    '<defs><linearGradient id="barG" x1="0" y1="1" x2="0" y2="0">'+
+    '<stop offset="0%" stop-color="#8E6F35"/><stop offset="100%" stop-color="#F4DFA6"/></linearGradient></defs>'+
+    '<line x1="0" y1="'+(h-6)+'" x2="'+w+'" y2="'+(h-6)+'" stroke="#E3BE6D" stroke-width=".3" opacity=".4"/>'+
+    bars+lab+'</svg>';
+}
+function ringSVG(done, of, size){
+  size = size || 96;
+  const r = 42, circ = 2*Math.PI*r, off = circ * (1 - done/of);
+  return '<svg viewBox="0 0 100 100" width="'+size+'" height="'+size+'" class="ring" role="img" aria-label="'+done+' of '+of+'">'+
+    '<circle cx="50" cy="50" r="'+r+'" fill="none" stroke="#E3BE6D" stroke-width="6" opacity=".16"/>'+
+    '<circle cx="50" cy="50" r="'+r+'" fill="none" stroke="url(#barG)" stroke-width="6" stroke-linecap="round"'+
+    ' stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 50 50)"/>'+
+    '<text x="50" y="47" text-anchor="middle" font-size="24" font-family="Cinzel,serif" fill="#F9E7B4">'+done+'</text>'+
+    '<text x="50" y="62" text-anchor="middle" font-size="9" fill="#98A0C2" letter-spacing="1.5">OF '+of+'</text></svg>';
+}
+
+/* --- the trials dashboard --- */
+async function renderTrials(opts){
+  opts = opts || {};
+  await loadRec();
+  const board = (await Store.get("pq:lb:"+today(), true)) || [];
+  const days = Array.from({length:7}, (_,i) => new Date(Date.now() - (6-i)*864e5).toISOString().slice(0,10));
+  const vals = days.map(d => Rec.history[d] || 0);
+  const labs = days.map(d => ["Su","Mo","Tu","We","Th","Fr","Sa"][new Date(d+"T12:00:00Z").getUTCDay()]);
+  const acc = Rec.matrixSeen ? Math.round(Rec.matrixHit/Rec.matrixSeen*100) : 0;
+  const doneToday = Rec.last === today();
+  const complete = TESTS.filter(t => t.done()).length;
+  const myRank = board.findIndex(e => e.n === Rec.name) + 1;
+  $("#view-trials").innerHTML =
+    '<p class="eyebrow center">PsycheIQ · Trials</p>'+
+    '<div class="gilt-wrap"><h1 class="dsp h-lg gilt center">The Daily Trial</h1></div>'+
+    '<div class="orn"><i>◆</i></div>'+
+    (opts.justScored ? '<div class="frame center" style="margin-bottom:20px">'+
+      '<p class="eyebrow">Trial complete</p>'+
+      '<h2 class="dsp" style="font-size:3rem;color:var(--gold-hi);margin:6px 0">'+opts.justScored.score+'</h2>'+
+      '<p style="font-size:14px">'+opts.justScored.correct+' of '+opts.justScored.of+' correct in '+opts.justScored.secs+' seconds'+
+      (opts.justScored.score >= Rec.best ? ' · <b style="color:var(--gold-hi)">personal best</b>' : "")+'</p></div>' : "")+
+    '<div class="grid-3">'+
+      '<div class="frame center"><p class="eyebrow">Today</p>'+
+        (doneToday
+          ? '<h2 class="dsp h-lg gilt">'+(Rec.history[today()] || 0)+'</h2><p style="font-size:13px;color:var(--ink-3)">come back tomorrow</p>'
+          : '<p style="font-size:14px">Eight items, the same eight for everyone, seeded from today\u2019s date.</p>')+
+        '<button class="btn btn--gold btn--wide" id="t-start" style="margin-top:12px">'+(doneToday ? "Run it again for practice" : "Start today\u2019s trial")+'</button></div>'+
+      '<div class="frame center"><p class="eyebrow">Streak</p>'+
+        '<h2 class="dsp h-lg gilt">'+Rec.streak+'</h2>'+
+        '<p style="font-size:13px;color:var(--ink-3)">longest '+Rec.longest+' · best score '+Rec.best+'</p>'+
+        '<div class="stat" style="margin-top:10px"><span>Matrix accuracy</span><b>'+acc+'%</b></div>'+
+        '<div class="stat" style="border:0"><span>Best recall span</span><b>'+(State.logos ? Math.max(Rec.spanBest, State.logos.memory.span) : Rec.spanBest)+'</b></div></div>'+
+      '<div class="frame center"><p class="eyebrow">Ascension</p>'+ringSVG(complete, TESTS.length)+
+        '<p style="font-size:13px;color:var(--ink-3);margin-top:8px">instruments completed</p>'+
+        '<button class="btn btn--wide" data-go="oracle" style="margin-top:8px">Complete the set</button></div>'+
+    '</div>'+
+    '<div class="grid-2" style="margin-top:20px">'+
+      '<div class="frame"><p class="eyebrow">Your last seven days</p>'+barChartSVG(vals, labs, {label:"daily trial scores"})+'</div>'+
+      '<div class="frame"><p class="eyebrow">Today\u2019s board</p>'+
+        (board.length
+          ? '<div class="board">'+board.slice(0,10).map((e,i) =>
+              '<div class="board__row'+(e.n === Rec.name ? " me" : "")+'"><span class="board__rank">'+(i+1)+'</span>'+
+              '<span class="board__name">'+esc(e.n)+'</span><b>'+e.s+'</b></div>').join("")+'</div>'+
+            (myRank > 10 ? '<p class="terms">You are ranked '+myRank+' today.</p>' : "")
+          : '<p style="font-size:14px">Nobody has posted a score today. Be first.</p>')+
+        (Rec.name
+          ? '<p class="terms">Posting as '+esc(Rec.name)+'. <button class="linky" id="t-rename">Change name</button></p>'
+          : '<button class="btn btn--wide" id="t-name" style="margin-top:12px">Choose a name to compete</button>')+
+      '</div>'+
+    '</div>'+
+    '<div class="frame" style="margin-top:20px"><p class="eyebrow">How the score works</p>'+
+      '<p style="font-size:14.5px;margin:0">One hundred points per correct answer, plus a speed bonus that decays one point per second — so accuracy outranks speed, but hesitation costs. Everyone gets the identical eight items each day, generated from the date, which is what makes the board worth reading.</p></div>';
+  const st = $("#t-start"); if (st) st.onclick = startDaily;
+  const nm = $("#t-name") || $("#t-rename"); if (nm) nm.onclick = askName;
+}
+function askName(){
+  modal('<p class="eyebrow center">The board</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Choose a Name</h2>'+orn+
+    '<label class="field"><span>Shown on the leaderboard</span><input id="nm" maxlength="18" placeholder="e.g. Juniper J" value="'+esc(Rec.name)+'"></label>'+
+    '<button class="btn btn--gold btn--wide" id="nm-go">Save</button>'+
+    '<p class="terms">Visible to everyone using this build. Use whatever you are happy to be seen as — no email, no account.</p>');
+  $("#nm-go").onclick = async () => {
+    const v = $("#nm").value.trim().slice(0,18);
+    if (!v) return toast("A name is needed to appear on the board.");
+    Rec.name = v; await saveRec();
+    if (Rec.history[today()]) await submitScore(Rec.history[today()]);
+    closeModal(); renderTrials();
+  };
+}

@@ -1,0 +1,224 @@
+
+/* ============================================================
+   PSYCHEIQ — BODY IQ + PLAIN-LANGUAGE LAYER + BLUEPRINT
+   ------------------------------------------------------------
+   Front door is Mind / Body / Soul. The Hermetic naming
+   (Pneuma Map, Logos Matrix, Anima Field, Akashic Draw) is kept
+   as a secondary "lore" line under each plain name — deep layer,
+   not the entry point. See PLAIN[] below for the mapping.
+   ============================================================ */
+
+/* ---------------- BODY IQ ---------------- */
+const BODY_DIMS = {
+  energy:{n:"Energy Rhythm",  l:"How you generate, spend and restore energy across a day and a week."},
+  stress:{n:"Stress Response",l:"What your body does under pressure, and how quickly it settles afterward."},
+  habits:{n:"Habit Strength", l:"Whether the routines you set actually survive contact with a busy week."},
+  attune:{n:"Body Awareness", l:"How early you read physical signals, and how well you connect them to your mood and thinking."}
+};
+const BODY_ITEMS = [
+  {f:"energy", q:"I know when my energy peaks and dips during a normal day."},
+  {f:"energy", q:"I recover from a demanding day using a routine that reliably works for me."},
+  {f:"energy", q:"I notice I'm running low before I actually hit the wall."},
+  {f:"energy", q:"I get restless if too many days pass without movement or physical challenge."},
+  {f:"stress", q:"Under pressure I stay physically steady rather than tightening up."},
+  {f:"stress", q:"Once something stressful passes, my body settles again fairly quickly."},
+  {f:"stress", q:"I can tell the difference between being tired and being overwhelmed."},
+  {f:"stress", q:"I have at least one reliable way to bring my stress level down on purpose."},
+  {f:"habits", q:"The habits I set tend to survive a genuinely busy week."},
+  {f:"habits", q:"I follow through on physical routines even when motivation is low."},
+  {f:"habits", q:"My environment is set up so the good habit is the easy one."},
+  {f:"habits", q:"When a habit slips, I restart it quickly instead of abandoning it."},
+  {f:"attune", q:"I notice hunger, tension or fatigue before they get loud."},
+  {f:"attune", q:"I can tell how last night's sleep is going to affect my thinking today."},
+  {f:"attune", q:"I can feel the link between my physical state and my mood."},
+  {f:"attune", q:"I adjust what I take on depending on how my body is doing that day."}
+];
+const BODY_TYPES = {
+  energy:{n:"The Adaptive Explorer",
+    l:"You run on variety, movement and meaningful challenge. Sameness drains you faster than effort does — you are not lazy in a rut, you are under-stimulated in one.",
+    s:["Recovers fast when the work is interesting","Reads your own energy curve accurately","Thrives on change that would unsettle other people"],
+    w:["Mistakes boredom for burnout","Starts more than the week can hold","Skips recovery because the new thing is exciting"],
+    g:"Give your variety a container: same start time, different content."},
+  stress:{n:"The Steady Anchor",
+    l:"Your body holds its shape under pressure. People calm down near you, often without either of you naming why — your regulation is doing work in the room.",
+    s:["Stays physically composed when things escalate","Settles quickly once the pressure lifts","Becomes the reference point others steady themselves against"],
+    w:["Absorbs pressure so well you don't notice the accumulation","Under-reports strain until it's structural","Gets handed everyone else's stress by default"],
+    g:"Schedule the discharge rather than waiting to need it."},
+  habits:{n:"The Steady Engine",
+    l:"You are built for compounding. Your advantage isn't intensity — it's that your routines are still running in week nine, when everyone else's have quietly stopped.",
+    s:["Follows through when motivation has gone","Builds environments that make the habit easy","Restarts quickly after a slip instead of spiraling"],
+    w:["Keeps running a routine past the point it still serves","Treats a missed day as a bigger failure than it is","Resists changing a system that's working less well than it used to"],
+    g:"Audit one long-running routine: is this still earning its slot?"},
+  attune:{n:"The Attuned Reader",
+    l:"You get the signal early. Hunger, tension, fatigue and mood register while they're still quiet, which means you can act before they make the decision for you.",
+    s:["Catches physical signals before they escalate","Connects body state to thinking accurately","Adjusts workload to actual capacity, not assumed capacity"],
+    w:["Can over-monitor and turn awareness into anxiety","Sometimes treats a passing signal as a verdict","Waits to feel ready when starting would settle it"],
+    g:"Practise acting before the signal is fully resolved."}
+};
+const BODYIQ = {
+  view:"body", sigil:"sig-nous", type:"likert", mins:5, reg:"T",
+  eyebrow:"PsycheIQ · Body", title:"Body IQ", cta:"Begin Body IQ",
+  blurb:"Sixteen statements about energy, pressure, habits and physical awareness — how your body actually behaves, not how you'd like it to.",
+  ground:"Self-awareness, not medical assessment. These items ask how you experience your own energy, stress and routines; they diagnose nothing, and no result here should factor into a decision that belongs with a doctor. Self-report also flatters — read a high score as a description of your attention, not your fitness.",
+  items:BODY_ITEMS,
+  finish(ans){
+    const raw = {energy:0, stress:0, habits:0, attune:0};
+    ans.forEach((v,i) => raw[BODY_ITEMS[i].f] += v);
+    const pct = {}; Object.keys(raw).forEach(k => pct[k] = Math.round((raw[k]-4)/16*100));
+    const index = Math.round(Object.values(pct).reduce((a,b) => a+b, 0)/4);
+    const order = Object.keys(pct).sort((a,b) => pct[b]-pct[a]);
+    saveResult("body", {raw, pct, index, order, type:BODY_TYPES[order[0]],
+      kindred:pickKindred("body","bodydim",order[0]),
+      band: index >= 82 ? "Highly attuned" : index >= 64 ? "Well regulated" : index >= 45 ? "Developing" : index >= 26 ? "Inconsistent" : "Running on default"});
+    afterTest("body");
+  }
+};
+function bodyPanel(){
+  const b = State.body;
+  if (!b) return miniCTA("Body IQ", "Understand Your Body", "Energy, stress response, habits and physical awareness.", "body");
+  const open = isTestUnlocked("body");
+  return '<div class="frame">'+
+    '<p class="eyebrow">Body IQ '+tag("T")+clearLink("body")+'</p>'+
+    '<h2 class="dsp h-lg gilt">'+b.index+'<span style="font-size:.5em;color:var(--ink-3)">/100</span></h2>'+
+    '<h3 class="dsp h-md" style="color:var(--ink);margin-top:2px">'+esc(b.type.n)+'</h3>'+
+    '<p style="font-size:13px;color:var(--ink-3);margin:4px 0 12px">'+esc(b.band)+'</p>'+
+    '<p style="font-size:14.5px">'+esc(b.type.l)+'</p>'+
+    '<div class="bars" style="margin-top:14px">'+Object.keys(BODY_DIMS).map(k =>
+      '<div class="bar-row"><span class="lb">'+BODY_DIMS[k].n+'</span>'+
+      '<div class="bar-track"><i data-w="'+b.pct[k]+'"></i></div><span class="pct">'+b.pct[k]+'</span></div>').join("")+'</div>'+
+    '<p style="font-size:14px;margin-top:14px">Strongest: <b style="color:var(--gold-hi)">'+BODY_DIMS[b.order[0]].n+
+      '</b>. '+esc(BODY_DIMS[b.order[0]].l)+'</p>'+
+    '<p style="font-size:14px">Weakest: <b style="color:var(--gold-hi)">'+BODY_DIMS[b.order[3]].n+
+      '</b>. '+esc(BODY_DIMS[b.order[3]].l)+'</p>'+
+    (open
+      ? '<div style="margin-top:14px"><p class="eyebrow">Strengths</p><ul class="swlist">'+
+          b.type.s.map(x => '<li>'+esc(x)+'</li>').join("")+'</ul>'+
+        '<p class="eyebrow" style="margin-top:12px">Watch for</p><ul class="swlist">'+
+          b.type.w.map(x => '<li>'+esc(x)+'</li>').join("")+'</ul>'+
+        '<p style="font-size:14.5px;margin-top:12px"><b style="color:var(--gold-hi)">This week:</b> '+esc(b.type.g)+'</p></div>'
+      : '<div style="margin-top:14px"><p class="eyebrow">Strengths</p><ul class="swlist"><li>'+esc(b.type.s[0])+'</li>'+
+        '<li class="teaser">'+esc(b.type.s[1].slice(0,40))+'…</li></ul>'+
+        '<p class="terms">Your full strengths, watch-points and this week\u2019s practice are in the full reading.</p></div>')+
+    kindredBlock("body", b.type.n)+
+    '<p class="terms">Self-awareness, not medical assessment. Nothing here is a diagnosis or a substitute for professional care.</p>'+
+  '</div>';
+}
+
+/* ---------------- plain-language layer ----------------
+   Front-of-house name + the lore name kept underneath.   */
+const PLAIN = {
+  pneuma:  {name:"Personality Profile", lore:"The Pneuma Map",     dim:"Mind"},
+  typology:{name:"Thinking Style",      lore:"The Sixteen Types",  dim:"Mind"},
+  logos:   {name:"Mind IQ",             lore:"The Logos Matrix",   dim:"Mind"},
+  body:    {name:"Body IQ",             lore:"The Corpus Field",   dim:"Body"},
+  soulq:   {name:"Soul IQ",             lore:"The Anima Sophia",   dim:"Soul"},
+  anima:   {name:"Your Birth Sky",      lore:"The Anima Field",    dim:"Soul"},
+  past:    {name:"Past Life Story",     lore:"The Akashic Draw",   dim:"Soul"}
+};
+/* plain-English names for the six personality archetypes (lore names live in ARCHETYPES) */
+const PLAIN_ARCH = {
+  will:"The Decisive Driver", insight:"The Insightful Analyst", fusion:"The Bridge Builder",
+  focus:"The Steady Builder", vision:"The Visionary Strategist", shadow:"The Deep Reflector"
+};
+const PLAIN_SOUL = {cet:"The Questioner", pmp:"The Meaning Maker", ta:"The Seeker", cse:"The Practitioner"};
+
+/* ---------------- THE PSYCHEIQ BLUEPRINT ---------------- */
+function blueprint(){
+  const mindHave = State.pneuma || State.logos || State.typology;
+  const bodyHave = State.body;
+  const soulHave = State.soulq || State.anima || State.past;
+  if (!mindHave && !bodyHave && !soulHave) return "";
+
+  const mindTitle = State.pneuma ? PLAIN_ARCH[State.pneuma.key]
+    : State.typology ? State.typology.type.n
+    : State.logos ? State.logos.tier.name+" reasoning" : null;
+  const mindLine = State.pneuma ? "You lead with "+TRAITS[State.pneuma.order[0]].short+", then "+TRAITS[State.pneuma.order[1]].short+"."
+    : State.typology ? State.typology.type.l
+    : "Measured across pattern reasoning, mental rotation and recall.";
+
+  const bodyTitle = bodyHave ? State.body.type.n : null;
+  const bodyLine  = bodyHave ? State.body.type.l : null;
+
+  const soulTitle = State.soulq ? PLAIN_SOUL[State.soulq.order[0]]
+    : State.past ? State.past.life.title
+    : State.anima ? State.anima.family.n : null;
+  const soulLine = State.soulq ? SQ_FACTORS[State.soulq.order[0]].l
+    : State.past ? State.past.life.paras[0].slice(0,150)+"…"
+    : State.anima ? State.anima.family.l : null;
+
+  // growth path points at the weakest completed dimension
+  const scored = [];
+  if (State.logos) scored.push(["Mind", State.logos.percent]);
+  if (State.pneuma) scored.push(["Mind", Math.round(State.pneuma.order.slice(0,3).reduce((a,k)=>a+State.pneuma.pct[k],0)/3)]);
+  if (State.body) scored.push(["Body", State.body.index]);
+  if (State.soulq) scored.push(["Soul", State.soulq.index]);
+  const weakest = scored.length ? scored.sort((a,b)=>a[1]-b[1])[0][0] : null;
+  const GROWTH = {
+    Mind:"Turn what you already understand into something that costs you an action this week.",
+    Body:"Give your energy and habits the same seriousness you give your thinking.",
+    Soul:"Bring one insight down into a specific, ordinary Tuesday."
+  };
+
+  const card = (dim, title, line, have, viewId, cta) =>
+    '<div class="frame geo'+(have ? "" : " price")+'" style="text-align:center">'+
+      '<p class="eyebrow">'+dim+'</p>'+
+      (have
+        ? '<h3 class="dsp h-md gilt" style="margin:6px 0 10px">'+esc(title)+'</h3>'+
+          '<p style="font-size:14px;margin:0">'+esc(line)+'</p>'
+        : '<h3 class="dsp h-md" style="color:var(--ink-3);margin:6px 0 10px">Not yet mapped</h3>'+
+          '<p style="font-size:14px">'+esc(cta)+'</p>'+
+          '<button class="btn btn--wide" data-go="'+viewId+'" style="margin-top:10px">Start</button>')+
+    '</div>';
+
+  return '<div class="frame geo" style="margin-bottom:20px">'+
+    '<p class="eyebrow center">Your PsycheIQ Blueprint</p>'+
+    '<h2 class="dsp h-lg gilt center">'+(psycheScore() ? psycheScore().score+" / 100" : "In progress")+'</h2>'+
+    '<div class="orn"><i>◆</i></div>'+
+    '<div class="grid-3">'+
+      card("🧠 Mind", mindTitle, mindLine, mindHave, "pneuma-intro", "How you think, decide and solve problems.")+
+      card("🧬 Body", bodyTitle, bodyLine, bodyHave, "body", "Energy, stress response, habits and awareness.")+
+      card("✨ Soul", soulTitle, soulLine, soulHave, "soulq", "Meaning, values, intuition and personal growth.")+
+    '</div>'+
+    (weakest ? '<div class="ground" style="margin-top:16px"><p class="eyebrow" style="margin-bottom:6px">Growth path</p>'+
+      '<p style="font-size:14.5px;margin:0">'+esc(GROWTH[weakest])+'</p></div>' : "")+
+  '</div>';
+}
+
+/* ---------------- growth stage & experience level ----------------
+   Accessible replacement for "you must already know tarot".         */
+/* Stage = Minor Arcana 1-10, translated to universal language.
+   Role  = Court cards, translated to an RPG-style progression.
+   Users never see Page/Knight/Queen/King or need to know tarot. */
+const GROWTH_STAGES = ["Spark","Choice","Growth","Foundation","Challenge",
+                "Balance","Refinement","Expansion","Integration","Transformation"];
+const LEVELS = [
+  {n:"Initiate", g:"\uD83C\uDF31", l:"Learning the pattern"},
+  {n:"Explorer", g:"\uD83D\uDD25", l:"Testing the pattern"},
+  {n:"Builder",  g:"\u2699\uFE0F",  l:"Applying the pattern"},
+  {n:"Sage",     g:"\uD83D\uDC41\uFE0F", l:"Mastering the pattern"}
+];
+function growthStanding(){
+  const done = TESTIDS.filter(id => State[id]).length;
+  if (!done) return null;
+  const s = psycheScore();
+  const score = s ? s.score : 50;
+  const stage = GROWTH_STAGES[Math.min(GROWTH_STAGES.length-1, Math.floor(score/10))];
+  const level = LEVELS[Math.min(LEVELS.length-1, Math.floor(done/2))];
+  const theme = State.past ? State.past.life.title
+    : State.anima ? State.anima.family.n
+    : State.pneuma ? PLAIN_ARCH[State.pneuma.key] : "Self-discovery";
+  return {stage, level, theme, done};
+}
+function growthBlock(){
+  const g = growthStanding(); if (!g) return "";
+  return '<div class="frame" style="margin-top:20px">'+
+    '<p class="eyebrow center">Where you are in the journey</p>'+
+    '<div class="grid-3" style="margin-top:12px">'+
+      '<div class="stat"><span>Major theme</span><b>'+esc(g.theme)+'</b></div>'+
+      '<div class="stat"><span>Growth stage</span><b>'+esc(g.stage)+'</b></div>'+
+      '<div class="stat"><span>Role</span><b>'+g.level.g+' '+esc(g.level.n)+'</b></div>'+
+    '</div>'+
+    '<p style="font-size:14px;margin:12px 0 0">'+esc(g.level.l)+'.</p>'+
+    '<p class="terms">Stage reflects where you are in the current cycle; role reflects how much of the picture you\u2019ve completed ('+g.done+' of '+TESTIDS.length+' assessments).</p>'+
+  '</div>';
+}

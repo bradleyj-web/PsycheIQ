@@ -1,0 +1,457 @@
+<script>
+/* ============================================================
+   THE HERMETIC NOUS — application
+   Front-end prototype. Payments and accounts are simulated;
+   see the notes at the bottom of this file for wiring points.
+   ============================================================ */
+"use strict";
+
+/* ---------------- state (in-memory for the session) ---------------- */
+const State = {
+  view: "home",
+  pro: false,             // active subscription or trial
+  trialEndsAt: null,
+  unlocked: new Set(),    // one-time $1 unlocks: "pneuma" | "logos"
+  resultViews: 0,
+  pneuma: null,           // {traits:{}, order:[], archetype}
+  logos: null,            // {systemic, geometry, span, percent, tier, seconds}
+  essay: null
+};
+
+/* ---------------- traits ---------------- */
+const TRAITS = {
+  will:    {label:"Sovereign Will",     glyph:"⚔", short:"decide and move"},
+  insight: {label:"Pneumatic Insight",  glyph:"✶", short:"find the mechanism"},
+  fusion:  {label:"Alchemical Fusion",  glyph:"⚗", short:"join what others keep apart"},
+  focus:   {label:"Demiurgic Focus",    glyph:"◈", short:"build and finish"},
+  vision:  {label:"Gnostic Vision",     glyph:"△", short:"read the pattern"},
+  shadow:  {label:"Shadow Integration", glyph:"☾", short:"own what others bury"}
+};
+const TKEYS = Object.keys(TRAITS);
+
+/* ---------------- the Pneuma dilemmas ---------------- */
+const DILEMMAS = [
+  {q:"A door opens onto a room you were told not to enter.", s:"No one is watching.", o:[
+    {t:"Walk in and take stock of what is actually there.", w:{vision:2, will:1}},
+    {t:"Wait outside until you know who opened it.", w:{focus:2, shadow:1}},
+    {t:"Ask what the warning was protecting.", w:{insight:2, shadow:1}},
+    {t:"Enter, and leave the door open behind you.", w:{fusion:2, will:1}}]},
+  {q:"You finish a work that is good, but not the thing you meant to make.", s:"", o:[
+    {t:"Release it and begin the real one tomorrow.", w:{focus:2, will:1}},
+    {t:"Take it apart to find the exact place it turned.", w:{insight:2, focus:1}},
+    {t:"Keep both versions alive and let them argue.", w:{fusion:2, vision:1}},
+    {t:"Admit you were avoiding the thing you meant to make.", w:{shadow:2, insight:1}}]},
+  {q:"Someone with authority is wrong in public, and you can prove it.", s:"", o:[
+    {t:"Correct them plainly, now.", w:{will:2, focus:1}},
+    {t:"Correct them privately, afterwards.", w:{insight:2, focus:1}},
+    {t:"Let it stand. The error will collapse on its own.", w:{vision:2, shadow:1}},
+    {t:"Ask the question that lets them find it themselves.", w:{fusion:2, insight:1}}]},
+  {q:"A practice you have kept for years stops giving anything back.", s:"", o:[
+    {t:"Keep it. The keeping is the point.", w:{will:2, focus:1}},
+    {t:"Change one variable and watch what happens.", w:{focus:2, fusion:1}},
+    {t:"Stop, and sit inside the emptiness it leaves.", w:{shadow:2, vision:1}},
+    {t:"Work out what it was for, and go get that directly.", w:{insight:2, will:1}}]},
+  {q:"You are handed a map that contradicts the ground under your feet.", s:"", o:[
+    {t:"Trust the ground.", w:{insight:2, will:1}},
+    {t:"Trust the map. Ground lies too.", w:{vision:2, focus:1}},
+    {t:"Walk until one of them breaks.", w:{will:2, fusion:1}},
+    {t:"Draw a third map out of both.", w:{fusion:2, insight:1}}]},
+  {q:"Your worst trait, described accurately, by someone who likes you.", s:"", o:[
+    {t:"Thank them and write it down word for word.", w:{shadow:2, insight:1}},
+    {t:"Test the claim against three memories.", w:{focus:2, insight:1}},
+    {t:"Notice how fast you wanted to explain.", w:{shadow:2, vision:1}},
+    {t:"Decide what it is good for, and aim it.", w:{fusion:2, will:1}}]},
+  {q:"Two teachers, both credible, teach opposite methods.", s:"", o:[
+    {t:"Follow one of them completely for a season.", w:{focus:2, will:1}},
+    {t:"Take the core they share and drop the rest.", w:{insight:2, fusion:1}},
+    {t:"Build a method neither would endorse.", w:{fusion:2, vision:1}},
+    {t:"Ask what each of them is afraid of.", w:{shadow:2, vision:1}}]},
+  {q:"Recognition arrives for work you no longer respect.", s:"", o:[
+    {t:"Accept it. It buys room for the next work.", w:{focus:2, will:1}},
+    {t:"Say plainly that you would do it differently now.", w:{will:2, shadow:1}},
+    {t:"Let it pass through you without landing.", w:{vision:2, shadow:1}},
+    {t:"Ask why you still wanted it.", w:{shadow:2, insight:1}}]},
+  {q:"The same argument, for the third time, in the third relationship.", s:"", o:[
+    {t:"Name your part in it first, out loud.", w:{shadow:2, insight:1}},
+    {t:"Map the conditions that set it off.", w:{focus:2, insight:1}},
+    {t:"Break it by refusing the next round.", w:{will:2, focus:1}},
+    {t:"Treat the pattern as a message and read it.", w:{vision:2, fusion:1}}]},
+  {q:"You are asked to lead something you only half believe in.", s:"", o:[
+    {t:"Take it and turn it into something you do believe.", w:{fusion:2, will:1}},
+    {t:"Decline. A divided will leaks.", w:{will:2, insight:1}},
+    {t:"Take it, and say the other half out loud on day one.", w:{insight:2, shadow:1}},
+    {t:"Take it for what it teaches, not for what it is.", w:{vision:2, focus:1}}]},
+  {q:"A week of silence. No work permitted.", s:"Be honest about what you would actually do.", o:[
+    {t:"Sleep, walk, and let the floor come up to meet you.", w:{vision:2, shadow:1}},
+    {t:"Plan the whole year in your head.", w:{focus:2, will:1}},
+    {t:"Last two days, and know exactly why.", w:{shadow:2, insight:1}},
+    {t:"Finally read the thing you keep postponing.", w:{insight:2, focus:1}}]},
+  {q:"The result you wanted arrives by luck, not by method.", s:"", o:[
+    {t:"Take it, and rebuild the method anyway.", w:{focus:2, insight:1}},
+    {t:"Take it. The world does not audit causes.", w:{will:2, fusion:1}},
+    {t:"Look for what luck saw that your method missed.", w:{vision:2, insight:1}},
+    {t:"Notice the small relief that it was not your doing.", w:{shadow:2, vision:1}}]},
+  {q:"A belief you hold has become useful to your self-image.", s:"", o:[
+    {t:"Suspect it immediately.", w:{shadow:2, insight:1}},
+    {t:"Keep it. Usefulness is a kind of truth.", w:{will:2, vision:1}},
+    {t:"Argue the opposite for a month and see.", w:{fusion:2, focus:1}},
+    {t:"Ask who you would be without it.", w:{vision:2, shadow:1}}]},
+  {q:"The Great Work asks for the one thing you will not give.", s:"", o:[
+    {t:"Give it slowly, in pieces.", w:{fusion:2, focus:1}},
+    {t:"Give it at once and grieve afterwards.", w:{will:2, shadow:1}},
+    {t:"Find out what it is standing in for.", w:{insight:2, vision:1}},
+    {t:"Keep it, and admit the work will be smaller.", w:{shadow:2, focus:1}}]}
+];
+
+/* ---------------- archetypes ---------------- */
+const ARCHETYPES = {
+  will:{ name:"The Sovereign Flame", epithet:"Will that does not wait for permission",
+    element:"Fire", planet:"Mars", metal:"Iron", solid:"Tetrahedron", stage:"Calcination",
+    core:"You decide early and think while moving. Where others assemble certainty before acting, you treat action as the instrument that produces certainty — and you are usually right often enough to keep doing it. The cost is that your first move sets the terms for everyone around you, whether or not you meant it to.",
+    ascent:"Your ascent is not more force. It is aim. The flame that learns which door to burn becomes a forge; the one that burns every door stays a fire. Choose fewer fronts, hold them longer, and let refusal become as deliberate as attack.",
+    shadowWork:"What you disown is hesitation. You read your own doubt as weakness and cut it off before it can inform you — which means your worst decisions are the ones you made fastest, in the ten seconds after someone questioned you. Practice a held pause of one full day on anything that touches pride.",
+    relational:"You give people ground to stand on and then wonder why they stand on it instead of walking. With those slower to commit, state your certainty as a position rather than a verdict; it lets them disagree without it becoming a contest.",
+    vocation:"Founding, turnarounds, crisis command, anything with a clear front and a real deadline. You are wasted in consensus roles and you already know it.",
+    failure:"Burning a bridge that had traffic on it. Mistaking momentum for direction. Winning an argument you needed to lose.",
+    praxis:"Each morning, name the single thing you will move today and refuse the other four. Each evening, name one place you used force where patience would have worked." },
+  insight:{ name:"The Pneumatic Adept", epithet:"Elevated insight, and the will to use it",
+    element:"Air", planet:"Mercury", metal:"Quicksilver", solid:"Octahedron", stage:"Sublimation",
+    core:"You see mechanism. Given a situation you find the moving part almost immediately, and you can usually say what will happen next. This makes you unusually useful and occasionally unbearable, because the thing you see is often the thing everyone has agreed not to mention.",
+    ascent:"Your ascent runs through embodiment. Understanding arrives fast and cheap for you, which means you can mistake having seen a thing for having done it. Pick one insight per season and stay with it until it costs you something.",
+    shadowWork:"You disown need. Analysis is a very good place to hide, and you retreat into explanation whenever feeling would be the more accurate response. Notice the moment a conversation becomes interesting to you — that is often the moment it became threatening.",
+    relational:"You are drawn to people who are difficult to read and then exhausted by the reading. What you actually want is someone whose interior you do not have to reconstruct. Ask directly; you will be shocked how often people simply answer.",
+    vocation:"Strategy, diagnosis, research, editing, systems design, any role paid for finding the real problem rather than the stated one.",
+    failure:"Solving the room instead of joining it. Endless preparation. Contempt disguised as precision.",
+    praxis:"Say the obvious thing out loud once a day, unhedged. Once a week, do something you cannot be good at yet." },
+  fusion:{ name:"The Alchemical Vessel", epithet:"What others hold apart, you hold together",
+    element:"Water", planet:"Venus", metal:"Copper", solid:"Icosahedron", stage:"Conjunction",
+    core:"You are a synthesist. Contradiction does not frighten you; you hold two opposed things long enough for a third to appear, and that third thing is usually your actual contribution. People bring you their halves.",
+    ascent:"Your ascent is the courage to conclude. Synthesis without a verdict becomes fog, and you have a talent for staying open past the point where openness helps. Set a date by which the vessel is sealed.",
+    shadowWork:"You disown your own preference. Holding every side means never having to be the side, and that neutrality has quietly cost you things you wanted. Ask what you would choose if no one had to be reconciled.",
+    relational:"You translate between people so fluently that you become the connective tissue of every group you enter — and then resent carrying it. State a need before you have understood everyone else's.",
+    vocation:"Mediation, product, design, teaching, collaborative craft, anything that needs two languages spoken at once.",
+    failure:"Dissolving a real conflict that needed to be fought. Absorbing other people's states as your own. Deciding last, and by exhaustion.",
+    praxis:"Each week, take one position you have not softened. Once a day, notice what you actually want before you notice what would keep the peace." },
+  focus:{ name:"The Demiurgic Architect", epithet:"The one who finishes what was only imagined",
+    element:"Earth", planet:"Saturn", metal:"Lead", solid:"Cube", stage:"Coagulation",
+    core:"You make things real. Vision is common and cheap; what you have is the far rarer capacity to hold a structure across months while it is still ugly. You finish, and finishing is a moral quality as much as a practical one.",
+    ascent:"Your ascent is knowing which structures deserve you. Your discipline is strong enough to complete the wrong building, and you have done it before. Interrogate the blueprint harder than the labour.",
+    shadowWork:"You disown spontaneity and call it noise. The plan protects you from the vertigo of not knowing, and you defend the plan hardest exactly when it has stopped serving. Leave one day a week unstructured and sit with the discomfort.",
+    relational:"You show love through reliability and are baffled when people ask for something more demonstrative. They are not asking you to stop building. They are asking to be told where they sit in the drawing.",
+    vocation:"Engineering, operations, architecture, editing, long-form craft, institution-building — anything measured in years.",
+    failure:"Sunk cost dressed as commitment. Correcting a structure that should have been abandoned. Mistaking rigidity for standards.",
+    praxis:"Each quarter, ask of every commitment: would I start this today? Once a month, complete something small in a single sitting." },
+  vision:{ name:"The Gnostic Sage", epithet:"Sees the pattern beneath the event",
+    element:"Aether", planet:"Jupiter", metal:"Gold", solid:"Dodecahedron", stage:"Illumination",
+    core:"You read situations symbolically — not instead of factually, but underneath it. You register meaning, direction and repetition before you register detail, which is why you are often right about where something is going and vague about how it will get there.",
+    ascent:"Your ascent is descent. The pattern must be brought down into a Tuesday afternoon: a specific conversation, a specific sum of money, a specific hour of work. Meaning that never lands becomes atmosphere.",
+    shadowWork:"You disown ordinariness. Framing your life as a story with significance protects you from the plain fact that some of it is simply admin, and the parts you neglect are precisely the unremarkable ones. Do the boring thing at its proper time.",
+    relational:"You see people's potential with unusual clarity and then relate to the potential rather than the person in front of you. They can feel the difference. Meet who is actually there.",
+    vocation:"Writing, teaching, counselling, direction, ritual, brand and narrative work — any craft where meaning is the deliverable.",
+    failure:"Grand frames over unexamined details. Waiting for the right moment. Reading significance into noise.",
+    praxis:"Every insight gets one concrete action within 48 hours or it is discarded. Keep a page of predictions and check them honestly." },
+  shadow:{ name:"The Threshold Walker", epithet:"Fluent in the material other people bury",
+    element:"Water of the Night", planet:"Luna", metal:"Silver", solid:"Vesica Piscis", stage:"Nigredo",
+    core:"You are unusually willing to look at what is unflattering — in yourself first, which is what makes it bearable when you do it to others. You are the person people confess to. You have a working relationship with grief, envy and fear that most of your peers do not.",
+    ascent:"Your ascent is construction. You have made a discipline out of descent and you are very good at it, but insight into the wound is not the same as a life built above it. Spend a season on what you are for, not what you are recovering from.",
+    shadowWork:"Your shadow is, paradoxically, the light: ambition, wanting things plainly, being seen enjoying something. Depth has become an identity, and identity resists being made simple. Let something be uncomplicatedly good.",
+    relational:"You bond fastest in difficulty and can find ease unnervingly flat. Notice whether you are creating intensity in order to feel close, and practise staying present when nothing is wrong.",
+    vocation:"Therapy, chaplaincy, recovery work, crisis roles, memoir, documentary, any work that requires sitting with what does not resolve.",
+    failure:"Mistaking rumination for work. Recruiting others into your depth. Rejecting help that arrives too plainly.",
+    praxis:"Once a week, name one thing you want with no justification attached. Once a day, close the loop on something rather than deepening it." }
+};
+
+/* ---------------- Logos tiers ---------------- */
+const LOGOS_TIERS = [
+  {min:0,  name:"Neophyte",  note:"foundation laid"},
+  {min:34, name:"Initiate",  note:"the pattern is legible"},
+  {min:52, name:"Adept",     note:"consistent across modules"},
+  {min:70, name:"Sovereign", note:"strong under time pressure"},
+  {min:86, name:"Archontier",note:"top band of this instrument"}
+];
+const tierFor = p => LOGOS_TIERS.slice().reverse().find(t => p >= t.min);
+
+/* ---------------- essays ---------------- */
+const ESSAYS = [
+  {id:"soul", title:"The Science of the Soul", kicker:"On what instruments can and cannot reach",
+   body:[
+    "Every personality instrument makes the same wager: that the way a person answers a set of questions today tells you something durable about how they will act on a Thursday in four years. It is a strange wager, and the honest news is that it partly pays off. Broad traits are measurably stable across decades and do predict outcomes — modestly, in aggregate, and never for the individual sitting in the chair.",
+    "The trouble begins where the aggregate meets the person. A trait score is a statement about a distribution. Your life is a single case, run once, with no control group. The instrument can tell you that people who answer as you do tend to move in a particular direction; it cannot tell you that you will.",
+    "This is why the Hermetic tradition, which had no statistics, still had something useful: it treated self-knowledge as a practice rather than a result. You were not given a type. You were given a working image, told to test it against your own conduct, and expected to revise it.",
+    "That is the frame we use here. The Pneuma Map is a working image. Its six traits are not organs; they are a vocabulary compact enough to argue with. When a section names something correctly, the value is in what you do next, not in the naming.",
+    "The soul, if the word means anything workable, is not the thing the instrument measures. It is the thing that reads the measurement and decides whether to change. No test has ever reached it, and no test needs to.",
+    "So read your archetype the way you would read a letter from someone who has been watching you carefully but not for very long. Take what lands. Argue with the rest. Then close the page and go do the thing it named."
+   ]},
+  {id:"parallel", title:"Parallel Selves", kicker:"The many-worlds mirror, used carefully",
+   body:[
+    "The many-worlds interpretation of quantum mechanics is a serious position in the philosophy of physics, and it says nothing whatsoever about your career. We should be clear about that before using it as a mirror, because the borrowing of physics to decorate self-help is how a good metaphor turns into a bad claim.",
+    "Used honestly, the image is still worth something. At each real decision, the person who chose otherwise continues in your imagination — and that imagined figure does real work. Regret is mostly the argument you keep having with them.",
+    "Notice which parallel self you visit. People rarely haunt themselves with the version who took the safer job. Almost always it is the braver one, the one who spoke, the one who left. That asymmetry is data about what you actually value, delivered in the only form your defences will accept.",
+    "There is a discipline in this. Write the parallel life out in specifics — the flat, the hours, the arguments it would have contained. Specificity is fatal to fantasy. Half of these figures dissolve the moment you make them live somewhere.",
+    "The ones that survive the exercise are instructions. Not to reverse the past, which is unavailable, but to identify the quality you did not take with you: the boldness, the honesty, the willingness to be disliked. That quality is portable. It can be brought into the branch you are standing in.",
+    "The mirror closes here. There is one world you can act in, and it is the one where this sentence is being read. The parallel self was only ever a way of getting a message past you."
+   ]},
+  {id:"transition", title:"The Great Transition", kicker:"On living through an era that keeps changing shape",
+   body:[
+    "Every generation believes it stands at a hinge, and most are wrong. What is unusual now is not the feeling but a few plain facts: the tools that mediate thought are being rebuilt in public, institutions people relied on are visibly slower than the problems they face, and the old maps for a working life have stopped matching the ground.",
+    "Movements arrive to meet this, and most of them sell the same thing — certainty, in a period that does not contain any. The mystical version and the technological version are structurally identical. Both promise that if you adopt the frame, the vertigo stops.",
+    "The Hermetic answer is less comfortable and more useful: work on the instrument you are. When conditions change faster than plans, the return on judgement, attention and the capacity to sit with not-knowing goes up, and the return on any specific plan goes down.",
+    "That is not a counsel of passivity. It is a reallocation. Fewer five-year predictions, more reversible experiments. Less identity invested in a role that may be restructured, more in a set of capacities that travel.",
+    "It also means choosing what you will not do. In a period of accelerating noise, refusal is a competence. The people who come through transitions in good shape are rarely the ones who tracked everything; they are the ones who picked a small number of true things and stayed with them while the surface moved.",
+    "So: one instrument, sharpened. A few relationships kept in good repair. Work that would still be worth doing if the frame collapsed. The transition is real, and this is the unglamorous part that actually holds."
+   ]}
+];
+
+/* ---------------- helpers ---------------- */
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j=Math.floor(RNG()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const orn = '<div class="orn"><i>◆</i></div>';
+const isUnlocked = which => State.pro || State.unlocked.has(which);
+
+/* ---------------- routing ---------------- */
+const VIEWS = ["home","oracle","pneuma","logos","anima","typology","soulq","body","past","readings","tarot","trials","results","tiers","essays","community","about"];
+function go(name){
+  if (name === "pneuma-intro"){ renderPneumaIntro(); name = "pneuma"; }
+  else if (name === "logos-intro"){ renderLogosIntro(); name = "logos"; }
+  else if (name === "typology"){ quizIntro(TYPOLOGY); }
+  else if (name === "soulq"){ quizIntro(SOULIQ); }
+  else if (name === "body"){ quizIntro(BODYIQ); }
+  else if (name === "past"){ State.past ? renderPastSummary() : renderPastIntro(); }
+  else if (name === "readings"){ renderReadings(); wireReadings(); }
+  else if (name === "tarot"){ renderTarot(); }
+  else if (name === "trials"){ renderTrials(); }
+  else if (name === "anima" || name === "anima-intro"){ if (!State.anima || name === "anima-intro") renderAnimaIntro(); else renderAnimaSummary(); name = "anima"; }
+  else if (name === "results"){ renderResults(); }
+  else if (name === "oracle"){ renderOracle(); }
+  else if (name === "essays"){ renderEssayList(); }
+  if (!VIEWS.includes(name)) name = "home";
+  State.view = name;
+  VIEWS.forEach(v => { const el = $("#view-"+v); if (el) el.hidden = (v !== name); });
+  $$("[data-go]").forEach(b => {
+    const target = b.dataset.go.replace("-intro","");
+    if (b.closest(".nav") || b.closest(".tabbar")) b.setAttribute("aria-current", target === name ? "page" : "false");
+  });
+  window.scrollTo({top:0, behavior:"instant"});
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-go]");
+  if (b){ e.preventDefault(); go(b.dataset.go); }
+});
+
+/* ---------------- modals ---------------- */
+function modal(html, opts={}){
+  closeModal();
+  const wrap = document.createElement("div");
+  wrap.className = "modal";
+  wrap.innerHTML = '<div class="frame modal__box"><button class="modal__x" aria-label="Close">×</button>'+html+'</div>';
+  wrap.addEventListener("click", e => { if (e.target === wrap && !opts.sticky) closeModal(); });
+  wrap.querySelector(".modal__x").addEventListener("click", closeModal);
+  $("#modal-root").appendChild(wrap);
+  document.addEventListener("keydown", escClose);
+  return wrap;
+}
+function escClose(e){ if (e.key === "Escape") closeModal(); }
+function closeModal(){ $("#modal-root").innerHTML = ""; document.removeEventListener("keydown", escClose); }
+
+function openJoin(){
+  modal(
+    '<p class="eyebrow center">Login or join</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Keep Your Profile</h2>'+orn+
+    '<label class="field"><span>Email</span><input type="email" placeholder="you@domain.com" autocomplete="email"></label>'+
+    '<label class="field"><span>Password</span><input type="password" placeholder="••••••••" autocomplete="current-password"></label>'+
+    '<button class="btn btn--gold btn--wide" id="m-join">Continue</button>'+
+    '<p class="terms">Prototype: accounts are not connected yet. Point this at your auth provider to make it real.</p>'
+  );
+  $("#m-join").onclick = () => { closeModal(); toast("Accounts arrive with the backend — your results are already saved for this session."); };
+}
+
+function openUpgrade(context){
+  const trialEnd = new Date(Date.now() + 3*864e5).toLocaleDateString(undefined,{month:"long",day:"numeric"});
+  modal(
+    '<p class="eyebrow center">Sealed sections</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Open All Ten Sections</h2>'+orn+
+    '<p style="font-size:14.5px">You are reading section 1 of 10. The other nine cover your ascendant path, shadow work, correspondences, relational field, vocation, failure modes, daily praxis — and the synthesis of both instruments together.</p>'+
+    '<div class="stat"><span>Adept · everything, no ads</span><b>$12.99/mo</b></div>'+
+    '<div class="stat"><span>Initiate · this one report</span><b>$1 once</b></div>'+
+    '<div style="display:grid;gap:10px;margin-top:18px">'+
+      '<button class="btn btn--gold btn--wide js-trial">Start 3-day free trial</button>'+
+      '<button class="btn btn--wide js-onetime">Unlock this report · $1</button>'+
+    '</div>'+
+    '<p class="terms">The trial needs a card. On '+trialEnd+' it becomes $12.99 a month unless you cancel first — one tap in Account, and we email you a day before. The $1 unlock is a single charge with nothing to cancel.</p>'
+  );
+}
+
+function openTrial(){
+  const end = new Date(Date.now() + 3*864e5);
+  modal(
+    '<p class="eyebrow center">Adept · 3-day trial</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Three Days, Then $12.99</h2>'+orn+
+    '<label class="field"><span>Card number</span><input inputmode="numeric" placeholder="4242 4242 4242 4242"></label>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
+      '<label class="field"><span>Expiry</span><input placeholder="MM / YY"></label>'+
+      '<label class="field"><span>CVC</span><input inputmode="numeric" placeholder="123"></label>'+
+    '</div>'+
+    '<div class="frame frame--tight" style="margin:4px 0 16px">'+
+      '<div class="stat"><span>Today</span><b>$0.00</b></div>'+
+      '<div class="stat" style="border:0"><span>'+end.toLocaleDateString(undefined,{month:"short",day:"numeric"})+' and monthly after</span><b>$12.99</b></div>'+
+    '</div>'+
+    '<button class="btn btn--gold btn--wide" id="m-trial">Start trial</button>'+
+    '<p class="terms">Cancel before '+end.toLocaleDateString(undefined,{month:"long",day:"numeric"})+' and you are charged nothing. We send a reminder 24 hours before. Prototype: no card is processed — connect Stripe or Play Billing to take real payments.</p>'
+  );
+  $("#m-trial").onclick = () => { State.pro = true; State.trialEndsAt = end; document.body.classList.add("is-pro"); closeModal(); rerender(); toast("Trial started. Ads off, all ten sections open."); };
+}
+
+function openOneTime(){
+  const done = TESTS.filter(t => t.done() && !State.unlocked.has(t.id));
+  if (!done.length){
+    modal('<p class="eyebrow center">Nothing to unlock yet</p><h2 class="dsp h-md center" style="color:var(--ink)">Run an Instrument First</h2>'+orn+
+      '<p style="font-size:14.5px">The single unlock opens one completed test\u2019s full results. Take a test, then come back.</p>'+
+      '<button class="btn btn--gold btn--wide" data-go="oracle">Choose an instrument</button>');
+    return;
+  }
+  modal(
+    '<p class="eyebrow center">Initiate \u00b7 one test</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Unlock One Test for $1</h2>'+orn+
+    '<p style="font-size:14.5px">Full depth on a single instrument, plus the shareable card for that result. Yours permanently.</p>'+
+    '<label class="field"><span>Which test</span><select id="one-pick">'+
+      done.map(t => '<option value="'+t.id+'">'+esc(t.name)+' \u2014 '+esc(t.status())+'</option>').join("")+'</select></label>'+
+    '<label class="field"><span>Card number</span><input inputmode="numeric" placeholder="4242 4242 4242 4242"></label>'+
+    '<button class="btn btn--gold btn--wide" id="m-one">Pay $1</button>'+
+    '<p class="terms">One charge of $1 for one test. No subscription and nothing to cancel. Ads remain on the free tier. Prototype: no card is processed.</p>'
+  );
+  $("#m-one").onclick = () => {
+    const id = $("#one-pick").value;
+    State.unlocked.add(id);
+    closeModal(); rerender();
+    toast((TESTS.find(t => t.id === id) || {name:"That test"}).name+" is open in full, and shareable.");
+  };
+}
+document.addEventListener("click", e => {
+  if (e.target.closest(".js-join"))    openJoin();
+  if (e.target.closest(".js-trial"))   openTrial();
+  if (e.target.closest(".js-onetime")) openOneTime();
+});
+
+/* ---------------- interstitial ad (free tier, every 3rd result view) ---------------- */
+function maybeInterstitial(after){
+  if (State.pro){ after && after(); return; }
+  State.resultViews++;
+  if (State.resultViews % 3 !== 1){ after && after(); return; }
+  const m = modal(
+    '<p class="eyebrow center">Advertisement</p>'+
+    '<div style="border:1px dashed rgba(227,190,109,.3);min-height:230px;display:grid;place-items:center;text-align:center;padding:20px;margin:14px 0">'+
+      '<div><p class="mono" style="letter-spacing:.2em;font-size:11px;color:var(--ink-3);margin:0 0 8px">INTERSTITIAL SLOT · 300×250</p>'+
+      '<p style="font-size:13px;margin:0;color:var(--ink-3)">AdMob interstitial mounts here on the Play Store build.</p></div>'+
+    '</div>'+
+    '<button class="btn btn--wide" id="ad-close">Continue to results</button>'+
+    '<button class="btn btn--gold btn--wide js-trial" style="margin-top:10px">Remove ads · 3-day trial</button>'
+  );
+  $("#ad-close").onclick = () => { closeModal(); after && after(); };
+  m.querySelector(".modal__x").onclick = () => { closeModal(); after && after(); };
+}
+
+/* ---------------- toast ---------------- */
+let toastT;
+function toast(msg){
+  let t = $("#toast");
+  if (!t){ t = document.createElement("div"); t.id = "toast";
+    t.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);bottom:120px;z-index:90;padding:13px 20px;border:1px solid var(--gold-line);background:rgba(10,14,36,.97);color:var(--gold-hi);font:600 11px/1.5 Inter,sans-serif;letter-spacing:.1em;max-width:min(440px,92vw);text-align:center;border-radius:2px;box-shadow:0 20px 50px -20px #000";
+    document.body.appendChild(t); }
+  t.textContent = msg; t.style.opacity = "1";
+  clearTimeout(toastT); toastT = setTimeout(() => { t.style.transition="opacity .5s"; t.style.opacity="0"; }, 3800);
+}
+
+/* ---------------- home + oracle + essays ---------------- */
+function renderHomeArt(){
+  const i = dailyCardIndex();
+  $("#home-orb").innerHTML = '<p class="eyebrow">Card of the day</p>'+crystalBall(124)+
+    '<h3 class="dsp h-md gilt" style="margin-top:6px">'+esc(ARCANA[i].n)+'</h3>'+
+    '<p style="font-size:13.5px;margin-top:8px">'+esc(ARCANA[i].k)+'</p>'+
+    '<button class="btn btn--wide" data-go="tarot" style="margin-top:12px">Open the deck</button>';
+  const sign = (State.anima && State.anima.chart) ? signOf(State.anima.chart.sun).n : SIGNS[new Date().getMonth()].n;
+  $("#home-medallion").innerHTML = zodiacMedallion(sign, 132);
+  $("#home-zstrip").innerHTML = SIGNS.map(s => '<button data-sign="'+s.n+'" title="'+s.n+'">'+s.g+'</button>').join("");
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-sign]"); if (!b) return;
+  const s = SIGNS.find(x => x.n === b.dataset.sign);
+  modal('<p class="eyebrow center">'+esc(s.el)+' \u00b7 '+esc(s.mo)+' \u00b7 ruled by '+esc(s.ruler)+'</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">'+s.g+' '+esc(s.n)+'</h2>'+orn+
+    '<div class="center">'+zodiacMedallion(s.n, 190)+'</div>'+
+    '<p class="lead center" style="margin-top:14px">'+esc(s.line)+'</p>'+
+    '<div class="stat"><span>Significator</span><b>'+esc(MAJORS[s.n].c)+'</b></div>'+
+    '<p class="terms">Star pattern drawn schematically, in the manner of a star atlas rather than survey astrometry.</p>');
+});
+function renderHomeEssays(){
+  $("#home-essays").innerHTML = ESSAYS.map(e =>
+    '<button class="btn btn--ghost" style="justify-content:flex-start;text-align:left;letter-spacing:.06em;text-transform:none;font-size:13.5px" data-essay="'+e.id+'">'+esc(e.title)+' <span class="muted" style="font-size:11px">· '+esc(e.kicker)+'</span></button>'
+  ).join("");
+}
+function renderOracle(){
+  const el = $("#oracle-cards"); el.className = "stack";
+  el.innerHTML = ["Mind","Body","Soul"].map(g =>
+    '<div class="grouprow"><p class="eyebrow center">'+g+'</p><div class="grid-3">'+
+    TESTS.filter(t => t.group === g).map(t => {
+      const done = t.done();
+      return card(t.sigil, t.name, t.meta, t.desc, done ? "Complete · "+esc(t.status()) : null,
+                  t.view, done ? "Take it again" : "Begin", t.reg, t.lore);
+    }).join("")+'</div></div>').join("");
+  const anyDone = TESTS.some(t => t.done());
+  $("#oracle-profile").hidden = !anyDone;
+  $("#oracle-profile").onclick = () => go("results");
+}
+function card(sig,title,meta,desc,status,target,cta,reg,lore){
+  return '<div class="frame" style="text-align:center">'+
+    (reg ? '<div style="margin-bottom:6px">'+tag(reg)+'</div>' : "")+
+    '<svg viewBox="0 0 200 200" style="width:64px;height:64px;color:var(--gold)" aria-hidden="true"><use href="#'+sig+'"/></svg>'+
+    '<h2 class="dsp h-md" style="color:var(--ink);margin-top:10px">'+esc(title)+'</h2>'+
+    (lore ? '<p style="font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim);margin:6px 0 0">'+esc(lore)+'</p>' : "")+
+    '<p class="eyebrow" style="margin:10px 0 14px">'+esc(meta)+'</p>'+
+    '<p style="font-size:14px">'+esc(desc)+'</p>'+
+    (status ? '<p class="pill" style="margin-bottom:14px">'+status+'</p>' : "")+
+    '<button class="btn btn--gold btn--wide" data-go="'+target+'">'+esc(cta)+'</button></div>';
+}
+function renderEssayList(){
+  $("#essay-reader").hidden = true;
+  $("#essay-list").hidden = false;
+  $("#essay-list").innerHTML = ESSAYS.map(e =>
+    '<div class="frame"><p class="eyebrow">'+esc(e.kicker)+'</p>'+
+    '<h2 class="dsp h-md" style="color:var(--ink)">'+esc(e.title)+'</h2>'+
+    '<p style="font-size:14px;margin-top:12px">'+esc(e.body[0].slice(0,132))+'…</p>'+
+    '<button class="btn btn--wide" data-essay="'+e.id+'">Read</button></div>').join("");
+}
+function openEssay(id){
+  const e = ESSAYS.find(x => x.id === id); if (!e) return;
+  State.essay = id;
+  const free = e.body.slice(0,3).map(p => "<p>"+esc(p)+"</p>").join("");
+  const rest = e.body.slice(3).map(p => "<p>"+esc(p)+"</p>").join("");
+  $("#essay-list").hidden = true;
+  const r = $("#essay-reader"); r.hidden = false;
+  r.innerHTML =
+    '<div class="frame" style="max-width:760px;margin:0 auto">'+
+      '<button class="btn btn--ghost" data-go="essays" style="margin-bottom:18px">← All essays</button>'+
+      '<p class="eyebrow">'+esc(e.kicker)+'</p>'+
+      '<h1 class="dsp h-lg" style="color:var(--ink)">'+esc(e.title)+'</h1>'+orn+
+      '<div style="font-size:15.5px;line-height:1.85">'+free+'</div>'+
+      (State.pro
+        ? '<div style="font-size:15.5px;line-height:1.85">'+rest+'</div>'
+        : '<div class="frame frame--tight" style="margin-top:8px;text-align:center">'+
+            '<p class="eyebrow" style="margin-bottom:8px">Advertisement</p>'+
+            '<div style="border:1px dashed rgba(227,190,109,.28);height:92px;display:grid;place-items:center;font:600 9.5px/1 Inter,sans-serif;letter-spacing:.2em;color:var(--ink-3)">IN-ARTICLE SLOT · 300×250</div>'+
+            '<p style="font-size:14px;margin:16px 0 12px">Three more sections of this essay are open to Adepts.</p>'+
+            '<button class="btn btn--gold js-trial">Read the rest, ad-free</button></div>')+
+    '</div>';
+  go("essays"); $("#essay-list").hidden = true; $("#essay-reader").hidden = false;
+  window.scrollTo({top:0});
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-essay]");
+  if (b) openEssay(b.dataset.essay);
+});
+$("#join-go").onclick = () => {
+  const v = $("#join-email").value.trim();
+  if (!/.+@.+\..+/.test(v)) return toast("That email does not look complete — check it and try again.");
+  $("#join-email").value = ""; toast("You are on the list. One message when the circle opens.");
+};

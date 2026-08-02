@@ -1,0 +1,222 @@
+
+/* ============================================================
+   PSYCHEIQ — PROFILES, ENTITLEMENTS, FUNNELS
+   Free    · 1 profile · any 3 tests stored · partial dashboard
+   $1      · stores that one test in full, permanently
+   $12.99  · 2 profiles · every test stored · full dashboard
+   ============================================================ */
+const TESTIDS = ["pneuma","typology","logos","soulq","anima","past"];
+const FREE_SLOTS = 3;
+
+function newProfile(n){ return {name:n || "Profile I", results:{}, slots:[], made:Date.now()}; }
+function activeP(){
+  if (!State.profiles || !State.profiles.length) State.profiles = [newProfile()];
+  if (State.active == null || State.active >= State.profiles.length) State.active = 0;
+  return State.profiles[State.active];
+}
+const maxProfiles = () => State.pro ? 2 : 1;
+const slotLimit   = () => State.pro ? TESTIDS.length : FREE_SLOTS;
+const slotsUsed   = () => activeP().slots.length;
+const slotsLeft   = () => Math.max(0, slotLimit() - slotsUsed());
+
+function canTake(id){
+  const p = activeP();
+  if (State.pro) return true;
+  if (p.slots.includes(id)) return true;      // already one of theirs — retaking is free
+  if (State.unlocked.has(id)) return true;    // bought outright for $1
+  return p.slots.length < FREE_SLOTS;
+}
+function syncFromProfile(){
+  const p = activeP();
+  TESTIDS.forEach(id => { State[id] = p.results[id] || null; });
+}
+function saveResult(id, data){
+  const p = activeP();
+  p.results[id] = data;
+  if (!p.slots.includes(id)) p.slots.push(id);
+  State[id] = data;
+  persistProfiles();
+}
+function clearResult(id){
+  const p = activeP();
+  delete p.results[id];
+  p.slots = p.slots.filter(s => s !== id);
+  State[id] = null;
+  persistProfiles();
+}
+function clearProfile(){
+  const p = activeP();
+  p.results = {}; p.slots = [];
+  TESTIDS.forEach(id => State[id] = null);
+  persistProfiles();
+}
+function persistProfiles(){
+  return Store.set("pq:profiles", {profiles:State.profiles, active:State.active, unlocked:[...State.unlocked]});
+}
+async function loadProfiles(){
+  const d = await Store.get("pq:profiles");
+  if (d && d.profiles && d.profiles.length){
+    State.profiles = d.profiles; State.active = d.active || 0;
+    if (d.unlocked) d.unlocked.forEach(u => State.unlocked.add(u));
+  } else {
+    State.profiles = [newProfile()]; State.active = 0;
+  }
+  syncFromProfile();
+}
+function switchProfile(i){
+  if (i >= maxProfiles()){ return openProfileGate(); }
+  if (!State.profiles[i]) State.profiles[i] = newProfile(i === 1 ? "Profile II" : "Profile "+(i+1));
+  State.active = i; syncFromProfile(); persistProfiles(); rerender();
+  toast("Switched to "+State.profiles[i].name+".");
+}
+
+/* ---------------- clear controls ---------------- */
+function confirmClear(id){
+  const t = TESTS.find(x => x.id === id);
+  modal(
+    '<p class="eyebrow center">Clear a result</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Clear '+esc(t.name)+'?</h2>'+orn+
+    '<p style="font-size:14.5px">This deletes the result from '+esc(activeP().name)+' and frees the slot it occupies. '+
+    (State.unlocked.has(id) ? 'Your $1 unlock for this test stays on the account — retake it whenever you like.' :
+     'It cannot be recovered; you would need to take the test again.')+'</p>'+
+    '<div class="btn-row" style="margin-top:16px"><button class="btn btn--gold" id="cl-yes">Clear it</button>'+
+    '<button class="btn" id="cl-no">Keep it</button></div>');
+  $("#cl-yes").onclick = () => { clearResult(id); closeModal(); rerender(); toast(t.name+" cleared. "+slotsLeft()+" of "+slotLimit()+" slots free."); };
+  $("#cl-no").onclick = closeModal;
+}
+function confirmClearAll(){
+  modal(
+    '<p class="eyebrow center">Clear the dashboard</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Clear Every Result?</h2>'+orn+
+    '<p style="font-size:14.5px">This empties '+esc(activeP().name)+' completely — all '+slotsUsed()+
+    ' stored results and the composite score built from them. Purchases stay on the account.</p>'+
+    '<div class="btn-row" style="margin-top:16px"><button class="btn btn--gold" id="ca-yes">Clear everything</button>'+
+    '<button class="btn" id="ca-no">Cancel</button></div>');
+  $("#ca-yes").onclick = () => { clearProfile(); closeModal(); go("results"); toast("Dashboard cleared. All "+slotLimit()+" slots free."); };
+  $("#ca-no").onclick = closeModal;
+}
+function clearLink(id){
+  return '<button class="linky clearx" data-clear="'+id+'">Clear this result</button>';
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-clear]"); if (b) confirmClear(b.dataset.clear);
+  const a = e.target.closest("[data-profile]"); if (a) switchProfile(+a.dataset.profile);
+});
+
+/* ---------------- conversion funnels ---------------- */
+function afterTest(id){
+  go("results");
+  setTimeout(() => conversionFunnel(id), 700);
+}
+function conversionFunnel(id){
+  if (State.pro) return;
+  const t = TESTS.find(x => x.id === id);
+  const owned = State.unlocked.has(id);
+  const left = slotsLeft();
+  if (owned){
+    // already paid for this one — nudge toward the subscription, gently, once
+    if (State.funnelSeen) return;
+    State.funnelSeen = true;
+    modal('<p class="eyebrow center">Unlocked</p><h2 class="dsp h-md center" style="color:var(--ink)">'+esc(t.name)+' Is Open in Full</h2>'+orn+
+      '<p style="font-size:14.5px">Adept opens the other five instruments at the same depth, adds cross-test analytics, a second profile, and removes the ads — for the price of thirteen single unlocks a year.</p>'+
+      '<button class="btn btn--gold btn--wide js-trial">Start the 3-day trial</button>'+
+      '<button class="btn btn--wide" id="fx-no" style="margin-top:10px">Keep reading</button>');
+    $("#fx-no").onclick = closeModal;
+    return;
+  }
+  modal(
+    '<p class="eyebrow center">'+esc(t.name)+' \u00b7 complete</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">You Are Reading the Surface</h2>'+orn+
+    '<p style="font-size:14.5px">'+esc(t.status() || "Your result")+' is the headline. Underneath it sit the full sections, the shareable card, and the way this result talks to the others.</p>'+
+    '<div class="stat"><span>This test, in full, forever</span><b>$1</b></div>'+
+    '<div class="stat"><span>All six + 2 profiles + no ads</span><b>$12.99/mo</b></div>'+
+    (left > 0
+      ? '<p class="terms">'+left+' of your '+FREE_SLOTS+' free slots '+(left === 1 ? "remains" : "remain")+'.</p>'
+      : '<p class="terms">You have used all '+FREE_SLOTS+' free slots. Clear one to take another test, or open everything.</p>')+
+    '<div style="display:grid;gap:10px;margin-top:14px">'+
+      '<button class="btn btn--gold btn--wide js-trial">Start 3-day free trial</button>'+
+      '<button class="btn btn--wide js-onetime">Unlock this test \u00b7 $1</button>'+
+      '<button class="btn btn--ghost btn--wide" id="fx-later">Not now</button>'+
+    '</div>');
+  $("#fx-later").onclick = closeModal;
+}
+function openSlotGate(id){
+  const t = TESTS.find(x => x.id === id);
+  const p = activeP();
+  modal(
+    '<p class="eyebrow center">Free tier \u00b7 '+FREE_SLOTS+' of '+FREE_SLOTS+' slots used</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Your Three Are Chosen</h2>'+orn+
+    '<p style="font-size:14.5px">The free tier stores any three instruments. You are holding '+
+      p.slots.map(s => esc((TESTS.find(x => x.id === s) || {}).name)).join(", ")+'. '+
+      'To add '+esc(t.name)+', open everything — or clear one of the three and take its place.</p>'+
+    '<div style="display:grid;gap:10px;margin-top:16px">'+
+      '<button class="btn btn--gold btn--wide js-trial">Unlock all six \u00b7 3-day trial</button>'+
+      '<button class="btn btn--wide js-onetime">Buy one test outright \u00b7 $1</button>'+
+    '</div>'+
+    '<p class="eyebrow" style="margin:18px 0 8px">Or clear a slot</p>'+
+    '<div style="display:grid;gap:8px">'+p.slots.map(s => {
+      const x = TESTS.find(y => y.id === s) || {name:s};
+      return '<button class="btn btn--ghost btn--wide" data-clear="'+s+'">Clear '+esc(x.name)+'</button>';
+    }).join("")+'</div>');
+}
+function openProfileGate(){
+  modal('<p class="eyebrow center">Profiles</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">A Second Profile Is an Adept Feature</h2>'+orn+
+    '<p style="font-size:14.5px">Adept accounts carry two full profiles — one for you and one for whoever you keep testing against. Results, dashboards and composite scores stay separate.</p>'+
+    '<button class="btn btn--gold btn--wide js-trial">Start the 3-day trial</button>');
+}
+
+/* ---------------- profile bar + slot meter ---------------- */
+function profileBar(){
+  const p = activeP(), used = slotsUsed(), lim = slotLimit();
+  const tabs = [0,1].map(i => {
+    const prof = State.profiles[i];
+    const locked = i >= maxProfiles();
+    return '<button class="pbtn'+(i === State.active ? " on" : "")+(locked ? " locked" : "")+'" data-profile="'+i+'">'+
+      (prof ? esc(prof.name) : (locked ? "Profile II \u2726" : "New profile"))+'</button>';
+  }).join("");
+  return '<div class="pbar">'+
+    '<div class="pbar__tabs">'+tabs+'</div>'+
+    '<div class="pbar__slots"><span>'+used+' of '+lim+' stored</span>'+
+      '<div class="slotdots">'+Array.from({length:lim}, (_,i) =>
+        '<i class="'+(i < used ? "on" : "")+'"></i>').join("")+'</div></div>'+
+    (used ? '<button class="btn btn--ghost" id="pb-clear">Clear all</button>' : "")+
+  '</div>';
+}
+function wireProfileBar(){
+  const c = $("#pb-clear"); if (c) c.onclick = confirmClearAll;
+}
+
+/* ---------------- free-tier combination insight ---------------- */
+function comboInsight(){
+  const held = TESTIDS.filter(id => State[id]);
+  if (held.length < 2) return "";
+  const names = held.map(id => (TESTS.find(t => t.id === id) || {}).name);
+  const full = shareUnlocked();
+  const pairs = {
+    "pneuma|logos":"Temperament against capacity: what you reach for first, and how much of it you can hold at once.",
+    "pneuma|past":"A disposition and a prior office that keep describing the same reflex from two directions.",
+    "logos|soulq":"Measured reasoning beside self-reported inner life — the two halves people most often score unevenly.",
+    "typology|pneuma":"Two character instruments in conversation; where they disagree is usually the interesting part.",
+    "anima|past":"Sky and prior life, the two mythic readings, which tend to converge on one image.",
+    "soulq|anima":"Stated inner life against the symbolic frame you were handed at birth."
+  };
+  const key = Object.keys(pairs).find(k => k.split("|").every(id => State[id]));
+  const line = key ? pairs[key] : "Three instruments from different registers, which is the combination that produces the most friction — and the most signal.";
+  return '<div class="frame geo" style="margin-top:20px">'+
+    '<p class="eyebrow">Cross-test reading '+tag("T")+'</p>'+
+    '<h3 class="dsp h-md" style="color:var(--ink)">'+esc(names.join(" + "))+'</h3>'+
+    '<p style="font-size:14.5px;margin-top:10px">'+esc(line)+'</p>'+
+    (full
+      ? '<p style="font-size:14.5px">'+esc(synthesisText())+'</p>'
+      : '<p class="teaser">'+esc(synthesisText().slice(0,120))+'…</p>'+
+        '<p class="terms">The full cross-test analysis — where these results reinforce each other, where they contradict, and what that contradiction usually means — is part of the paid reading.</p>'+
+        '<div class="btn-row" style="margin-top:12px"><button class="btn btn--gold js-trial">Open the full dashboard</button>'+
+        '<button class="btn js-onetime">Unlock one test · $1</button></div>')+
+  '</div>';
+}
+
+/* ---------------- shared back control ---------------- */
+function backBtn(label){
+  return '<button class="btn btn--ghost" data-go="oracle">← '+(label || "Back")+'</button>';
+}

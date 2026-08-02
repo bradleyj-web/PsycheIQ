@@ -1,0 +1,310 @@
+<body>
+<div class="starfield" aria-hidden="true"></div>
+
+<!-- ================= SIGIL SPRITE ================= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="sig-nous" viewBox="0 0 200 200">
+      <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="100" cy="100" r="79"/>
+        <path d="M77 44 Q100 22 123 44 Q100 66 77 44Z"/>
+        <circle cx="100" cy="44" r="6.5" fill="currentColor" stroke="none"/>
+        <line x1="100" y1="58" x2="100" y2="170"/>
+        <path d="M100 72C72 86 72 104 100 118 128 132 128 150 100 164"/>
+        <path d="M100 72C128 86 128 104 100 118 72 132 72 150 100 164"/>
+        <path d="M88 70q12-10 24 0"/>
+      </g>
+    </symbol>
+    <symbol id="sig-pneuma" viewBox="0 0 200 200">
+      <g fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round">
+        <circle cx="100" cy="100" r="76"/>
+        <path d="M76 52 Q100 30 124 52 Q100 74 76 52Z"/>
+        <circle cx="100" cy="52" r="6" fill="currentColor" stroke="none"/>
+        <line x1="100" y1="66" x2="100" y2="168"/>
+        <path d="M100 80C74 92 74 110 100 122 126 134 126 152 100 164"/>
+        <path d="M100 80C126 92 126 110 100 122 74 134 74 152 100 164"/>
+      </g>
+    </symbol>
+    <symbol id="sig-logos" viewBox="0 0 200 200">
+      <g fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="100" cy="100" r="76"/>
+        <path d="M100 44 L156 152 L44 152 Z"/>
+        <line x1="100" y1="58" x2="100" y2="166"/>
+        <path d="M100 78C76 90 76 108 100 120 124 132 124 150 100 162"/>
+        <path d="M100 78C124 90 124 108 100 120 76 132 76 150 100 162"/>
+      </g>
+    </symbol>
+    <symbol id="sig-star" viewBox="0 0 200 200">
+      <g fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round">
+        <path d="M100 22 L156 122 L44 122 Z"/>
+        <path d="M100 150 L44 50 L156 50 Z"/>
+        <path d="M78 86 Q100 66 122 86 Q100 106 78 86Z"/>
+        <circle cx="100" cy="86" r="6.5" fill="currentColor" stroke="none"/>
+        <path d="M100 8v12M100 164v14M22 86h12M166 86h12" stroke-linecap="round"/>
+      </g>
+    </symbol>
+    <symbol id="sig-wing" viewBox="0 0 200 200">
+      <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M84 68C60 50 32 48 10 62c24 6 38 16 70 26"/>
+        <path d="M116 68c24-18 52-20 74-6-24 6-38 16-70 26"/>
+        <path d="M88 44 Q100 30 112 44 Q100 58 88 44Z"/>
+        <line x1="100" y1="58" x2="100" y2="176"/>
+        <path d="M100 82C78 94 78 112 100 124 122 136 122 156 100 168"/>
+        <path d="M100 82C122 94 122 112 100 124 78 136 78 156 100 168"/>
+        <circle cx="100" cy="100" r="52" stroke-dasharray="3 9"/>
+      </g>
+    </symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-oracle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="1.2" opacity=".6"/></symbol>
+    <symbol id="i-tier" viewBox="0 0 24 24"><path d="M12 3l9 17H3z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7.5 14h9" stroke="currentColor" stroke-width="1.2"/></symbol>
+    <symbol id="i-scroll" viewBox="0 0 24 24"><path d="M6 4h12v16H6z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 9h6M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.2"/></symbol>
+  </defs>
+</svg>
+
+<!-- ================= MASTHEAD ================= -->
+<header class="masthead">
+  <div class="shell masthead__in">
+    <button class="brand" data-go="home" aria-label="PsycheIQ, home">
+      <svg style="color:var(--gold)"><use href="#sig-nous"/></svg>
+      <b>PSYCHE<br>IQ</b>
+    </button>
+    <nav class="nav" aria-label="Main">
+      <button class="desk" data-go="home">Home</button>
+      <button class="desk" data-go="essays">Gnosis Essays</button>
+      <button class="desk" data-go="oracle">The Oracle (Tests)</button>
+      <button class="desk" data-go="tarot">The Deck</button>
+      <button class="desk" data-go="trials">Trials</button>
+      <button class="desk" data-go="readings">Readings</button>
+      <button class="desk" data-go="tiers">Ascension Tiers</button>
+      <button class="desk" data-go="community">Community</button>
+      <button class="desk" data-go="about">About</button>
+      <span class="pro-badge">✦ Adept</span>
+      <button class="btn js-join">Login / Join</button>
+    </nav>
+  </div>
+</header>
+
+<main class="shell" id="main">
+
+<!-- ================= HOME ================= -->
+<section class="view" id="view-home">
+  <div class="hero">
+    <p class="eyebrow">PsycheIQ · psycheiq.live</p>
+    <div class="gilt-wrap"><h1 class="dsp h-xl gilt">Unveiling Your True Nature</h1></div>
+    <div class="sigil-hero">
+      <div class="halo"></div>
+      <svg viewBox="0 0 200 200" style="color:var(--gold)" aria-hidden="true">
+        <g class="ring" fill="none" stroke="currentColor" stroke-width="2.6" opacity=".9">
+          <circle cx="100" cy="100" r="86" stroke-dasharray="2 10"/>
+        </g>
+        <use href="#sig-nous"/>
+      </svg>
+    </div>
+    <p class="dsp h-md gilt" style="max-width:820px;margin:0 auto 16px;font-size:clamp(1.05rem,2.6vw,1.5rem);line-height:1.4">The world’s first IQ test for the Mind, Body <em style="font-style:normal;color:var(--ink)">and</em> Soul.</p><p class="lead" style="max-width:680px;margin:0 auto">Discover how your mind works, how your body responds, and what gives your life meaning. Seven assessments across three dimensions build one profile — your PsycheIQ Blueprint.</p>
+  </div>
+
+  <div class="gate-grid">
+    <button class="gate" data-go="oracle">
+      <div class="frame">
+        <svg viewBox="0 0 200 200" style="color:var(--gold)" aria-hidden="true"><use href="#sig-logos"/></svg>
+        <h2 class="dsp h-md">🧠 Discover Your Mind</h2>
+        <small>How you think, decide and solve problems<br>Personality · thinking style · reasoning</small>
+      </div>
+    </button>
+    <button class="gate" data-go="body">
+      <div class="frame">
+        <svg viewBox="0 0 200 200" style="color:var(--gold)" aria-hidden="true"><use href="#sig-nous"/></svg>
+        <h2 class="dsp h-md">🧬 Understand Your Body</h2>
+        <small>Energy, stress, habits and instinct<br>Self-awareness, not medical advice</small>
+      </div>
+    </button>
+    <button class="gate" data-go="oracle">
+      <div class="frame">
+        <svg viewBox="0 0 200 200" style="color:var(--gold)" aria-hidden="true"><use href="#sig-star"/></svg>
+        <h2 class="dsp h-md">✨ Explore Your Soul</h2>
+        <small>Meaning, values, intuition and growth<br>Reflective tools for exploring identity</small>
+      </div>
+    </button>
+  </div>
+
+  <div class="orn"><i>◆</i></div>
+
+  <div class="grid-3">
+    <div class="frame center" id="home-orb"></div>
+    <div class="frame center">
+      <p class="eyebrow">Read your sky</p>
+      <div id="home-medallion"></div>
+      <p style="font-size:14px;margin-top:12px">Twelve constellations, drawn as star charts. Tap one for its pattern and its office.</p>
+      <div class="zstrip" id="home-zstrip"></div>
+    </div>
+    <div class="frame">
+      <p class="eyebrow">Latest gnosis</p>
+      <div class="stack" id="home-essays"></div>
+    </div>
+    <div class="frame">
+      <p class="eyebrow">Ascension tiers</p>
+      <p style="font-size:14px">Read one section free. Open all ten, drop the ads, and see how your two results speak to each other.</p>
+      <div class="stat"><span>Seeker</span><b>Free</b></div>
+      <div class="stat"><span>Initiate · one report</span><b>$1</b></div>
+      <div class="stat"><span>Adept · everything</span><b>$12.99/mo</b></div>
+      <button class="btn btn--wide" data-go="tiers" style="margin-top:16px">Compare tiers</button>
+    </div>
+    <div class="frame">
+      <p class="eyebrow">The instruments</p>
+      <p style="font-size:14px">The <b style="color:var(--gold-hi)">Pneuma Map</b> charts six traits — will, insight, fusion, focus, vision, shadow — and names your dominant archetype.</p>
+      <p style="font-size:14px;margin:0">The <b style="color:var(--gold-hi)">Logos Matrix</b> scores systemic logic, mental geometry and recall span, then places you on the tier ladder.</p>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <p class="eyebrow center">From the circle</p>
+  <div class="grid-3">
+    <div class="frame frame--tight"><p class="lead" style="font-size:1.05rem;margin-bottom:12px">"The shadow section named the thing I've been avoiding for a decade. I read it twice."</p><p class="muted" style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin:0">Placeholder — replace with a real reader quote</p></div>
+    <div class="frame frame--tight"><p class="lead" style="font-size:1.05rem;margin-bottom:12px">"I came for the mysticism and stayed for the matrix puzzles. Module three is genuinely hard."</p><p class="muted" style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin:0">Placeholder — replace with a real reader quote</p></div>
+    <div class="frame frame--tight"><p class="lead" style="font-size:1.05rem;margin-bottom:12px">"The synthesis page is the part I sent to three friends."</p><p class="muted" style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin:0">Placeholder — replace with a real reader quote</p></div>
+  </div>
+</section>
+
+<!-- ================= ORACLE ================= -->
+<section class="view" id="view-oracle" hidden>
+  <p class="eyebrow center">The Oracle</p>
+  <div class="gilt-wrap"><h1 class="dsp h-lg gilt center">Choose Your Instrument</h1></div>
+  <div class="orn"><i>◆</i></div>
+  <div class="grid-2" id="oracle-cards"></div>
+  <div class="center" style="margin-top:26px"><button class="btn btn--gold" id="oracle-profile" hidden>Open my Hermetic Nous profile</button></div>
+</section>
+
+<!-- ================= TESTS + RESULTS (rendered) ================= -->
+<section class="view" id="view-anima" hidden></section>
+<section class="view" id="view-typology" hidden></section>
+<section class="view" id="view-soulq" hidden></section>
+<section class="view" id="view-past" hidden></section>
+<section class="view" id="view-readings" hidden></section>
+<section class="view" id="view-tarot" hidden></section>
+<section class="view" id="view-trials" hidden></section>
+<section class="view" id="view-body" hidden></section>
+<section class="view" id="view-pneuma" hidden></section>
+<section class="view" id="view-logos" hidden></section>
+<section class="view" id="view-results" hidden></section>
+
+<!-- ================= TIERS ================= -->
+<section class="view" id="view-tiers" hidden>
+  <p class="eyebrow center">Ascension Tiers</p>
+  <div class="gilt-wrap"><h1 class="dsp h-lg gilt center">Read One Section, or All Ten</h1></div>
+  <div class="orn"><i>◆</i></div>
+  <div class="grid-3">
+    <div class="frame price">
+      <p class="eyebrow">Seeker</p>
+      <div class="amt">Free</div><div class="per">no card</div>
+      <ul>
+        <li>Both instruments, in full</li>
+        <li>Your archetype and your tier</li>
+        <li>Section 1 of 10: core signature</li>
+        <li class="no">Sections 2–10 stay sealed</li>
+        <li class="no">Banner and between-result ads</li>
+      </ul>
+      <button class="btn btn--wide" data-go="oracle">Start a test</button>
+    </div>
+    <div class="frame price price--feature">
+      <p class="eyebrow" style="color:var(--gold)">Adept · most chosen</p>
+      <div class="amt">$12.99</div><div class="per">per month</div>
+      <ul>
+        <li>All 10 sections, both profiles</li>
+        <li>Hermetic Synthesis: Pneuma × Logos</li>
+        <li>Personal praxis and shadow work</li>
+        <li>Downloadable crest for sharing</li>
+        <li>No ads, anywhere</li>
+      </ul>
+      <button class="btn btn--gold btn--wide js-trial">Start 3-day free trial</button>
+      <p class="terms">Your card is charged $12.99 when the 3-day trial ends. Cancel any time before then from Account and you pay nothing. We email you the day before the trial ends. Renews monthly until cancelled.</p>
+    </div>
+    <div class="frame price">
+      <p class="eyebrow">Initiate</p>
+      <div class="amt">$1</div><div class="per">once, one report</div>
+      <ul>
+        <li>All 10 sections for one result</li>
+        <li>Yours permanently</li>
+        <li>Downloadable crest</li>
+        <li class="no">Second report still sealed</li>
+        <li class="no">Ads remain</li>
+      </ul>
+      <button class="btn btn--wide js-onetime">Unlock one report · $1</button>
+      <p class="terms">A single charge of $1. No subscription, nothing to cancel.</p>
+    </div>
+  </div>
+  <div class="frame" style="margin-top:20px">
+    <p class="eyebrow">Billing, plainly</p>
+    <p style="font-size:14px;margin:0">Trials need a card because the subscription starts automatically when they end — that is the part people miss, so we say it twice and email you before it happens. Cancelling takes one tap in Account and keeps your access until the paid period runs out. Prices are in USD and include no hidden add-ons.</p>
+  </div>
+</section>
+
+<!-- ================= ESSAYS ================= -->
+<section class="view" id="view-essays" hidden>
+  <p class="eyebrow center">Gnosis Essays</p>
+  <div class="gilt-wrap"><h1 class="dsp h-lg gilt center">Pillars of the Work</h1></div>
+  <div class="orn"><i>◆</i></div>
+  <div class="grid-3" id="essay-list"></div>
+  <div id="essay-reader" hidden></div>
+</section>
+
+<!-- ================= COMMUNITY ================= -->
+<section class="view" id="view-community" hidden>
+  <p class="eyebrow center">Community</p>
+  <div class="gilt-wrap"><h1 class="dsp h-lg gilt center">The Circle Opens Soon</h1></div>
+  <div class="orn"><i>◆</i></div>
+  <div class="frame" style="max-width:640px;margin:0 auto;text-align:center">
+    <p>Shared readings, monthly matrix trials, and a room for people working through the same shadow material. We are building it slowly and on purpose.</p>
+    <label class="field" style="text-align:left;margin-top:20px"><span>Email for the opening notice</span><input type="email" id="join-email" placeholder="you@domain.com" autocomplete="email"></label>
+    <button class="btn btn--gold btn--wide" id="join-go">Tell me when it opens</button>
+    <p class="terms" style="text-align:left">One message when the circle opens, plus the occasional essay. Unsubscribe in a click.</p>
+  </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section class="view" id="view-about" hidden>
+  <p class="eyebrow center">About</p>
+  <div class="gilt-wrap"><h1 class="dsp h-lg gilt center">As Above, So Below</h1></div>
+  <div class="orn"><i>◆</i></div>
+  <div class="grid-2">
+    <div class="frame">
+      <p class="eyebrow">What this is</p>
+      <p>The Hermetic Nous pairs a reflective personality instrument with a set of cognitive puzzles, then reads them together. The language is Hermetic because that is the tradition the frame comes from: know the pattern, work the pattern, change the pattern.</p>
+      <p style="margin:0">Your answers stay in your browser for the length of the session. Nothing is sold on.</p>
+    </div>
+    <div class="frame">
+      <p class="eyebrow">What this is not</p>
+      <p>The Pneuma Map is a mirror, not a diagnosis. It has no clinical validity and should never stand in for a conversation with a professional.</p>
+      <p style="margin:0">The Logos Matrix uses task families that resemble those in cognitive testing — matrix reasoning, mental rotation, digit span — but it is not a normed or supervised IQ test, and the tier you receive is a label inside this site, not a score you can carry elsewhere.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="foot shell">
+  <div class="orn"><i>◆</i></div>
+  <p class="mark">PSYCHEIQ · AS ABOVE, SO BELOW</p>
+  <div class="btn-row" style="margin:16px 0 4px"><button class="btn btn--ghost" data-go="community">Community</button><button class="btn btn--ghost" data-go="about">About</button></div>
+  <div class="social" aria-hidden="true"><span>ƒ</span><span>✦</span><span>✕</span><span>◎</span></div>
+  <p class="fine">PsycheIQ offers instruments for reflection. The Logos Matrix is an unsupervised exercise, not a clinical or normed IQ assessment, and no result here is medical, psychological or financial advice.</p>
+  <p class="fine">© 2026 PsycheIQ · psycheiq.live</p>
+</footer>
+
+<!-- ================= DOCK: ad rail + mobile tabs ================= -->
+<div class="dock">
+  <div class="adbar">
+    <div class="slotbox">Ad slot · 320×50 / 728×90 · AdMob or AdSense mounts here</div>
+    <button class="btn js-trial">Remove ads</button>
+  </div>
+  <nav class="tabbar" aria-label="Sections">
+    <button data-go="home"><svg><use href="#i-home"/></svg>Home</button>
+    <button data-go="oracle"><svg><use href="#i-oracle"/></svg>Oracle</button>
+    <button data-go="readings"><svg><use href="#sig-star"/></svg>Readings</button>
+    <button data-go="trials"><svg><use href="#i-tier"/></svg>Trials</button>
+    <button data-go="tarot"><svg><use href="#i-scroll"/></svg>Deck</button>
+  </nav>
+</div>
+
+<div id="modal-root"></div>

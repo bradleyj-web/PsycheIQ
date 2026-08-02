@@ -1,0 +1,187 @@
+
+/* ============================================================
+   THE ANIMA FIELD — data
+   Zodiac · starseed lineage · soul family · tarot significator
+   Every block carries an epistemic register:
+     M = Measured  (replicable observation)
+     T = Modeled   (real theory, contested or interpretive)
+     Y = Mythic    (symbolic; not an empirical claim)
+   ============================================================ */
+const REGISTERS = {
+  M:{glyph:"◇", label:"Measured", note:"Replicable observation. You could check this yourself with instruments."},
+  T:{glyph:"◈", label:"Modeled",  note:"A real theory or framework, contested or interpretive at the edges."},
+  Y:{glyph:"✦", label:"Mythic",   note:"Symbolic and traditional. Read for meaning, not for mechanism."}
+};
+function tag(r){
+  const x = REGISTERS[r];
+  return '<span class="reg reg--'+r+'" title="'+esc(x.note)+'">'+x.glyph+' '+x.label+'</span>';
+}
+
+const SIGNS = [
+  {n:"Aries",       g:"♈", el:"Fire",  mo:"Cardinal", ruler:"Mars",    key:"ignition",   line:"Begins things. The cost of a fast start is a short memory for what it interrupted."},
+  {n:"Taurus",      g:"♉", el:"Earth", mo:"Fixed",    ruler:"Venus",   key:"holding",    line:"Holds ground and holds value. Slow to move, slower to be moved."},
+  {n:"Gemini",      g:"♊", el:"Air",   mo:"Mutable",  ruler:"Mercury", key:"transmission",line:"Carries messages between worlds that would otherwise not speak."},
+  {n:"Cancer",      g:"♋", el:"Water", mo:"Cardinal", ruler:"Moon",    key:"containment",line:"Makes a vessel. What it protects, it also encloses."},
+  {n:"Leo",         g:"♌", el:"Fire",  mo:"Fixed",    ruler:"Sun",     key:"radiance",   line:"Generates rather than reflects. Needs a witness and resents needing one."},
+  {n:"Virgo",       g:"♍", el:"Earth", mo:"Mutable",  ruler:"Mercury", key:"refinement", line:"Corrects toward the true form. Mistakes the correction for the work."},
+  {n:"Libra",       g:"♎", el:"Air",   mo:"Cardinal", ruler:"Venus",   key:"weighing",   line:"Holds the scales. Delays the verdict past the point of usefulness."},
+  {n:"Scorpio",     g:"♏", el:"Water", mo:"Fixed",    ruler:"Pluto",   key:"transmutation",line:"Goes to the bottom of things. Rarely returns with nothing."},
+  {n:"Sagittarius", g:"♐", el:"Fire",  mo:"Mutable",  ruler:"Jupiter", key:"the arrow",  line:"Aims past the horizon. Arrives without luggage."},
+  {n:"Capricorn",   g:"♑", el:"Earth", mo:"Cardinal", ruler:"Saturn",  key:"the ascent", line:"Builds the stair while climbing it. Counts the cost afterwards."},
+  {n:"Aquarius",    g:"♒", el:"Air",   mo:"Fixed",    ruler:"Uranus",  key:"the signal", line:"Stands outside the circle and describes it accurately. Belonging is the unsolved problem."},
+  {n:"Pisces",      g:"♓", el:"Water", mo:"Mutable",  ruler:"Neptune", key:"dissolution",line:"Loses the edges between self and field. Finds what nobody else was listening for."}
+];
+const signOf = lon => SIGNS[Math.floor((((lon % 360) + 360) % 360) / 30)];
+const degIn  = lon => (((lon % 360) + 360) % 360) % 30;
+
+/* --- starseed lineages: mythic reading + the real object in the sky --- */
+const LINEAGES = [
+  {id:"pleiadian", n:"Pleiadian", star:"The Pleiades · M45",
+   mark:"Warmth used as an instrument. You regulate rooms without being asked and you feel the temperature of a group before anyone speaks.",
+   mission:"To make the harsh survivable — to be the person other people can afford to be honest around.",
+   shadow:"Absorbing states that were never yours, then resenting the people who handed them over.",
+   sky:"An open cluster about 444 light years away, roughly 100 million years old — young enough that its stars are still wrapped in the reflection nebula you see in photographs. Tracked as a seasonal marker by Māori (Matariki), Japanese (Subaru), Greek and Lakota traditions independently.",
+   science:"Those stars are too young for planets with any long biological history, which is exactly why the lineage should be read as a symbol of temperament rather than a claim about origin."},
+  {id:"sirian", n:"Sirian", star:"Sirius A & B · α Canis Majoris",
+   mark:"Structure as devotion. You are drawn to systems, orders and disciplines, and you keep them long after the enthusiasm has gone.",
+   mission:"To carry a transmission intact — teaching, craft, lineage, code — across a generation that would otherwise drop it.",
+   shadow:"Confusing the preservation of a form with the life inside it.",
+   sky:"The brightest star in the night sky, 8.6 light years out, and a binary: Sirius B is a white dwarf, the burnt-out core of a star that was once the larger of the pair. Its heliacal rising set the Egyptian calendar and the Nile flood year.",
+   science:"The Dogon-knew-about-Sirius-B story is the usual proof offered. The anthropology is contested — the fieldwork dates to the 1930s, after the companion star was in European print — so hold it as folklore rather than evidence."},
+  {id:"arcturian", n:"Arcturian", star:"Arcturus · α Boötis",
+   mark:"Correction. You see the deviation from true before you see the thing itself, and you cannot unsee it.",
+   mission:"To bring precision where enthusiasm has outrun accuracy.",
+   shadow:"Fixing what was already good enough, and calling other people careless for stopping.",
+   sky:"A red giant 37 light years away, already past the hydrogen-burning stage — a preview of what our own Sun becomes. It moves fast against the background sky; Arcturus is a halo star, passing through the galactic disc rather than orbiting with it.",
+   science:"That last part is measured, and it is the better metaphor: a body that is genuinely not from around here, only passing through."},
+  {id:"lyran", n:"Lyran", star:"Vega · α Lyrae",
+   mark:"Origin energy. You start rather than join, and you carry an old, hard-to-source certainty about what is yours to do.",
+   mission:"To open a line — the first of something, which others will refine.",
+   shadow:"Contempt for maintenance. Leaving before the thing you began can stand on its own.",
+   sky:"Vega is 25 light years away, rotates so fast it is visibly flattened, and carries a debris disc — the raw material of planet formation. It was the pole star around 12000 BCE and will be again around 13700 CE.",
+   science:"The precession that moves the pole star is measured and cyclical, which is where a great deal of 'ages' symbolism actually comes from."},
+  {id:"andromedan", n:"Andromedan", star:"The Andromeda Galaxy · M31",
+   mark:"Distance as a native condition. You have never fully believed you were from here, and freedom is the value you will not trade.",
+   mission:"To keep an exit visible for people who have forgotten there is one.",
+   shadow:"Leaving pre-emptively. Confusing unattachment with liberation.",
+   sky:"Not a star but a galaxy — a trillion suns, 2.5 million light years out, and the most distant thing visible to the unaided eye. It is falling toward us at about 110 km/s and will merge with the Milky Way in roughly 4.5 billion years.",
+   science:"The merger is measured and predicted. Even the farthest thing you can see is on its way home, which is a better reading of this lineage than exile."},
+  {id:"orion", n:"Orion", star:"The Orion Nebula · M42",
+   mark:"Polarity. You know the taste of both sides of a conflict from the inside, usually because you have been both.",
+   mission:"To resolve a war that started before you — in a family, a field, or yourself.",
+   shadow:"Recreating the conflict in order to keep solving it.",
+   sky:"A stellar nursery 1,300 light years away where new stars are forming right now, visible as the middle 'star' of Orion's sword. The belt stars align with the Giza pyramids only approximately, and the correlation theory is not accepted by Egyptology.",
+   science:"Held as mythic, the nursery is the honest image: the place where things are still being made and nothing has settled yet."},
+  {id:"draconian", n:"Draconian", star:"Thuban · α Draconis",
+   mark:"Sovereignty and appetite. You want, plainly, and you have been made to feel that the wanting is the problem.",
+   mission:"To hold power without apologising for it and without letting it become the only thing.",
+   shadow:"Dominance where partnership was available.",
+   sky:"Thuban was the pole star around 2700 BCE, when the Great Pyramid's descending passage was aligned to it. It is not especially bright now; the sky's centre moved.",
+   science:"Every fixed point in this sky is temporary. That is measured, and it is the whole teaching of this lineage."},
+  {id:"terran", n:"Terran", star:"Sol · here",
+   mark:"Rootedness. Your work is with matter, bodies, land, money, food, repair — the unglamorous substrate everyone else's cosmology depends on.",
+   mission:"To be entirely present in one place, which is rarer than any origin story.",
+   shadow:"Suspicion of anything that cannot be weighed, including your own interior.",
+   sky:"An unremarkable G-type star, 4.6 billion years old, one of perhaps 200 billion in this galaxy. Every atom heavier than helium in your body was made in a star that died before the Sun existed.",
+   science:"That last sentence is measured, verified by stellar spectroscopy, and is the most extraordinary claim on this page."}
+];
+
+/* 10-item lineage questionnaire; each option loads two lineages */
+const LIN_Q = [
+  {q:"The first thing you notice on entering a room.", o:[
+    {t:"Who is uncomfortable.", w:{pleiadian:2, orion:1}},
+    {t:"How it is organised.", w:{sirian:2, arcturian:1}},
+    {t:"The exits.", w:{andromedan:2, draconian:1}},
+    {t:"The state of the building itself.", w:{terran:2, lyran:1}}]},
+  {q:"Where the childhood strangeness sat.", o:[
+    {t:"You felt older than the adults.", w:{sirian:2, arcturian:1}},
+    {t:"You felt you had been left here.", w:{andromedan:2, lyran:1}},
+    {t:"You felt everything everyone else felt.", w:{pleiadian:2, orion:1}},
+    {t:"You felt entirely at home and still do.", w:{terran:2, draconian:1}}]},
+  {q:"Your relationship with authority.", o:[
+    {t:"I become it, quickly.", w:{draconian:2, lyran:1}},
+    {t:"I correct it.", w:{arcturian:2, orion:1}},
+    {t:"I keep a distance from it.", w:{andromedan:2, terran:1}},
+    {t:"I serve a good one gladly.", w:{sirian:2, pleiadian:1}}]},
+  {q:"What exhausts you fastest.", o:[
+    {t:"Imprecision.", w:{arcturian:2, sirian:1}},
+    {t:"Other people's unspoken feelings.", w:{pleiadian:2, orion:1}},
+    {t:"Being contained.", w:{andromedan:2, draconian:1}},
+    {t:"Abstraction with nothing under it.", w:{terran:2, lyran:1}}]},
+  {q:"Night sky, alone, no obligation.", o:[
+    {t:"A specific longing, with no object.", w:{andromedan:2, pleiadian:1}},
+    {t:"Scale, and a strange calm.", w:{terran:2, arcturian:1}},
+    {t:"Recognition, like a returned look.", w:{sirian:2, lyran:1}},
+    {t:"Very little. The ground is more interesting.", w:{draconian:2, orion:1}}]},
+  {q:"How you begin things.", o:[
+    {t:"First, and alone.", w:{lyran:2, draconian:1}},
+    {t:"By studying who did it before.", w:{sirian:2, arcturian:1}},
+    {t:"By gathering the people.", w:{pleiadian:2, terran:1}},
+    {t:"By leaving whatever I was in.", w:{andromedan:2, orion:1}}]},
+  {q:"The conflict you keep meeting.", o:[
+    {t:"Two sides I can both argue.", w:{orion:2, andromedan:1}},
+    {t:"Standards nobody else will hold.", w:{arcturian:2, sirian:1}},
+    {t:"Wanting more than I am supposed to.", w:{draconian:2, lyran:1}},
+    {t:"Carrying more than is mine.", w:{pleiadian:2, terran:1}}]},
+  {q:"What you would protect at cost.", o:[
+    {t:"A body of knowledge.", w:{sirian:2, arcturian:1}},
+    {t:"A person.", w:{pleiadian:2, terran:1}},
+    {t:"A freedom.", w:{andromedan:2, draconian:1}},
+    {t:"A beginning nobody else believes in.", w:{lyran:2, orion:1}}]},
+  {q:"Your body, honestly.", o:[
+    {t:"A vehicle I keep forgetting.", w:{andromedan:2, arcturian:1}},
+    {t:"An instrument I maintain.", w:{terran:2, sirian:1}},
+    {t:"An appetite I have argued with.", w:{draconian:2, orion:1}},
+    {t:"An antenna. It knows first.", w:{pleiadian:2, lyran:1}}]},
+  {q:"If the work were finished tomorrow.", o:[
+    {t:"I would start something entirely new.", w:{lyran:2, andromedan:1}},
+    {t:"I would teach it.", w:{sirian:2, pleiadian:1}},
+    {t:"I would refine it further.", w:{arcturian:2, orion:1}},
+    {t:"I would rest, and mean it.", w:{terran:2, draconian:1}}]}
+];
+
+/* soul families: the pairing of temperament and lineage */
+const FAMILIES = [
+  {n:"The Firekeepers",   l:"Keep something burning that predates you — a craft, a family line, a standard nobody else is holding."},
+  {n:"The Cartographers", l:"Map ground before it is settled. Others will build on your survey and forget it was yours."},
+  {n:"The Ferrymen",      l:"Move people across thresholds — grief, change, initiation — and then go back for the next one."},
+  {n:"The Architects",    l:"Build containers that outlast the builder. Your work is judged in decades, not seasons."},
+  {n:"The Witnesses",     l:"See accurately and say so. The function is unglamorous and load-bearing."},
+  {n:"The Weavers",       l:"Join separated threads. Half your value is invisible because you prevented the tear."},
+  {n:"The Wardens",       l:"Hold a boundary so that something fragile inside it can grow. You will be called rigid."},
+  {n:"The Alchemists",    l:"Take the unbearable and return it usable. The cost is that you must go in each time."}
+];
+
+/* Golden Dawn zodiac → Major Arcana correspondence (traditional, unaltered) */
+const MAJORS = {
+  Aries:{c:"IV · The Emperor", l:"Structure imposed by will. The card of someone who would rather be responsible than free."},
+  Taurus:{c:"V · The Hierophant", l:"Transmission through form. What is worth keeping is worth teaching exactly."},
+  Gemini:{c:"VI · The Lovers", l:"Choice between two goods. The card is about discrimination, not romance."},
+  Cancer:{c:"VII · The Chariot", l:"Armour with a soft interior, moving anyway. Direction held by opposing forces."},
+  Leo:{c:"XI · Strength", l:"The lion is not defeated. It is calmed by a hand that is not afraid of it."},
+  Virgo:{c:"IX · The Hermit", l:"Withdrawal that produces a light for others. Refinement in private."},
+  Libra:{c:"XI · Justice", l:"Weight, measure, consequence. The card refuses to average two truths."},
+  Scorpio:{c:"XIII · Death", l:"Ending as an operation, not a punishment. The only card that promises nothing survives unchanged."},
+  Sagittarius:{c:"XIV · Temperance", l:"Two vessels, one stream. The art of the exact proportion."},
+  Capricorn:{c:"XV · The Devil", l:"The chains are loose. The card asks what you gain by staying bound."},
+  Aquarius:{c:"XVII · The Star", l:"After the tower, water poured onto land and into water. Repair, in the open."},
+  Pisces:{c:"XVIII · The Moon", l:"The path between the towers, walked without full sight. Dream-logic and true instinct, indistinguishable."}
+};
+
+/* science grounding notes, surfaced beside the mythic material */
+const GROUND = {
+  manifest:{r:"T", t:"Consciousness and physical reality",
+    b:"The strongest real mechanism behind 'you construct your reality' is predictive processing: the brain generates a model and updates it on error, so attention and expectation genuinely change what you perceive and act on. That is measured. The leap from there to bending external matter is not — quantum measurement involves a device and decoherence, not an observer's mind, and this is the single most common misuse of physics in this field."},
+  simulation:{r:"T", t:"Simulation theory",
+    b:"Bostrom's 2003 argument is a trilemma, not a claim: either civilisations die before running ancestor simulations, or they choose not to, or we are almost certainly in one. It is a live philosophical argument with no empirical test yet proposed that has survived scrutiny. Hold it as a frame that makes the Gnostic cosmology legible to a modern reader — which is exactly what it is good for."},
+  strings:{r:"T", t:"Extra dimensions",
+    b:"String theory requires 10 or 11 dimensions mathematically, with the extra ones compactified below any scale we can probe. No experimental confirmation exists. The resemblance to emanationist cosmologies — planes nested inside planes — is a resemblance, and a useful one for thinking, not evidence for either."},
+  gnosis:{r:"M", t:"Where the texts came from",
+    b:"The Nag Hammadi codices were found in Egypt in 1945: thirteen leather-bound papyrus books, buried around 350 CE, containing the Gospel of Thomas and the core Sethian material. The Corpus Hermeticum was dated by Isaac Casaubon in 1614 to roughly 100–300 CE, not to Egyptian antiquity — which demolished its prestige and, as it turned out, none of its usefulness."},
+  precession:{r:"M", t:"Ages and precession",
+    b:"Earth's axis wobbles on a 25,772-year cycle, which slides the equinox backwards through the constellations at about one sign every 2,150 years. That motion is measured and it is where the language of 'ages' comes from. Where the Aquarian age begins depends entirely on which constellation boundary you accept, which is why estimates range across four centuries."},
+  jung:{r:"T", t:"Archetypes, honestly",
+    b:"Jung's archetypes are a clinical and comparative framework, not a neuroscientific finding. Cross-cultural recurrence of motifs is real and documented; the inherited collective unconscious proposed to explain it is not established. The framework earns its place by being useful in the consulting room, which is a different kind of true."},
+  types:{r:"T", t:"Type instruments",
+    b:"MBTI-style types show poor test-retest reliability and force continuous traits into binaries; the Enneagram has almost no peer-reviewed validation. Both persist because the descriptions give people language for something real. Treat any type you receive here as a vocabulary, never as a boundary."}
+};

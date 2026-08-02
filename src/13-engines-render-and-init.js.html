@@ -1,0 +1,909 @@
+/* ============================================================
+   THE PNEUMA PERSONALITY MAP
+   ============================================================ */
+const POTENTIAL = (() => {
+  const p = {}; TKEYS.forEach(k => p[k] = 0);
+  DILEMMAS.forEach(d => TKEYS.forEach(k => {
+    p[k] += Math.max(0, ...d.o.map(o => o.w[k] || 0));
+  }));
+  return p;
+})();
+let PRun = null;
+
+function renderPneumaIntro(){
+  $("#view-pneuma").innerHTML =
+    '<div class="frame" style="max-width:720px;margin:0 auto;text-align:center">'+
+      '<svg viewBox="0 0 200 200" style="width:74px;height:74px;color:var(--gold)"><use href="#sig-pneuma"/></svg>'+
+      '<p class="eyebrow" style="margin-top:14px">The Pneuma Personality Map</p>'+
+      '<h1 class="dsp h-lg" style="color:var(--ink)">Fourteen Dilemmas</h1>'+orn+
+      '<p class="lead">There are no right answers and no scoring for virtue. Choose what you would actually do, not what you would like to have done — the map is only as good as your honesty.</p>'+
+      '<div class="btn-row" style="margin-top:22px"><button class="btn btn--gold" id="p-start">Begin the map</button>'+
+      '<button class="btn" data-go="oracle">Back to the Oracle</button></div>'+
+    '</div>';
+  $("#p-start").onclick = startPneuma;
+}
+function startPneuma(){ PRun = {i:0, answers:[]}; renderDilemma(); }
+
+function renderDilemma(){
+  const d = DILEMMAS[PRun.i], n = DILEMMAS.length, pct = Math.round(PRun.i/n*100);
+  $("#view-pneuma").innerHTML =
+    '<div class="frame" style="max-width:780px;margin:0 auto">'+
+      '<div class="test-head"><svg style="color:var(--gold)" viewBox="0 0 200 200"><use href="#sig-pneuma"/></svg>'+
+        '<h2 class="dsp h-md" style="color:var(--ink)">The Pneuma Dilemma</h2></div>'+
+      '<div class="qmeta"><span>Dilemma '+(PRun.i+1)+' of '+n+'</span><span>'+pct+'% mapped</span></div>'+
+      '<div class="meter"><i style="width:'+pct+'%"></i></div>'+
+      '<p class="q-text">'+esc(d.q)+'</p>'+
+      (d.s ? '<p class="q-sub">'+esc(d.s)+'</p>' : '<div style="height:14px"></div>')+
+      '<div class="opts">'+d.o.map((o,i) =>
+        '<button class="opt" data-opt="'+i+'"><span class="key">'+"ABCD"[i]+'</span><span>'+esc(o.t)+'</span></button>').join("")+
+      '</div>'+
+      '<div class="nav-row">'+
+        (PRun.i > 0 ? '<button class="btn btn--ghost" id="p-back">← Previous</button>' : '<span></span>')+
+        '<button class="btn btn--ghost" data-go="oracle">← Back to the Oracle</button>'+
+      '</div>'+
+    '</div>';
+  $$("[data-opt]", $("#view-pneuma")).forEach(b => b.onclick = () => {
+    b.classList.add("sel");
+    PRun.answers[PRun.i] = +b.dataset.opt;
+    setTimeout(() => { PRun.i++; PRun.i >= DILEMMAS.length ? finishPneuma() : renderDilemma(); }, 190);
+  });
+  const back = $("#p-back"); if (back) back.onclick = () => { PRun.i--; renderDilemma(); };
+}
+
+function finishPneuma(){
+  const raw = {}; TKEYS.forEach(k => raw[k] = 0);
+  PRun.answers.forEach((ai,qi) => {
+    const w = DILEMMAS[qi].o[ai].w;
+    for (const k in w) raw[k] += w[k];
+  });
+  const ratio = {}, pct = {};
+  TKEYS.forEach(k => {
+    ratio[k] = raw[k] / POTENTIAL[k];
+    pct[k] = Math.max(18, Math.min(96, Math.round(20 + ratio[k] * 95)));
+  });
+  const order = TKEYS.slice().sort((a,b) => ratio[b] - ratio[a]);
+  saveResult("pneuma", {raw, pct, order, key:order[0], archetype:ARCHETYPES[order[0]],
+    kindred:pickKindred("pneuma","trait",order[0])});
+  afterTest("pneuma");
+}
+
+/* ============================================================
+   THE LOGOS INTELLECTUAL MATRIX
+   ============================================================ */
+const SHAPES = ["circle","square","diamond","triangle","hexagon"];
+const FILLS = ["none","half","solid"];
+const MODULES = [
+  {key:"systemic", name:"Systemic Logic",  blurb:"Complete the matrix. Each row and column follows a rule.", n:8},
+  {key:"geometry", name:"Mental Geometry", blurb:"OBJECTIVE: the target figure is shown once at the top. Exactly one of the four options below is that same figure turned on the spot — rotated, never flipped. The other three are its mirror image, which can never be produced by rotation. Find the rotation.", n:6},
+  {key:"memory",   name:"Working Memory",  blurb:"Watch the sequence, then enter it.", n:6}
+];
+let LRun = null, LTimer = null, memTimeouts = [];
+
+function shapeSVG(a, size){
+  size = size || 40;
+  const c = size/2, r = size*0.34;
+  const fill = a.fill === "none" ? "none" : (a.fill === "solid" ? "#E3BE6D" : "url(#halfFill)");
+  let el;
+  if (a.shape === "circle") el = '<circle cx="'+c+'" cy="'+c+'" r="'+r+'"/>';
+  else if (a.shape === "square") el = '<rect x="'+(c-r)+'" y="'+(c-r)+'" width="'+(2*r)+'" height="'+(2*r)+'"/>';
+  else if (a.shape === "diamond") el = '<polygon points="'+c+','+(c-r*1.15)+' '+(c+r*1.15)+','+c+' '+c+','+(c+r*1.15)+' '+(c-r*1.15)+','+c+'"/>';
+  else if (a.shape === "triangle") el = '<polygon points="'+c+','+(c-r*1.1)+' '+(c+r)+','+(c+r*0.8)+' '+(c-r)+','+(c+r*0.8)+'"/>';
+  else { const pts = []; for (let i=0;i<6;i++){ const t = Math.PI/6 + i*Math.PI/3; pts.push((c+r*Math.cos(t)).toFixed(1)+","+(c+r*Math.sin(t)).toFixed(1)); } el = '<polygon points="'+pts.join(" ")+'"/>'; }
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" aria-hidden="true">'+
+    '<g transform="rotate('+(a.rot||0)+' '+c+' '+c+')" fill="'+fill+'" stroke="#E3BE6D" stroke-width="1.7" opacity=".95">'+el+'</g></svg>';
+}
+function genMatrix(level){
+  const shapes = shuffle(SHAPES.slice()).slice(0,3);
+  const fills  = shuffle(FILLS.slice()).slice(0,3);
+  const latin  = level >= 2 && RNG() < .65;
+  const byRow  = RNG() < .5;
+  const rots   = level >= 3 ? [0,45,90] : null;
+  const cell = (r,c) => ({
+    shape: shapes[latin ? (r+c)%3 : (byRow ? r : c)],
+    fill:  fills[latin ? (r+2*c)%3 : (byRow ? c : r)],
+    rot:   rots ? rots[(r+c)%3] : 0
+  });
+  const grid = [];
+  for (let r=0;r<3;r++){ const row=[]; for (let c=0;c<3;c++) row.push(cell(r,c)); grid.push(row); }
+  const answer = grid[2][2];
+  const key = a => a.shape+"|"+a.fill+"|"+(a.rot||0);
+  const seen = new Set([key(answer)]);
+  const opts = [answer];
+  let guard = 0;
+  while (opts.length < 6 && guard++ < 200){
+    const d = {shape:answer.shape, fill:answer.fill, rot:answer.rot};
+    const which = Math.floor(RNG()*(rots?3:2));
+    if (which === 0) d.shape = shapes[Math.floor(RNG()*3)];
+    else if (which === 1) d.fill = fills[Math.floor(RNG()*3)];
+    else d.rot = rots[Math.floor(RNG()*3)];
+    if (RNG() < .35) d.fill = fills[Math.floor(RNG()*3)];
+    if (!seen.has(key(d))){ seen.add(key(d)); opts.push(d); }
+  }
+  const shuffled = shuffle(opts.slice());
+  return {grid, options:shuffled, correct:shuffled.findIndex(o => key(o) === key(answer))};
+}
+
+/* --- mental rotation --- */
+const rot90 = p => ({x:p.y, y:-p.x});
+const mir   = p => ({x:-p.x, y:p.y});
+function norm(pts){
+  const minX = Math.min(...pts.map(p=>p.x)), minY = Math.min(...pts.map(p=>p.y));
+  return pts.map(p => ({x:p.x-minX, y:p.y-minY}));
+}
+function sig(pts){
+  const f = norm(pts).map(p=>p.x+","+p.y).join(" ");
+  const b = norm(pts.slice().reverse()).map(p=>p.x+","+p.y).join(" ");
+  return f < b ? f : b;
+}
+function rotN(pts,n){ let out = pts; for (let i=0;i<n;i++) out = out.map(rot90); return norm(out); }
+function genRotationItem(){
+  for (let attempt=0; attempt<300; attempt++){
+    const pts = [{x:0,y:0}]; const used = new Set(["0,0"]);
+    for (let i=0;i<4;i++){
+      const cand = shuffle([{dx:1,dy:0},{dx:-1,dy:0},{dx:0,dy:1},{dx:0,dy:-1}]);
+      let placed = false;
+      for (const c of cand){
+        const p = {x:pts[pts.length-1].x + c.dx, y:pts[pts.length-1].y + c.dy};
+        if (!used.has(p.x+","+p.y) && Math.abs(p.x) < 4 && Math.abs(p.y) < 4){ pts.push(p); used.add(p.x+","+p.y); placed = true; break; }
+      }
+      if (!placed) break;
+    }
+    if (pts.length < 5) continue;
+    const rotSigs = new Set([0,1,2,3].map(n => sig(rotN(pts,n))));
+    const mirrored = pts.map(mir);
+    const mirSigs = [0,1,2,3].map(n => sig(rotN(mirrored,n)));
+    if (mirSigs.some(s => rotSigs.has(s))) continue;      // not chiral — retry
+    if (rotSigs.size < 4) continue;                        // rotationally symmetric — retry
+    const k = 1 + Math.floor(RNG()*3);
+    const correct = rotN(pts,k);
+    const wrongs = shuffle([0,1,2,3]).slice(0,3).map(n => rotN(mirrored,n));
+    const options = shuffle([correct, ...wrongs]);
+    return {target:norm(pts), options, correct:options.indexOf(correct)};
+  }
+  return genRotationItem();
+}
+function pathSVG(pts, size){
+  size = size || 92;
+  const maxX = Math.max(...pts.map(p=>p.x)), maxY = Math.max(...pts.map(p=>p.y));
+  const span = Math.max(maxX, maxY, 1), pad = .55, unit = size/(span + pad*2);
+  const X = p => (p.x + pad) * unit, Y = p => (p.y + pad) * unit;
+  const d = pts.map((p,i) => (i ? "L" : "M") + X(p).toFixed(1) + " " + Y(p).toFixed(1)).join(" ");
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" aria-hidden="true">'+
+    '<path d="'+d+'" fill="none" stroke="#E3BE6D" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>'+
+    '<circle cx="'+X(pts[0]).toFixed(1)+'" cy="'+Y(pts[0]).toFixed(1)+'" r="4.6" fill="#F9E7B4"/></svg>';
+}
+
+/* --- shell --- */
+function renderLogosIntro(){
+  $("#view-logos").innerHTML =
+    '<div class="frame" style="max-width:720px;margin:0 auto;text-align:center">'+
+      '<svg viewBox="0 0 200 200" style="width:74px;height:74px;color:var(--gold)"><use href="#sig-logos"/></svg>'+
+      '<p class="eyebrow" style="margin-top:14px">The Logos Intellectual Matrix</p>'+
+      '<h1 class="dsp h-lg" style="color:var(--ink)">Three Modules</h1>'+orn+
+      '<div style="text-align:left;max-width:460px;margin:0 auto">'+
+        MODULES.map((m,i) => '<div class="stat"><span>Module '+(i+1)+' · '+esc(m.name)+'</span><b>'+m.n+' items</b></div>').join("")+
+      '</div>'+
+      '<p style="font-size:14px;margin-top:20px">Work without interruption if you can — the timer runs from the first item. Difficulty rises as you go.</p>'+
+      '<div class="btn-row" style="margin-top:20px"><button class="btn btn--gold" id="l-start">Enter the matrix</button>'+
+      '<button class="btn" data-go="oracle">Back to the Oracle</button></div>'+
+      '<p class="terms" style="text-align:left;margin-top:20px">This is an unsupervised exercise built on task families used in cognitive testing. It is not a normed or clinical IQ test, and the tier it returns is a label inside this site.</p>'+
+    '</div>';
+  $("#l-start").onclick = startLogos;
+}
+function startLogos(){
+  LRun = {mod:0, i:0, correct:[0,0,0], span:0, t0:Date.now(), sel:null, memInput:[], memSeq:[], memPhase:"show", memSpanTrial:0};
+  clearInterval(LTimer);
+  LTimer = setInterval(() => { const el = $("#l-clock"); if (el) el.textContent = clock(); }, 1000);
+  nextItem();
+}
+function clock(){
+  if (!LRun) return "0:00";
+  const s = Math.floor((Date.now() - LRun.t0)/1000);
+  return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+}
+function nextItem(){
+  const m = MODULES[LRun.mod];
+  if (LRun.i >= m.n){ LRun.mod++; LRun.i = 0; if (LRun.mod >= MODULES.length) return finishLogos(); }
+  LRun.sel = null;
+  const key = MODULES[LRun.mod].key;
+  if (key === "systemic") LRun.item = genMatrix(LRun.i < 3 ? 1 : LRun.i < 6 ? 2 : 3);
+  else if (key === "geometry") LRun.item = genRotationItem();
+  else return startMemoryTrial();
+  renderLogos();
+}
+function logosShell(inner){
+  const m = MODULES[LRun.mod];
+  const total = MODULES.reduce((a,x)=>a+x.n,0);
+  const done = MODULES.slice(0,LRun.mod).reduce((a,x)=>a+x.n,0) + LRun.i;
+  const pct = Math.round(done/total*100);
+  const diff = LRun.mod === 0 ? (LRun.i < 3 ? "Initiate" : LRun.i < 6 ? "Adept" : "Sovereignty") : (LRun.i < 3 ? "Adept" : "Sovereignty");
+  return '<div class="test-head"><svg style="color:var(--gold)" viewBox="0 0 200 200"><use href="#sig-logos"/></svg>'+
+      '<h2 class="dsp h-md" style="color:var(--ink)">The Logos Matrix</h2></div>'+
+    '<div class="mod-grid" style="margin-top:20px">'+
+      '<div class="frame">'+
+        '<div class="qmeta"><span>Module '+(LRun.mod+1)+' · '+esc(m.name)+'</span><span>Item '+(LRun.i+1)+' of '+m.n+'</span></div>'+
+        '<p style="font-size:13.5px;color:var(--ink-3);margin:0 0 6px">'+esc(m.blurb)+'</p>'+
+        inner+
+      '</div>'+
+      '<div class="stack">'+
+        '<div class="frame frame--tight">'+
+          '<div class="qmeta"><span>Module progress</span><span>'+pct+'%</span></div>'+
+          '<div class="meter"><i style="width:'+pct+'%"></i></div>'+
+          '<div class="stat" style="margin-top:14px"><span>Time elapsed</span><b id="l-clock">'+clock()+'</b></div>'+
+          '<div class="stat" style="border:0"><span>Current difficulty</span><b>'+diff+' tier</b></div>'+
+        '</div>'+
+        '<div class="mod-strip">'+MODULES.map((x,i) =>
+          '<div class="mod-card'+(i === LRun.mod ? " on" : "")+'"><h4>Module '+(i+1)+'</h4><p>'+esc(x.name)+
+          (i < LRun.mod ? ' · <span style="color:var(--gold)">'+LRun.correct[i]+'/'+x.n+'</span>' : "")+'</p></div>').join("")+
+        '</div>'+
+        '<button class="btn btn--ghost" data-go="oracle">← Back to the Oracle</button>'+
+      '</div>'+
+    '</div>';
+}
+function renderLogos(){
+  const key = MODULES[LRun.mod].key, it = LRun.item;
+  let inner = "";
+  if (key === "systemic"){
+    inner = '<div class="matrix">'+it.grid.map((row,r) => row.map((a,c) =>
+        (r === 2 && c === 2) ? '<div class="mcell miss">?</div>' : '<div class="mcell">'+shapeSVG(a,42)+'</div>').join("")).join("")+'</div>'+
+      '<p class="eyebrow center" style="margin:6px 0 0">Which completes it?</p>'+
+      '<div class="opt-grid">'+it.options.map((a,i) =>
+        '<button class="opt-tile" data-pick="'+i+'"><em>'+"ABCDEF"[i]+'</em>'+shapeSVG(a,40)+'</button>').join("")+'</div>';
+  } else {
+    inner = '<p class="eyebrow center" style="margin:18px 0 6px">Target figure</p>'+
+      '<div class="center">'+pathSVG(it.target,104)+'</div>'+
+      '<p class="eyebrow center" style="margin:14px 0 0">Which one is this figure rotated?</p>'+
+      '<div class="opt-grid">'+it.options.map((p,i) =>
+        '<button class="opt-tile" data-pick="'+i+'"><em>'+"ABCD"[i]+'</em>'+pathSVG(p,88)+'</button>').join("")+'</div>';
+  }
+  inner += '<div class="nav-row"><span></span><button class="btn btn--gold" id="l-submit" disabled>Submit solution</button></div>';
+  $("#view-logos").innerHTML = logosShell(inner);
+  $$("[data-pick]").forEach(b => b.onclick = () => {
+    $$("[data-pick]").forEach(x => x.classList.remove("sel"));
+    b.classList.add("sel"); LRun.sel = +b.dataset.pick; $("#l-submit").disabled = false;
+  });
+  $("#l-submit").onclick = () => {
+    if (LRun.sel === LRun.item.correct) LRun.correct[LRun.mod]++;
+    LRun.i++; nextItem();
+  };
+}
+
+/* --- module 3: working memory --- */
+const MEM_TRIALS = [{n:4,rev:false},{n:5,rev:false},{n:5,rev:true},{n:6,rev:true},{n:7,rev:true},{n:8,rev:true}];
+function startMemoryTrial(){
+  const t = MEM_TRIALS[LRun.i];
+  if (!LRun.memReady){
+    $("#view-logos").innerHTML = logosShell(
+      '<p class="eyebrow center" style="margin-top:22px">Module 3 \u00b7 Working Memory</p>'+
+      '<p class="q-text center" style="font-size:1.25rem">OBJECTIVE: a sequence of symbols will flash, one at a time. Hold them, then enter them back \u2014 in order for the first two rounds, backwards after that.</p>'+
+      '<div class="stat"><span>This round</span><b>'+t.n+' symbols, '+(t.rev ? "reversed" : "in order")+'</b></div>'+
+      '<div class="stat" style="border:0"><span>Rounds remaining</span><b>'+(MEM_TRIALS.length - LRun.i)+'</b></div>'+
+      '<div class="btn-row" style="margin-top:20px"><button class="btn btn--gold" id="mem-start">Start the sequence</button></div>');
+    $("#mem-start").onclick = () => { LRun.memReady = true; startMemoryTrial(); };
+    return;
+  }
+  LRun.memReady = false;
+  LRun.memSeq = Array.from({length:t.n}, () => 1 + Math.floor(Math.random()*8));
+  LRun.memInput = []; LRun.memPhase = "show"; LRun.shown = 0;
+  memTimeouts.forEach(clearTimeout); memTimeouts = [];
+  renderMemory();
+  LRun.memSeq.forEach((d,i) => {
+    memTimeouts.push(setTimeout(() => { LRun.shown = i+1; renderMemory(); }, i*820 + 500));
+  });
+  memTimeouts.push(setTimeout(() => { LRun.memPhase = "recall"; renderMemory(); }, LRun.memSeq.length*820 + 900));
+}
+function renderMemory(){
+  const t = MEM_TRIALS[LRun.i];
+  let inner;
+  if (LRun.memPhase === "show"){
+    const shown = LRun.shown || 0;
+    inner = '<p class="eyebrow center" style="margin-top:20px">'+(t.rev ? "Recall in reverse" : "Recall in order")+' · '+t.n+' symbols</p>'+
+      '<div class="seq">'+(shown ? '<b>'+LRun.memSeq[shown-1]+'</b>' : '<span class="muted" style="font-size:13px">watch…</span>')+'</div>'+
+      '<div class="meter" style="max-width:280px;margin:10px auto"><i style="width:'+Math.round(shown/t.n*100)+'%"></i></div>';
+  } else {
+    inner = '<p class="eyebrow center" style="margin-top:20px">Enter the sequence '+(t.rev ? "backwards" : "in order")+'</p>'+
+      '<div class="slot">'+Array.from({length:t.n},(_,i) =>
+        '<i class="'+(LRun.memInput[i] ? "filled" : "")+'">'+(LRun.memInput[i] || "")+'</i>').join("")+'</div>'+
+      '<div class="pad">'+[1,2,3,4,5,6,7,8].map(d => '<button data-key="'+d+'">'+d+'</button>').join("")+'</div>'+
+      '<div class="nav-row"><button class="btn btn--ghost" id="m-del">Delete</button>'+
+      '<button class="btn btn--gold" id="m-ok"'+(LRun.memInput.length === t.n ? "" : " disabled")+'>Submit sequence</button></div>';
+  }
+  $("#view-logos").innerHTML = logosShell(inner);
+  if (LRun.memPhase === "recall"){
+    $$("[data-key]").forEach(b => b.onclick = () => {
+      if (LRun.memInput.length < t.n){ LRun.memInput.push(+b.dataset.key); renderMemory(); }
+    });
+    $("#m-del").onclick = () => { LRun.memInput.pop(); renderMemory(); };
+    $("#m-ok").onclick = () => {
+      const target = t.rev ? LRun.memSeq.slice().reverse() : LRun.memSeq;
+      if (LRun.memInput.join() === target.join()){ LRun.correct[2]++; LRun.span = Math.max(LRun.span, t.n); }
+      LRun.i++; nextItem();
+    };
+  }
+}
+
+function finishLogos(){
+  clearInterval(LTimer);
+  const sys = LRun.correct[0]/MODULES[0].n, geo = LRun.correct[1]/MODULES[1].n, mem = LRun.correct[2]/MODULES[2].n;
+  const secs = Math.floor((Date.now()-LRun.t0)/1000);
+  const par = 720;                                  // 12 minutes is par for the battery
+  const speed = Math.max(0, Math.min(1, (par - secs)/par));
+  const percent = Math.round((sys*40 + geo*30 + mem*30)*0.9 + speed*10);
+  const band = p => p >= .85 ? "Ascendant" : p >= .65 ? "Elite" : p >= .45 ? "Consistent" : p >= .25 ? "Emerging" : "Latent";
+  const domModule = [["systemic",sys],["geometry",geo],["memory",mem]].sort((a,b)=>b[1]-a[1])[0][0];
+  saveResult("logos", {
+    systemic:{correct:LRun.correct[0], of:MODULES[0].n, band:band(sys)},
+    geometry:{correct:LRun.correct[1], of:MODULES[1].n, grade:Math.max(1, Math.ceil(geo*5))},
+    memory:{correct:LRun.correct[2], of:MODULES[2].n, span:LRun.span || 3,
+            label:(LRun.span >= 7 ? "Ascendant recall" : LRun.span >= 6 ? "Sovereign recall" : LRun.span >= 5 ? "Steady recall" : "Foundational recall")},
+    percent, tier:tierFor(percent), seconds:secs, speed:Math.round(speed*100),
+    domModule, kindred:pickKindred("logos","module",domModule)
+  });
+  afterTest("logos");
+}
+
+/* ============================================================
+   RESULTS
+   ============================================================ */
+const PATHS = {will:"Path of the Forged Will", insight:"Path of the Illuminated Adept", fusion:"Path of the Sealed Vessel",
+  focus:"Path of the Builder's Line", vision:"Path of the Seeing Eye", shadow:"Path of the Night Crossing"};
+const STAGES = {
+  Calcination:"the burning away of what pride has been holding in place",
+  Sublimation:"the raising of raw material into something that can be worked with",
+  Conjunction:"the joining of two things that were kept apart for good reasons",
+  Coagulation:"the setting of the work into a form that can bear weight",
+  Illumination:"the moment the pattern becomes visible and must then be lived",
+  Nigredo:"the blackening, where honest descent precedes anything real"
+};
+const SECTIONS = [
+  {t:"Core Signature",            f:(a) => a.core},
+  {t:"Your Trait Spectrum",       f:(a,c) => spectrumText(c)},
+  {t:"The Ascendant Path",        f:(a) => a.ascent},
+  {t:"Shadow Integration",        f:(a) => a.shadowWork},
+  {t:"Correspondences",           f:(a) => "Element "+a.element+" · Planet "+a.planet+" · Metal "+a.metal+" · Solid "+a.solid+". These are mnemonics rather than forces: a compact way of remembering that your temperament runs "+a.element.toLowerCase()+"-wise, and that the "+a.solid.toLowerCase()+" is the figure to hold in mind when you want to recall how you are built."},
+  {t:"Stage of the Great Work",   f:(a) => "You are working in "+a.stage+" — "+STAGES[a.stage]+". Expect the next twelve months to ask for that operation specifically, and expect to resist it in the exact way the archetype predicts."},
+  {t:"The Relational Field",      f:(a) => a.relational},
+  {t:"Vocation and Craft",        f:(a) => a.vocation},
+  {t:"Failure Modes",             f:(a) => a.failure+" None of these are fatal. All of them are recognisable in advance, which is the only real advantage a map gives you."},
+  {t:"Daily Praxis",              f:(a) => a.praxis}
+];
+function spectrumText(c){
+  const p = State.pneuma;
+  const hi = c.order[0], mid = c.order[1], lo = c.order[5];
+  return "Your spectrum peaks at "+TRAITS[hi].label+" ("+p.pct[hi]+"%), supported by "+TRAITS[mid].label+" ("+p.pct[mid]+"%). "+
+    "That pairing means you "+TRAITS[hi].short+" and then "+TRAITS[mid].short+" — in that order, under pressure. "+
+    "Your quietest register is "+TRAITS[lo].label+" ("+p.pct[lo]+"%), which is where most of your friction with other people originates: not from what you do well, but from assuming everyone allocates attention the way you do.";
+}
+function synthesisText(){
+  const p = State.pneuma, l = State.logos;
+  const art = n => (/^[AEIOU]/.test(n) ? "an " : "a ") + n;
+  if (p && l) return "You are "+art(p.archetype.name.replace(/^The /,""))+" carrying a logos result in the "+l.tier.name+
+    " band — "+l.tier.note+". Temperament sets the direction, the matrix sets the resolution: your first move is to "+
+    TRAITS[p.order[0]].short+", and you can hold that at "+l.percent+
+    "% of this instrument's range. The work in front of you is to spend that capacity on fewer things.";
+  if (p) return "You have mapped the pneuma but not yet the logos. "+p.archetype.name+" describes the direction you move; the matrix would tell you at what resolution you can hold it. Run the second instrument to see them together.";
+  return "You have run the matrix but not the map. The tier tells you how much you can hold at once; the Pneuma Map would tell you what you reach for first. Run the first instrument to see them together.";
+}
+function radarSVG(){
+  const p = State.pneuma, size = 380, c = size/2, R = size*0.35;
+  const pt = (i, rad) => { const ang = -Math.PI/2 + i*Math.PI/3;
+    return [(c + Math.cos(ang)*rad).toFixed(1), (c + Math.sin(ang)*rad).toFixed(1)]; };
+  let rings = "";
+  [.25,.5,.75,1].forEach(f => {
+    const pts = TKEYS.map((_,i) => pt(i, R*f).join(",")).join(" ");
+    rings += '<polygon points="'+pts+'" fill="none" stroke="#E3BE6D" stroke-width="1" opacity="'+(f===1?.42:.16)+'"/>';
+  });
+  let axes = "", labels = "";
+  TKEYS.forEach((k,i) => {
+    const [x,y] = pt(i, R);
+    axes += '<line x1="'+c+'" y1="'+c+'" x2="'+x+'" y2="'+y+'" stroke="#E3BE6D" stroke-width="1" opacity=".18"/>';
+    const [lx,ly] = pt(i, R+30);
+    const anchor = Math.abs(lx-c) < 6 ? "middle" : (lx > c ? "start" : "end");
+    labels += '<text x="'+lx+'" y="'+ly+'" fill="#98A0C2" font-family="Inter,sans-serif" font-size="9.5" letter-spacing="1.4" text-anchor="'+anchor+'">'+
+      TRAITS[k].label.toUpperCase()+'</text>'+
+      '<text x="'+lx+'" y="'+(+ly+13)+'" fill="#E3BE6D" font-family="Cinzel,serif" font-size="12" text-anchor="'+anchor+'">'+TRAITS[k].glyph+' '+p.pct[k]+'%</text>';
+  });
+  const data = TKEYS.map((k,i) => pt(i, R*(p.pct[k]/100)).join(",")).join(" ");
+  const dots = TKEYS.map((k,i) => { const [x,y] = pt(i, R*(p.pct[k]/100));
+    return '<circle cx="'+x+'" cy="'+y+'" r="3.6" fill="#F9E7B4"/>'; }).join("");
+  return '<svg class="radar" viewBox="-80 -26 '+(size+180)+' '+(size+52)+'" role="img" aria-label="Pneuma trait spectrum">'+
+    rings+axes+
+    '<g class="poly" style="transform-origin:'+c+'px '+c+'px">'+
+      '<polygon points="'+data+'" fill="rgba(227,190,109,.2)" stroke="#E3BE6D" stroke-width="2.2"/>'+dots+'</g>'+
+    labels+'</svg>';
+}
+function renderResults(){
+  const p = State.pneuma, l = State.logos, a = State.anima;
+  const open = isTestUnlocked("pneuma");
+  const any = p || l || a || State.typology || State.soulq || State.past;
+  const V = $("#view-results");
+  if (!any){
+    V.innerHTML = '<div class="frame center" style="max-width:620px;margin:0 auto"><p class="eyebrow">No profile yet</p>'+
+      '<h1 class="dsp h-lg" style="color:var(--ink)">Nothing to Read</h1>'+orn+
+      '<p>Run any instrument and your profile builds itself here.</p>'+
+      '<button class="btn btn--gold" data-go="oracle">Choose an instrument</button></div>';
+    return;
+  }
+  const ctx = p ? {order:p.order} : null;
+  const sealed = SECTIONS.slice(1).map(x => x.t);
+  V.innerHTML =
+    '<div class="test-head" style="justify-content:flex-start;gap:12px">'+
+      '<svg style="color:var(--gold)" viewBox="0 0 200 200"><use href="#sig-nous"/></svg>'+
+      '<div><p class="eyebrow" style="margin:0">PsycheIQ</p>'+
+      '<h1 class="dsp h-md" style="color:var(--ink)">Your PsycheIQ Blueprint</h1></div>'+
+    '</div>'+orn+
+    profileBar()+
+    blueprint()+
+    scoreBlock()+
+    '<div class="grid-2">'+pneumaPanel(p)+typologyPanel()+'</div>'+
+    '<div class="grid-2" style="margin-top:20px">'+logosPanel(l)+soulqPanel()+'</div>'+
+    '<div class="grid-2" style="margin-top:20px">'+bodyPanel()+'<div></div></div>'+
+    '<div class="frame" style="margin-top:20px;text-align:center">'+
+      '<p class="eyebrow">Hermetic synthesis</p>'+
+      '<h2 class="dsp h-md" style="color:var(--ink)">Your Life Path</h2>'+orn+
+      '<p style="font-size:15px;max-width:760px;margin:0 auto 4px">'+esc(synthesisText())+'</p>'+
+      (p ? '<h3 class="dsp h-md gilt" style="margin:20px 0 16px">'+esc(PATHS[p.key])+'</h3>' : "")+
+      '<div class="btn-row">'+
+        '<button class="btn" data-go="readings">Book a live reading</button>'+
+        (shareUnlocked() ? '<button class="btn btn--gold" id="crest-dl">Share your card</button>'
+              : '<button class="btn btn--gold js-upgrade">Unlock sharing and full depth</button>')+
+      '</div>'+
+    '</div>'+
+    (p ? '<div class="frame" style="margin-top:20px"><p class="eyebrow center">Pneuma trait spectrum</p>'+radarSVG()+'</div>' : "")+
+    comboInsight()+
+    animaBlock()+
+    growthBlock()+
+    synthesisBlock()+
+    karmaBlock()+
+    '<div style="margin-top:20px">'+pastPanel()+'</div>'+
+    (p ? sectionsBlock(p, ctx, open) : "")+
+    (!shareUnlocked() ? '<div class="frame geo" style="margin-top:20px">'+
+      '<p class="eyebrow center">What the full reading adds</p>'+
+      '<div class="grid-2" style="gap:8px 26px;margin-top:12px">'+
+        sealed.map(t => '<div class="stat"><span>'+esc(t)+'</span><b>✦</b></div>').join("")+
+        '<div class="stat"><span>Cross-instrument synthesis</span><b>✦</b></div>'+
+        '<div class="stat"><span>Past-life gift and debt</span><b>✦</b></div>'+
+        '<div class="stat"><span>Where the science lands</span><b>✦</b></div>'+
+        '<div class="stat"><span>Shareable result cards</span><b>✦</b></div>'+        '<div class="stat"><span>No ads, anywhere</span><b>✦</b></div>'+
+      '</div>'+
+      '<div class="btn-row" style="margin-top:18px"><button class="btn btn--gold js-trial">Start 3-day trial</button>'+
+      '<button class="btn js-onetime">Unlock this profile · $1</button></div></div>' : "")+
+    (l ? '<div class="frame" style="margin-top:20px"><p class="eyebrow">Matrix detail</p>'+
+        '<div class="grid-3" style="gap:10px">'+
+          '<div class="stat"><span>Systemic logic</span><b>'+l.systemic.correct+'/'+l.systemic.of+'</b></div>'+
+          '<div class="stat"><span>Mental geometry</span><b>'+l.geometry.correct+'/'+l.geometry.of+'</b></div>'+
+          '<div class="stat"><span>Recall span</span><b>'+l.memory.span+'</b></div>'+
+        '</div>'+
+        '<p class="terms">Completed in '+Math.floor(l.seconds/60)+' min '+(l.seconds%60)+' s \u00b7 speed factor '+l.speed+'%, worth up to ten points of the total. Unsupervised and unnormed: treat the band as a label inside PsycheIQ, not a psychometric score.</p></div>' : "")+
+    '<div class="btn-row" style="margin-top:24px"><button class="btn" data-go="oracle">Run another instrument</button></div>';
+
+  wireProfileBar();
+  const dl = $("#crest-dl"); if (dl) dl.onclick = downloadCrest;
+  $$(".js-upgrade").forEach(b => b.onclick = () => openUpgrade("results"));
+  setTimeout(() => $$(".bar-track i").forEach(i => i.style.width = i.dataset.w+"%"), 60);
+  maybeInterstitial();
+}
+function pneumaPanel(p){
+  if (!p) return '<div class="frame center"><p class="eyebrow">Pneuma archetype</p>'+
+    '<h2 class="dsp h-md" style="color:var(--ink)">Not yet mapped</h2>'+orn+
+    '<p style="font-size:14px">Fourteen dilemmas, six minutes.</p>'+
+    '<button class="btn btn--gold btn--wide" data-go="pneuma-intro">Map the Pneuma</button></div>';
+  const bars = p.order.slice(0,3).map(k =>
+    '<div class="bar-row"><span class="gl">'+TRAITS[k].glyph+'</span><span class="lb">'+TRAITS[k].label+'</span>'+
+    '<div class="bar-track"><i data-w="'+p.pct[k]+'"></i></div><span class="pct">'+p.pct[k]+'%</span></div>').join("");
+  return '<div class="frame center">'+
+    '<p class="eyebrow">Your Pneuma archetype</p>'+
+    '<svg class="crest" style="color:var(--gold)" viewBox="0 0 200 200"><use href="#sig-wing"/></svg>'+
+    '<h2 class="dsp h-md gilt">'+esc(p.archetype.name)+'</h2>'+
+    '<p style="font-size:13px;color:var(--ink-3);margin:8px 0 18px">'+esc(p.archetype.epithet)+'</p>'+
+    '<div class="bars">'+bars+'</div>'+
+    '<p class="eyebrow" style="margin:20px 0 6px">Know thyself, master the cosmos</p>'+clearLink("pneuma")+'</div>'+
+    swBlock("pneuma", p.key, TRAITS[p.key].label)+
+    kindredBlock("pneuma", TRAITS[p.key].label);
+}
+function logosPanel(l){
+  if (!l) return '<div class="frame center"><p class="eyebrow">Logos matrix</p>'+
+    '<h2 class="dsp h-md" style="color:var(--ink)">Not yet measured</h2>'+orn+
+    '<p style="font-size:14px">Three modules, about twelve minutes.</p>'+
+    '<button class="btn btn--gold btn--wide" data-go="logos-intro">Unlock the Logos</button></div>';
+  return '<div class="frame center">'+
+    '<p class="eyebrow">Your Logos matrix</p>'+
+    '<p class="eyebrow" style="color:var(--ink-3);margin-bottom:2px">Achieved tier</p>'+
+    '<h2 class="dsp h-md gilt">'+esc(l.tier.name)+'</h2>'+
+    '<svg class="crest" style="color:var(--gold);width:104px;height:104px" viewBox="0 0 200 200"><use href="#sig-star"/></svg>'+
+    '<div class="pyramid">'+
+      '<div class="tierbar t1"><em>Systemic logic</em><b>'+esc(l.systemic.band)+' band</b></div>'+
+      '<div class="tierbar t2"><em>Mental geometry</em><b>Mastery grade '+l.geometry.grade+'</b></div>'+
+      '<div class="tierbar"><em>Working memory</em><b>'+esc(l.memory.label)+' · span '+l.memory.span+'</b></div>'+
+    '</div>'+
+    '<p class="eyebrow" style="margin:18px 0 6px">'+l.percent+'% of instrument range</p>'+clearLink("logos")+'</div>'+
+    swBlock("logos", l.domModule, l.domModule)+
+    kindredBlock("logos", l.domModule+" reasoning");
+}
+function sectionsBlock(p, ctx, open){
+  const cards = SECTIONS.map((s,i) => {
+    const locked = i > 0 && !open;
+    const full = s.f(p.archetype, ctx);
+    const body = locked ? '<p class="teaser">'+esc(full.slice(0, 96))+'…</p>' : '<p>'+esc(full)+'</p>';
+    return '<div class="section-card"><span class="num">Section '+String(i+1).padStart(2,"0")+' of 10</span>'+
+      '<h3>'+esc(s.t)+'</h3>'+body+'</div>';
+  });
+  if (open) return '<div class="frame" style="margin-top:20px"><p class="eyebrow center">Your reading · ten sections</p>'+orn+cards.join("")+'</div>';
+  return '<div class="frame" style="margin-top:20px"><p class="eyebrow center">Your reading · ten sections</p>'+orn+
+    cards[0]+
+    '<div class="locked" style="min-height:280px">'+
+      '<div class="veil"><div>'+
+        '<h3 class="dsp h-md">Nine Sections Sealed</h3>'+
+        '<p style="font-size:14px;max-width:420px;margin:0 auto 18px">Ascendant path, shadow integration, correspondences, the stage of the work, relational field, vocation, failure modes, daily praxis — and the synthesis of both instruments.</p>'+
+        '<div class="btn-row"><button class="btn btn--gold js-trial">Start 3-day trial</button>'+
+        '<button class="btn js-onetime">Unlock this report · $1</button></div>'+
+      '</div></div>'+
+      cards.slice(1,4).join("")+
+    '</div></div>';
+}
+
+/* --- shareable crest --- */
+function downloadCrest(){
+  const p = State.pneuma, l = State.logos;
+  const s = 1080, cv = document.createElement("canvas"); cv.width = cv.height = s;
+  const x = cv.getContext("2d");
+  const g = x.createRadialGradient(s/2,s*0.42,60,s/2,s/2,s*0.75);
+  g.addColorStop(0,"#131A42"); g.addColorStop(1,"#05081A");
+  x.fillStyle = g; x.fillRect(0,0,s,s);
+  x.strokeStyle = "rgba(227,190,109,.75)"; x.lineWidth = 3; x.strokeRect(46,46,s-92,s-92);
+  x.strokeStyle = "rgba(227,190,109,.3)"; x.lineWidth = 1.4; x.strokeRect(64,64,s-128,s-128);
+  x.textAlign = "center"; x.fillStyle = "#E3BE6D";
+  x.font = "600 30px Inter, sans-serif"; x.fillText("PSYCHEIQ", s/2, 150);
+  // sigil
+  x.save(); x.translate(s/2, 430); x.strokeStyle = "#E3BE6D"; x.lineWidth = 6; x.lineCap = "round";
+  x.beginPath(); x.arc(0,0,150,0,Math.PI*2); x.stroke();
+  x.beginPath(); x.moveTo(0,-108); x.lineTo(0,130); x.stroke();
+  for (const dir of [1,-1]){
+    x.beginPath(); x.moveTo(0,-80);
+    x.bezierCurveTo(dir*58,-52, dir*58,-8, 0,20);
+    x.bezierCurveTo(-dir*58,48, -dir*58,92, 0,120); x.stroke();
+  }
+  x.beginPath(); x.ellipse(0,-108,40,22,0,0,Math.PI*2); x.stroke();
+  x.fillStyle = "#F9E7B4"; x.beginPath(); x.arc(0,-108,11,0,Math.PI*2); x.fill();
+  x.restore();
+  x.fillStyle = "#F9E7B4"; x.font = "700 62px Cinzel, Georgia, serif";
+  x.fillText(p ? p.archetype.name : "The Logos Matrix", s/2, 700);
+  x.fillStyle = "#98A0C2"; x.font = "400 27px Inter, sans-serif";
+  if (p) x.fillText(p.archetype.epithet, s/2, 748);
+  const ps = psycheScore();
+  if (ps){ x.fillStyle = "#E3BE6D"; x.font = "600 36px Cinzel, Georgia, serif";
+    x.fillText("PSYCHEIQ SCORE "+ps.score+" · "+ps.tier.name.toUpperCase(), s/2, 830); }
+  if (p){ x.fillStyle = "#98A0C2"; x.font = "400 25px Inter, sans-serif";
+    x.fillText(p.order.slice(0,3).map(k => TRAITS[k].label+" "+p.pct[k]+"%").join("  ·  "), s/2, 890); }
+  x.fillStyle = "rgba(227,190,109,.7)"; x.font = "600 22px Inter, sans-serif";
+  x.fillText("PSYCHEIQ.LIVE", s/2, 985);
+  const a = document.createElement("a");
+  a.download = "psycheiq-crest.png"; a.href = cv.toDataURL("image/png"); a.click();
+  toast("Crest saved. 1080×1080, ready to post.");
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-go]");
+  if (b && b.dataset.go !== "logos"){ clearInterval(LTimer); memTimeouts.forEach(clearTimeout); memTimeouts = []; }
+});
+
+/* ---------------- rerender after tier changes ---------------- */
+function rerender(){
+  if (State.view === "results") renderResults();
+  else if (State.view === "essays" && State.essay && !$("#essay-reader").hidden) openEssay(State.essay);
+  else if (State.view === "oracle") renderOracle();
+  else if (State.view === "readings") renderReadings();
+}
+
+
+/* ============================================================
+   THE ANIMA FIELD — engine
+   Positions are computed from standard low-precision series
+   (Meeus, abridged). Good to roughly a degree — enough for
+   signs, not a substitute for a full ephemeris.
+   ============================================================ */
+const D2R = Math.PI/180;
+const wrap = x => ((x % 360) + 360) % 360;
+function julianDay(y, m, d, hoursUT){
+  if (m <= 2){ y -= 1; m += 12; }
+  const A = Math.floor(y/100), B = 2 - A + Math.floor(A/4);
+  return Math.floor(365.25*(y+4716)) + Math.floor(30.6001*(m+1)) + d + B - 1524.5 + hoursUT/24;
+}
+function sunLongitude(jd){
+  const n = jd - 2451545.0;
+  const L = wrap(280.460 + 0.9856474*n), g = wrap(357.528 + 0.9856003*n)*D2R;
+  return wrap(L + 1.915*Math.sin(g) + 0.020*Math.sin(2*g));
+}
+function moonLongitude(jd){
+  const T = (jd - 2451545.0)/36525, s = x => Math.sin(x*D2R);
+  const Lp = wrap(218.3164477 + 481267.88123421*T),
+        D  = wrap(297.8501921 + 445267.1114034*T),
+        M  = wrap(357.5291092 + 35999.0502909*T),
+        Mp = wrap(134.9633964 + 477198.8675055*T),
+        F  = wrap(93.2720950 + 483202.0175233*T);
+  return wrap(Lp + 6.289*s(Mp) - 1.274*s(2*D - Mp) + 0.658*s(2*D) - 0.186*s(M)
+    - 0.059*s(2*Mp - 2*D) - 0.057*s(Mp - 2*D + M) + 0.053*s(Mp + 2*D) + 0.046*s(2*D - M)
+    + 0.041*s(Mp - M) - 0.035*s(D) - 0.031*s(Mp + M) - 0.015*s(2*F - 2*D) + 0.011*s(Mp - 4*D));
+}
+function ascendantLon(jd, lonE, latN){
+  const T = (jd - 2451545.0)/36525;
+  const gmst = wrap(280.46061837 + 360.98564736629*(jd - 2451545.0) + 0.000387933*T*T);
+  const R = wrap(gmst + lonE)*D2R, eps = 23.4392911*D2R, phi = latN*D2R;
+  return wrap(Math.atan2(Math.cos(R), -(Math.sin(R)*Math.cos(eps) + Math.tan(phi)*Math.sin(eps)))/D2R);
+}
+const PHASES = ["New","Waxing crescent","First quarter","Waxing gibbous","Full","Waning gibbous","Last quarter","Waning crescent"];
+const phaseOf = (sun, moon) => PHASES[Math.floor((wrap(moon - sun) + 22.5)/45) % 8];
+
+const CITIES = [
+  ["London, UK",51.51,-0.13,0],["Manchester, UK",53.48,-2.24,0],["Dublin, IE",53.35,-6.26,0],
+  ["New York, US",40.71,-74.01,-5],["Los Angeles, US",34.05,-118.24,-8],["Chicago, US",41.88,-87.63,-6],
+  ["Houston, US",29.76,-95.37,-6],["Denver, US",39.74,-104.99,-7],["Miami, US",25.76,-80.19,-5],
+  ["Toronto, CA",43.65,-79.38,-5],["Mexico City, MX",19.43,-99.13,-6],["São Paulo, BR",-23.55,-46.63,-3],
+  ["Lagos, NG",6.52,3.38,1],["Johannesburg, ZA",-26.20,28.05,2],["Berlin, DE",52.52,13.40,1],
+  ["Paris, FR",48.86,2.35,1],["Madrid, ES",40.42,-3.70,1],["Istanbul, TR",41.01,28.98,3],
+  ["Dubai, AE",25.20,55.27,4],["Mumbai, IN",19.08,72.88,5.5],["Manila, PH",14.60,120.98,8],
+  ["Singapore, SG",1.35,103.82,8],["Tokyo, JP",35.68,139.69,9],["Sydney, AU",-33.87,151.21,10]
+];
+
+let ARun = null;
+
+/* ---------------- flow ---------------- */
+function renderAnimaIntro(){
+  $("#view-anima").innerHTML =
+    '<div class="frame" style="max-width:760px;margin:0 auto;text-align:center">'+
+      '<svg viewBox="0 0 200 200" style="width:74px;height:74px;color:var(--gold)"><use href="#sig-star"/></svg>'+
+      '<p class="eyebrow" style="margin-top:14px">The Anima Field</p>'+
+      '<h1 class="dsp h-lg" style="color:var(--ink)">Sky, Lineage and Card</h1>'+orn+
+      '<p class="lead">Two parts. Your birth sky, computed rather than looked up — and ten questions that place your lineage and soul family.</p>'+
+      '<div style="text-align:left;max-width:520px;margin:20px auto 0">'+
+        '<div class="stat"><span>Part one · birth data</span><b>Sun, Moon, Rising, phase</b></div>'+
+        '<div class="stat"><span>Part two · ten questions</span><b>Lineage, family, card</b></div>'+
+      '</div>'+
+      '<div class="ground" style="text-align:left;margin-top:20px">'+tag("Y")+
+        '<p style="margin:8px 0 0;font-size:13.5px">Everything this instrument returns is mythic material: symbolic language with a long tradition behind it and no predictive claim attached. The positions themselves are '+
+        REGISTERS.M.glyph+' measured — real orbital mechanics, computed in your browser — which is the only part of astrology that has ever been science.</p></div>'+
+      '<div class="btn-row" style="margin-top:22px">'+
+        '<button class="btn btn--gold" id="a-birth">Enter birth data</button>'+
+        '<button class="btn" id="a-skip">Skip to the ten questions</button></div>'+
+    '</div>';
+  $("#a-birth").onclick = renderBirthForm;
+  $("#a-skip").onclick = () => startLineage();
+}
+
+function renderBirthForm(){
+  const opts = CITIES.map((c,i) => '<option value="'+i+'">'+esc(c[0])+'</option>').join("");
+  $("#view-anima").innerHTML =
+    '<div class="frame" style="max-width:620px;margin:0 auto">'+
+      '<p class="eyebrow center">Part one</p>'+
+      '<h1 class="dsp h-md center" style="color:var(--ink)">Your Birth Sky</h1>'+orn+
+      '<label class="field"><span>Date of birth</span><input type="date" id="b-date"></label>'+
+      '<label class="field"><span>Time of birth · optional, needed for the rising sign</span><input type="time" id="b-time"></label>'+
+      '<label class="field"><span>Nearest city</span><select id="b-city"><option value="">— choose, or set values below —</option>'+opts+'</select></label>'+
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">'+
+        '<label class="field"><span>Latitude</span><input id="b-lat" inputmode="decimal" placeholder="51.51"></label>'+
+        '<label class="field"><span>Longitude</span><input id="b-lon" inputmode="decimal" placeholder="-0.13"></label>'+
+        '<label class="field"><span>UTC offset</span><input id="b-off" inputmode="decimal" placeholder="0"></label>'+
+      '</div>'+
+      '<button class="btn btn--gold btn--wide" id="b-go">Compute the sky</button>'+
+      '<p class="terms">Positions are computed here on your device from abridged orbital series — accurate to within a degree or two, so a birth within a few hours of a sign change may land either side of it. Nothing is uploaded.</p>'+
+      '<div class="btn-row" style="margin-top:14px"><button class="btn btn--ghost" id="b-back">Back</button></div>'+
+    '</div>';
+  $("#b-city").onchange = e => {
+    const c = CITIES[+e.target.value]; if (!c) return;
+    $("#b-lat").value = c[1]; $("#b-lon").value = c[2]; $("#b-off").value = c[3];
+  };
+  $("#b-back").onclick = renderAnimaIntro;
+  $("#b-go").onclick = () => {
+    const d = $("#b-date").value;
+    if (!d) return toast("A date of birth is needed for this part — or skip to the ten questions.");
+    const t = $("#b-time").value;
+    const lat = parseFloat($("#b-lat").value), lon = parseFloat($("#b-lon").value), off = parseFloat($("#b-off").value);
+    ARun = ARun || {};
+    ARun.chart = computeChart(d, t, isNaN(lat)?null:lat, isNaN(lon)?null:lon, isNaN(off)?0:off);
+    renderChartResult();
+  };
+}
+
+function computeChart(dateStr, timeStr, lat, lon, off){
+  const [y,m,d] = dateStr.split("-").map(Number);
+  const hasTime = !!timeStr;
+  const [hh,mm] = hasTime ? timeStr.split(":").map(Number) : [12,0];
+  const jd = julianDay(y, m, d, hh + mm/60 - (off || 0));
+  const sun = sunLongitude(jd), moon = moonLongitude(jd);
+  const rising = (hasTime && lat !== null && lon !== null) ? ascendantLon(jd, lon, lat) : null;
+  const els = {};
+  [signOf(sun), signOf(moon)].concat(rising !== null ? [signOf(rising)] : [])
+    .forEach(s => els[s.el] = (els[s.el] || 0) + 1);
+  const dominant = Object.keys(els).sort((a,b) => els[b] - els[a])[0];
+  return {jd, sun, moon, rising, hasTime, phase:phaseOf(sun, moon), elements:els, dominant,
+          birth:{date:dateStr, time:timeStr || null}};
+}
+
+function placeRow(label, lon, note){
+  const s = signOf(lon);
+  return '<div class="place"><span class="pg">'+s.g+'</span>'+
+    '<div><b>'+label+' in '+s.n+'</b><em>'+degIn(lon).toFixed(1)+'° · '+s.el+' · '+s.mo+' · ruled by '+s.ruler+'</em>'+
+    '<p>'+esc(note)+'</p></div></div>';
+}
+function renderChartResult(){
+  const c = ARun.chart;
+  $("#view-anima").innerHTML =
+    '<div class="frame" style="max-width:720px;margin:0 auto">'+
+      '<p class="eyebrow center">Part one · complete</p>'+
+      '<h1 class="dsp h-md center" style="color:var(--ink)">Your Birth Sky</h1>'+
+      '<p class="center">'+tag("M")+'</p>'+orn+
+      placeRow("Sun", c.sun, signOf(c.sun).line)+
+      placeRow("Moon", c.moon, "The interior weather. "+signOf(c.moon).line)+
+      (c.rising !== null ? placeRow("Rising", c.rising, "The door people come through. "+signOf(c.rising).line)
+        : '<p class="terms">No rising sign: it needs a birth time and a location. Everything else stands.</p>')+
+      '<div class="stat"><span>Lunar phase at birth</span><b>'+c.phase+'</b></div>'+
+      '<div class="stat"><span>Dominant element</span><b>'+c.dominant+'</b></div>'+
+      '<div class="ground" style="margin-top:16px">'+tag("M")+
+        '<p style="margin:8px 0 0;font-size:13.5px">These are real positions. The zodiac they are read against has drifted about one sign from the constellations since it was fixed, because of the 25,772-year precession of the equinoxes — which is why sidereal and tropical astrology disagree by roughly 24 degrees. Both traditions know this; neither is a computational error.</p></div>'+
+      '<button class="btn btn--gold btn--wide" id="a-next" style="margin-top:18px">Continue to the ten questions</button>'+
+    '</div>';
+  $("#a-next").onclick = () => startLineage();
+}
+
+/* ---------------- lineage questionnaire ---------------- */
+function startLineage(){
+  ARun = ARun || {};
+  ARun.i = 0; ARun.answers = [];
+  renderLineageQ();
+}
+function renderLineageQ(){
+  const q = LIN_Q[ARun.i], n = LIN_Q.length, pct = Math.round(ARun.i/n*100);
+  $("#view-anima").innerHTML =
+    '<div class="frame" style="max-width:780px;margin:0 auto">'+
+      '<div class="test-head"><svg style="color:var(--gold)" viewBox="0 0 200 200"><use href="#sig-star"/></svg>'+
+        '<h2 class="dsp h-md" style="color:var(--ink)">The Lineage Questions</h2></div>'+
+      '<div class="qmeta"><span>Question '+(ARun.i+1)+' of '+n+'</span><span>'+pct+'%</span></div>'+
+      '<div class="meter"><i style="width:'+pct+'%"></i></div>'+
+      '<p class="q-text">'+esc(q.q)+'</p>'+
+      '<div class="opts">'+q.o.map((o,i) =>
+        '<button class="opt" data-lin="'+i+'"><span class="key">'+"ABCD"[i]+'</span><span>'+esc(o.t)+'</span></button>').join("")+'</div>'+
+      '<div class="nav-row">'+(ARun.i > 0 ? '<button class="btn btn--ghost" id="l-prev">← Previous</button>' : '<span></span>')+
+        '<button class="btn btn--ghost" data-go="oracle">← Back to the Oracle</button></div>'+
+    '</div>';
+  $$("[data-lin]").forEach(b => b.onclick = () => {
+    b.classList.add("sel"); ARun.answers[ARun.i] = +b.dataset.lin;
+    setTimeout(() => { ARun.i++; ARun.i >= LIN_Q.length ? finishAnima() : renderLineageQ(); }, 180);
+  });
+  const pv = $("#l-prev"); if (pv) pv.onclick = () => { ARun.i--; renderLineageQ(); };
+}
+function finishAnima(){
+  const score = {}; LINEAGES.forEach(l => score[l.id] = 0);
+  ARun.answers.forEach((ai,qi) => {
+    const w = LIN_Q[qi].o[ai].w;
+    for (const k in w) score[k] += w[k];
+  });
+  const ranked = LINEAGES.slice().sort((a,b) => score[b.id] - score[a.id]);
+  const lineage = ranked[0], second = ranked[1];
+  const lIdx = LINEAGES.indexOf(lineage);
+  const tIdx = State.pneuma ? TKEYS.indexOf(State.pneuma.key) : (ARun.chart ? SIGNS.indexOf(signOf(ARun.chart.sun)) : 3);
+  const family = FAMILIES[(lIdx + tIdx + 2) % FAMILIES.length];
+  const sunSign = ARun.chart ? signOf(ARun.chart.sun).n : null;
+  const major = sunSign ? MAJORS[sunSign] : MAJORS[Object.keys(MAJORS)[(lIdx*3) % 12]];
+  saveResult("anima", {chart:ARun.chart || null, lineage, second, scores:score, family, major, sunSign,
+    kindred:pickKindred("anima","lineage",lineage.id)});
+  afterTest("anima");
+}
+
+/* ---------------- results panel ---------------- */
+function animaBlock(){
+  const a = State.anima;
+  if (!a) return '<div class="frame" style="margin-top:20px;text-align:center">'+
+    '<p class="eyebrow">The Anima Field</p><h2 class="dsp h-md" style="color:var(--ink)">Sky Not Yet Read</h2>'+orn+
+    '<p style="font-size:14px">Birth positions, starseed lineage, soul family and your significator card.</p>'+
+    '<button class="btn btn--gold" data-go="anima-intro">Read the Anima Field</button></div>';
+  const c = a.chart, l = a.lineage;
+  return '<div class="frame" style="margin-top:20px">'+
+    '<p class="eyebrow center">The Anima Field</p>'+
+    '<h2 class="dsp h-lg gilt center">'+esc(l.n)+' Lineage</h2>'+
+    '<p class="center" style="font-size:13px;color:var(--ink-3);margin-top:6px">'+esc(l.star)+' · secondary current: '+esc(a.second.n)+'</p>'+orn+
+    '<div class="grid-2">'+
+      '<div>'+
+        '<p class="eyebrow">The mark '+tag("Y")+'</p><p style="font-size:14.5px">'+esc(l.mark)+'</p>'+
+        '<p class="eyebrow">The work</p><p style="font-size:14.5px">'+esc(l.mission)+'</p>'+
+        '<p class="eyebrow">The shadow</p><p style="font-size:14.5px;margin-bottom:0">'+esc(l.shadow)+'</p>'+
+      '</div>'+
+      '<div>'+
+        '<div class="ground">'+tag("M")+'<p style="margin:8px 0 0;font-size:13.5px"><b style="color:var(--gold-hi)">'+esc(l.star)+'</b> — '+esc(l.sky)+'</p>'+
+        '<p style="margin:10px 0 0;font-size:13.5px">'+esc(l.science)+'</p></div>'+
+      '</div>'+
+    '</div>'+
+    '<hr class="rule">'+
+    '<div class="grid-3">'+
+      '<div><p class="eyebrow">Soul family '+tag("Y")+'</p><h3 class="dsp h-md gilt">'+esc(a.family.n)+'</h3>'+
+        '<p style="font-size:14px;margin-top:8px">'+esc(a.family.l)+'</p></div>'+
+      '<div><p class="eyebrow">Significator '+tag("Y")+'</p><h3 class="dsp h-md gilt">'+esc(a.major.c)+'</h3>'+
+        '<p style="font-size:14px;margin-top:8px">'+esc(a.major.l)+'</p>'+
+        '<p class="terms">Golden Dawn zodiac attribution, unaltered — the card follows from your Sun sign, not from a draw.</p></div>'+
+      '<div><p class="eyebrow">Sky '+tag("M")+'</p>'+
+        (c ? natalWheel(c, 250) : "")+
+        (c ? '<div class="stat"><span>Sun</span><b>'+signOf(c.sun).g+' '+signOf(c.sun).n+'</b></div>'+
+             '<div class="stat"><span>Moon</span><b>'+signOf(c.moon).g+' '+signOf(c.moon).n+'</b></div>'+
+             (c.rising !== null ? '<div class="stat"><span>Rising</span><b>'+signOf(c.rising).g+' '+signOf(c.rising).n+'</b></div>' : "")+
+             '<div class="stat"><span>Phase</span><b>'+c.phase+'</b></div>'
+           : '<p style="font-size:14px">No birth data entered. Add it any time to place the sky beside the lineage.</p>'+
+             '<button class="btn btn--wide" data-go="anima-intro">Add birth data</button>')+
+      '</div>'+
+    '</div>'+
+    (State.pro || State.unlocked.size ? '<hr class="rule">'+
+      '<p class="eyebrow center">Where this meets the science</p>'+
+      ["manifest","gnosis","precession"].map(k => groundCard(GROUND[k])).join("") : "")+
+  '</div>';
+}
+function groundCard(g){
+  return '<div class="ground" style="margin-top:12px">'+tag(g.r)+
+    '<h4 style="font-family:Cinzel,serif;color:var(--gold-hi);font-size:14px;letter-spacing:.07em;margin:9px 0 6px;font-weight:600">'+esc(g.t)+'</h4>'+
+    '<p style="margin:0;font-size:13.8px">'+esc(g.b)+'</p></div>';
+}
+
+function renderAnimaSummary(){
+  const a = State.anima;
+  $("#view-anima").innerHTML =
+    '<div style="max-width:900px;margin:0 auto">'+
+      '<p class="eyebrow center">The Anima Field · complete</p>'+
+      '<div class="gilt-wrap"><h1 class="dsp h-lg gilt center">'+esc(a.lineage.n)+' Lineage</h1></div>'+
+      animaBlock()+
+      '<div class="btn-row" style="margin-top:22px">'+
+        '<button class="btn btn--gold" data-go="results">See it in the full profile</button>'+
+        '<button class="btn" id="a-retake">Read it again</button></div>'+
+    '</div>';
+  $("#a-retake").onclick = renderAnimaIntro;
+}
+
+/* ---------------- init ---------------- */
+(function init(){
+  // gradient used by the matrix shapes
+  const defs = document.createElementNS("http://www.w3.org/2000/svg","svg");
+  defs.setAttribute("width","0"); defs.setAttribute("height","0"); defs.style.position = "absolute";
+  defs.innerHTML = '<defs><linearGradient id="halfFill" x1="0" y1="0" x2="1" y2="0">'+
+    '<stop offset="50%" stop-color="#E3BE6D"/><stop offset="50%" stop-color="#E3BE6D" stop-opacity="0"/></linearGradient></defs>';
+  document.body.appendChild(defs);
+
+  // installable PWA manifest, generated in-page so this stays a single file
+  const manifest = {name:"PsycheIQ", short_name:"PsycheIQ", start_url:".", display:"standalone",
+    background_color:"#070A1C", theme_color:"#070A1C", description:"Six instruments across mind, character and soul, and one composite score.",
+    icons:[{src:"images/icon-192.png", sizes:"192x192", type:"image/png"},{src:"images/icon-512.png", sizes:"512x512", type:"image/png"}]};
+  const link = document.createElement("link");
+  link.rel = "manifest";
+  link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:"application/manifest+json"}));
+  document.head.appendChild(link);
+
+  renderHomeEssays();
+  renderHomeArt();
+  const sky = document.createElement("div"); sky.className = "skyfield";
+  [["Leo",6,12,150],["Scorpio",74,8,170],["Aquarius",12,66,160],["Taurus",78,70,150],["Gemini",44,38,140]]
+    .forEach(([s,x,y,z]) => { const d = document.createElement("div");
+      d.style.cssText = "left:"+x+"%;top:"+y+"%;opacity:.5"; d.innerHTML = constellationSVG(s, z); sky.appendChild(d); });
+  document.body.appendChild(sky);
+  loadRec();
+  loadProfiles().then(() => { renderOracle(); if (State.view === "results") renderResults(); });
+  renderOracle();
+  go("home");
+})();
+
+/* ============================================================
+   WIRING POINTS FOR PRODUCTION
+   ------------------------------------------------------------
+   1. Payments: openTrial() / openOneTime() flip State.pro and
+      State.unlocked locally. Replace with Stripe Checkout on web
+      and Play Billing / StoreKit inside the Capacitor build, then
+      set the flags from your server's entitlement response.
+   2. Trials: the 3-day term is stated in openTrial(), openUpgrade()
+      and the tiers view. Change it in all three, keep the reminder
+      email, and make cancellation reachable in one tap.
+   3. Ads: .adbar in the markup and maybeInterstitial() are empty
+      slots. Mount AdMob (Capacitor) or AdSense (web) there; both
+      already hide when body carries .is-pro.
+   4. Persistence: State lives in memory for the session. Add your
+      own storage layer keyed to the account when auth exists.
+   5. Content: DILEMMAS, ARCHETYPES, SECTIONS and ESSAYS are plain
+      data at the top of this file — edit freely without touching
+      the engine.
+   ============================================================ */
+</script>
+</body>
+</html>

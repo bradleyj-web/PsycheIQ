@@ -24,14 +24,28 @@ Each carries a quieter "lore name" underneath (The Pneuma Map, The Logos Matrix,
 
 Plus: a Major Arcana reading room, daily competitive Trials with a leaderboard, live 1:1 tarot readings booking, and a Kindred Figures engine drawing from a pool of 800 historical/mythic names (200 shared archetypes + 100 unique per test).
 
+## Working on this
+
+The app **deploys** as a single self-contained `index.html` (no bundler, no toolchain, opens straight in a browser) but is **authored** as ordered modules in `src/`:
+
+```bash
+# edit files in src/, then:
+node build.js                      # rebuilds index.html
+node tests/verify-content-pools.js # validates the content datasets
+```
+
+Do not hand-edit `index.html` — it's build output and will be overwritten. See [`CONTEXT.md`](./CONTEXT.md) for product direction and [`HANDOFF.md`](./HANDOFF.md) for the pending task list.
+
 ## Tech notes
 
-- **Zero build step.** Everything — CSS, JS, inline SVG art — lives in `index.html`. Open it in a browser and it runs.
+- **Zero build step to deploy.** The built `index.html` has no runtime dependencies. Open it in a browser and it runs.
 - **No external assets** except Google Fonts (Cinzel / Cormorant Garamond / Inter); everything else is self-contained, so there's nothing to region-lock.
 - Storage uses a `window.storage` API where available (Claude artifacts), falling back to `localStorage`, falling back to an in-memory shim — so it degrades gracefully anywhere.
 - Payments, accounts, and the leaderboard's cross-device sync are currently **stubbed** for the prototype. Wiring notes for Stripe/Play Billing, auth, and a shared leaderboard backend are commented at the bottom of the `<script>` block in `index.html`.
 
 ## Continuing this project
+
+**Start with [`CONTEXT.md`](./CONTEXT.md)** for product direction and the two open questions the owner still needs to settle.
 
 **There's a pending task, fully specced in [`HANDOFF.md`](./HANDOFF.md):** the Deck/tarot page needs a rebuild into an interactive shuffle-and-draw reading (22 Major Arcana × 4 categories = 88 written responses). Read that file before making changes — it also covers the app's architecture and points to `tests/verify-content-pools.js` for validating data changes.
 

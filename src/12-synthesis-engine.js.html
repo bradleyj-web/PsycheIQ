@@ -1,0 +1,162 @@
+
+/* ============================================================
+   PSYCHEIQ — SYNTHESIS ENGINE v1
+   ------------------------------------------------------------
+   No LLM dependency. Assessment results are reduced to a small
+   structured trait vector; the engine then selects modular
+   content blocks against it. Roughly 1,280 base combinations
+   before the archetype layer multiplies them further.
+
+   The contract is deliberately simple so an LLM can later be
+   dropped in as a *narrator* over the same vector without any
+   of this being rebuilt:
+
+       traitVector()  ->  { thinking, energy, social,
+                            decision_style, growth_theme }
+       synthesize()   ->  [ {section, key, text}, ... ]
+
+   Phase 2 ("Ask Psyche") should consume traitVector() output,
+   not re-derive anything from raw results.
+   ============================================================ */
+
+function traitVector(){
+  const v = {};
+
+  // thinking — how information is processed
+  if (State.pneuma){
+    const k = State.pneuma.key;
+    v.thinking = k === "vision" ? "abstract" : k === "insight" ? "analytical"
+               : k === "focus" ? "practical" : k === "fusion" ? "integrative" : "intuitive";
+  } else if (State.typology){
+    v.thinking = State.typology.code[1] === "N" ? "abstract" : "practical";
+  } else if (State.logos){
+    v.thinking = State.logos.domModule === "systemic" ? "analytical"
+               : State.logos.domModule === "geometry" ? "abstract" : "practical";
+  } else v.thinking = "intuitive";
+
+  // energy — how capacity is generated and spent
+  if (State.body){
+    const b = State.body.order[0];
+    v.energy = b === "energy" ? "variable" : b === "stress" ? "steady"
+             : b === "habits" ? "consistent" : "responsive";
+  } else if (State.typology){
+    v.energy = State.typology.code[0] === "E" ? "variable" : "reserved";
+  } else v.energy = "steady";
+
+  // social — default orientation to other people
+  if (State.typology){
+    const c = State.typology.code;
+    v.social = c[0] === "I" ? (c[2] === "T" ? "independent" : "reflective")
+                            : (c[2] === "F" ? "connective" : "leading");
+  } else if (State.pneuma){
+    v.social = State.pneuma.key === "fusion" ? "connective"
+             : State.pneuma.key === "will" ? "leading" : "independent";
+  } else v.social = "independent";
+
+  // decision_style — how choices actually get made
+  if (State.pneuma){
+    const k = State.pneuma.key;
+    v.decision_style = k === "will" ? "decisive" : k === "focus" ? "deliberate"
+                     : k === "vision" ? "intuitive" : k === "fusion" ? "consensual" : "analytical";
+  } else if (State.typology){
+    v.decision_style = State.typology.code[3] === "J" ? "deliberate" : "intuitive";
+  } else v.decision_style = "deliberate";
+
+  // growth_theme — the pattern currently active
+  const g = growthStanding();
+  const stage = g ? GROWTH_STAGES.indexOf(g.stage) : 3;
+  v.growth_theme = stage >= 8 ? "transformation" : stage >= 6 ? "integration"
+                 : stage >= 4 ? "expansion" : stage >= 2 ? "foundation" : "beginning";
+
+  return v;
+}
+
+/* ---------------- modular content blocks ----------------
+   Each section keys off exactly one trait, so blocks stay
+   independently authorable and combinatorially reusable.   */
+const SYNTH = {
+  intro:{
+    abstract:"You think in patterns and possibilities before you think in steps. Given a situation, you tend to see what it resembles and where it could go — which makes you early to things, and occasionally impatient with the part where they have to be built.",
+    analytical:"You think by taking things apart. Your first instinct with any situation is to find the mechanism underneath it, and you are rarely satisfied by an explanation that works but that you cannot trace.",
+    practical:"You think in terms of what will actually happen. Abstraction interests you only once it touches something real, and you notice the practical failure point in a plan while others are still admiring its shape.",
+    integrative:"You think by holding more than one thing at once. Where others feel forced to choose between two positions, you tend to sit with both until something third emerges — which is usually your actual contribution.",
+    intuitive:"You think ahead of your own reasoning. Conclusions tend to arrive before the argument for them does, and your work is often reconstructing why you already knew something."
+  },
+  strengths:{
+    decisive:"Your strength is momentum. You decide while other people are still gathering opinions, and you carry the consequences yourself rather than distributing them. Rooms that are stuck tend to move when you enter them.",
+    deliberate:"Your strength is follow-through. You finish things that vision alone would have abandoned, and you hold a structure steady through the long unglamorous middle where most projects quietly die.",
+    intuitive:"Your strength is reading the situation. You register the direction something is heading before the evidence has fully assembled, which lets you act early — and being early is worth more than being certain.",
+    consensual:"Your strength is bringing people with you. You can hold competing positions long enough for a real answer to appear, and you rarely force a false choice when a third option exists.",
+    analytical:"Your strength is precision. You find the actual problem rather than the stated one, and your diagnoses hold up under pressure because you built them from the mechanism up."
+  },
+  challenges:{
+    variable:"Your challenge is consistency. Your energy responds to interest, which means novelty gets your best work and maintenance gets whatever is left. The fix isn't discipline — it's giving your variety a container.",
+    steady:"Your challenge is noticing accumulation. You absorb pressure well enough that you tend to under-report strain until it becomes structural. Steadiness is an asset right up until it becomes a way of not mentioning things.",
+    consistent:"Your challenge is knowing when to stop. Your routines survive contact with a busy week, which is rare — but the same machinery keeps running systems well past the point they still serve you.",
+    responsive:"Your challenge is over-monitoring. You read your own signals early, which is genuinely useful, but awareness can tip into anxiety when every passing state gets treated as information worth acting on.",
+    reserved:"Your challenge is depletion you don't announce. You recharge alone and quietly, which works — until the recharging keeps getting postponed because nothing visible is obviously wrong."
+  },
+  relationships:{
+    independent:"You give people room and expect the same in return. Closeness for you is built through respect rather than proximity, and the people who last are the ones who understand that distance isn't withdrawal.",
+    reflective:"You process people internally before you engage with them. This makes you unusually perceptive and occasionally slow to say the thing that would resolve it — the perception is only useful once it's spoken.",
+    connective:"You are the connective tissue of most groups you enter, translating between people who cannot otherwise hear each other. The cost is that you notice everyone's needs before you notice your own.",
+    leading:"You set the temperature of a room whether or not you intended to. People organise around your certainty, which is useful — and means your offhand opinions land harder than you think they do."
+  },
+  growth:{
+    beginning:"You are at the start of a cycle. The work now is exposure rather than mastery: try enough things to find out which one has actual weight for you, and resist the urge to commit before you have data.",
+    foundation:"You are laying groundwork. This stage rewards boring consistency over insight — the structures you set now determine what you can build later, and nothing here will feel impressive while you're doing it.",
+    expansion:"You are in a growth stage. What you built is holding, and the question shifts from whether it works to how far it goes. Take on the thing that's slightly too big.",
+    integration:"You are integrating. Separate parts of your life that developed independently are being asked to become one thing, and the friction you're feeling is those parts negotiating, not failing.",
+    transformation:"You are in a transformation stage. Something that defined you is being outgrown, and the discomfort is structural rather than emotional — you are not doing this wrong, you are doing it at the point where it costs something."
+  },
+  conclusion:{
+    beginning:"Stay in the exploratory phase longer than feels comfortable. The cost of committing early is higher than the cost of not knowing yet.",
+    foundation:"Protect the unglamorous routines. They are doing more for your next two years than any single decision you'll make this month.",
+    expansion:"Say yes to the thing that's slightly beyond you. Capacity grows against resistance, not in preparation for it.",
+    integration:"Let the parts talk to each other. The version of you that emerges from this stage is more coherent than any one of the pieces going in.",
+    transformation:"Let it be uncomfortable without treating the discomfort as a sign you've gone wrong. Endings are an operation, not a punishment."
+  }
+};
+
+function synthesize(){
+  const v = traitVector();
+  const out = [
+    {section:"Introduction",   key:v.thinking,       text:SYNTH.intro[v.thinking]},
+    {section:"Strengths",      key:v.decision_style, text:SYNTH.strengths[v.decision_style]},
+    {section:"Challenges",     key:v.energy,         text:SYNTH.challenges[v.energy]},
+    {section:"Relationships",  key:v.social,         text:SYNTH.relationships[v.social]},
+    {section:"Growth path",    key:v.growth_theme,   text:SYNTH.growth[v.growth_theme]},
+    {section:"Conclusion",     key:v.growth_theme,   text:SYNTH.conclusion[v.growth_theme]}
+  ].filter(b => b.text);
+
+  // archetype layer, when the symbolic assessments have been run
+  if (State.past || State.anima){
+    const a = State.past
+      ? "Your symbolic thread reads as "+State.past.life.title+" — "+State.past.life.sub+"."
+      : "Your symbolic thread reads through "+State.anima.family.n+": "+State.anima.family.l;
+    out.splice(5, 0, {section:"Symbolic reading", key:"archetype", text:a});
+  }
+  return out;
+}
+
+function synthesisBlock(){
+  const v = traitVector();
+  const blocks = synthesize();
+  if (!blocks.length) return "";
+  const open = shareUnlocked();
+  const shown = open ? blocks : blocks.slice(0, 2);
+  return '<div class="frame geo" style="margin-top:20px">'+
+    '<p class="eyebrow center">The PsycheIQ Synthesis '+tag("T")+'</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Everything, Read Together</h2>'+
+    '<p class="lead center" style="max-width:640px;margin:8px auto 16px">Your assessments reduced to a pattern, then read back as one profile rather than a stack of separate results.</p>'+
+    '<div class="stack">'+shown.map(b =>
+      '<div class="frame frame--tight"><p class="eyebrow">'+esc(b.section)+'</p>'+
+      '<p style="font-size:14.5px;margin:0">'+esc(b.text)+'</p></div>').join("")+'</div>'+
+    (!open
+      ? '<p class="terms">'+(blocks.length-2)+' more sections \u2014 challenges, relationships, growth path and conclusion \u2014 are part of the full reading.</p>'+
+        '<div class="btn-row" style="margin-top:12px"><button class="btn btn--gold js-trial">Read the full synthesis</button>'+
+        '<button class="btn js-onetime">Unlock one assessment · $1</button></div>'
+      : '<details style="margin-top:14px"><summary style="cursor:pointer;font:600 10px/1 Inter,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim)">Trait vector</summary>'+
+        '<pre style="font-size:12px;color:var(--ink-3);overflow-x:auto;margin-top:10px">'+esc(JSON.stringify(v, null, 2))+'</pre></details>')+
+  '</div>';
+}
