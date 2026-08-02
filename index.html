@@ -578,7 +578,7 @@ select{width:100%;padding:12px 13px;background:rgba(0,0,0,.32);border:1px solid 
       <div class="frame">
         <svg viewBox="0 0 200 200" style="color:var(--gold)" aria-hidden="true"><use href="#sig-logos"/></svg>
         <h2 class="dsp h-md">Unlock the Logos</h2>
-        <small>3 modules · about 12 minutes<br>Pattern, geometry, working memory</small>
+        <small>4 modules · about 20 minutes<br>Pattern, geometry, working memory, applied reason</small>
       </div>
     </button>
   </div>
@@ -608,7 +608,7 @@ select{width:100%;padding:12px 13px;background:rgba(0,0,0,.32);border:1px solid 
     <div class="frame">
       <p class="eyebrow">The instruments</p>
       <p style="font-size:14px">The <b style="color:var(--gold-hi)">Pneuma Map</b> charts six traits — will, insight, fusion, focus, vision, shadow — and names your dominant archetype.</p>
-      <p style="font-size:14px;margin:0">The <b style="color:var(--gold-hi)">Logos Matrix</b> scores systemic logic, mental geometry and recall span, then places you on the tier ladder.</p>
+      <p style="font-size:14px;margin:0">The <b style="color:var(--gold-hi)">Logos Matrix</b> scores systemic logic, mental geometry, recall span and applied reason, then places you on the tier ladder.</p>
     </div>
   </div>
 
@@ -730,7 +730,7 @@ select{width:100%;padding:12px 13px;background:rgba(0,0,0,.32);border:1px solid 
     <div class="frame">
       <p class="eyebrow">What this is not</p>
       <p>The Pneuma Map is a mirror, not a diagnosis. It has no clinical validity and should never stand in for a conversation with a professional.</p>
-      <p style="margin:0">The Logos Matrix uses task families that resemble those in cognitive testing — matrix reasoning, mental rotation, digit span — but it is not a normed or supervised IQ test, and the tier you receive is a label inside this site, not a score you can carry elsewhere.</p>
+      <p style="margin:0">The Logos Matrix uses task families that resemble those in cognitive testing — matrix reasoning, mental rotation, digit span, and verbal, numerical and deductive items — but it is not a normed or supervised IQ test, and the tier you receive is a label inside this site, not a score you can carry elsewhere.</p>
     </div>
   </div>
 </section>
@@ -1785,8 +1785,8 @@ const TESTS = [
   {id:"typology", group:"Character", sigil:"sig-pneuma", name:"The Sixteen Types", meta:"24 choices · 6 min", reg:"T",
    desc:"A traditional four-axis typology, reported with the strength of each preference.", view:"typology",
    done:() => State.typology, status:() => State.typology && State.typology.code},
-  {id:"logos", group:"Mind", sigil:"sig-logos", name:"The Logos Matrix", meta:"3 modules · 12 min", reg:"M",
-   desc:"Matrix reasoning, mental rotation and recall span — the classical core of a cognitive battery.", view:"logos-intro",
+  {id:"logos", group:"Mind", sigil:"sig-logos", name:"The Logos Matrix", meta:"4 modules · 20 min", reg:"M",
+   desc:"Matrix reasoning, mental rotation, recall span and applied verbal, numerical and deductive reason — the classical core of a cognitive battery.", view:"logos-intro",
    done:() => State.logos, status:() => State.logos && State.logos.tier.name+" band"},
   {id:"soulq", group:"Soul", sigil:"sig-star", name:"Soul IQ", meta:"16 statements · 5 min", reg:"T",
    desc:"Existential reasoning, meaning production, transcendent awareness and state command.", view:"soulq",
@@ -2888,9 +2888,10 @@ const KIN_UNIQUE = {
   ESFJ:[["Eleanor Roosevelt the host","who turned a role into decades of visible, organised care"],["Dolley Madison","who held Washington's social and political fabric together by hand"],["Clara Barton the organiser","who built a relief network from scratch, person by person"],["Empress Suiko's court","that maintained cohesion through careful, visible ritual"],["Queen Charlotte","who anchored a court's stability through decades of consistency"],["Harriet Beecher Stowe the community figure","(placed for range) whose home life fed her public one"]]
  },
  logos:{
-  systemic:[["Aristotle","who built the first formal system for testing an argument's validity"],["Kurt Gödel","who proved a system's own limits from inside the system"],["Al-Khwarizmi the systemizer","whose method gave algebra and the algorithm their names"],["Ibn Sina's logic","which organised medicine and philosophy into one testable structure"],["George Boole","who reduced logical reasoning to an algebra of true and false"],["Confucius on the rectification of names","who insisted clear categories precede clear thought"],["Euclid","who built an entire geometry from five stated assumptions"],["Gottlob Frege","who tried to derive all of mathematics from pure logic"],["Zhuge Liang the tactician","whose battle plans read like proofs"],["Ptolemy the systemizer","who built a predictive model precise enough to use for centuries"],["Panini","grammarian whose rules for Sanskrit anticipated formal systems by two millennia"],["Alan Turing the logician","who formalised what a computation even is"],["Leibniz the calculator","who tried to build a universal logical language"],["Al-Farabi on logic","who translated Aristotelian method into a new tradition intact"],["Ada Lovelace the systemizer","who saw the general procedure inside a specific machine"],["Claude Shannon the systemizer","who reduced communication itself to a measurable, testable structure"],["Rosalind Franklin's method","the rigorous cross-checking that revealed a structure others guessed at"],["Emmy Noether the systemizer","who found the rule that made a hundred separate results one theorem"],["Sun Tzu the strategist","whose principles hold as a transferable system, not a set of anecdotes"],["Ibn Khaldun the systemizer","who reduced the rise and fall of states to a repeatable pattern"],["Zhu Xi the systemizer","who organised a millennium of commentary into one coherent structure"],["Averroes","whose commentaries systemised Aristotle for two later traditions at once"],["Hypatia the mathematician","who taught systematic method to a school of her own"],["Katherine Johnson the systemizer","whose calculations had to hold under total scrutiny"],["Al-Biruni the systemizer","who cross-checked every claim against independent measurement"],["Kepler the systemizer","who tested and discarded a dozen models before the ellipse held"],["Cantor","who built an entirely new system for reasoning about infinity"],["Boethius","who preserved and systemised classical logic for the age that followed him"],["Avicenna's Canon","which organised the entire medical knowledge of its era into one system"],["Confucius's disciples' compilation","who systemised an oral teaching into a lasting canon"],["Thales of Miletus","credited with the first purely logical proof in the Western tradition"],["Xenocrates","who organised Plato's teaching into a formal curriculum"],["Al-Jazari the systemizer","whose mechanical devices worked from documented, repeatable principles"],["Zhang Heng the systemizer","whose seismoscope depended on a mechanism others could verify"]],
-  geometry:[["Leonardo da Vinci the draughtsman","who thought in three dimensions before he thought in words"],["M.C. Escher","(the geometric tradition he drew from) impossible structures made rigorously consistent"],["Zaha Hadid the geometrist","who bent Euclidean form and made the bending load-bearing"],["Ictinus of the Parthenon","architect who used proportion as a form of argument"],["Piet Mondrian","(as a study in pure spatial relation) reducing form to relation itself"],["Buckminster Fuller","who found the strongest shape and built an entire philosophy on it"],["Hypatia the geometer","who taught conic sections at the edge of her era's mathematics"],["Al-Jazari the engineer","whose automata depended on precise spatial mechanism"],["Christopher Wren the geometrist","architect trained first as a mathematician"],["Frank Lloyd Wright","who thought about a building's volume before its walls"],["Piero della Francesca","painter-mathematician obsessed with perspective's exact geometry"],["Fibonacci the geometer","whose sequence still describes proportion in shells, petals and spirals"],["Imhotep the architect","who translated abstract proportion into the first stepped pyramid"],["Zhang Heng the instrument-maker","who modeled the heavens as a working armillary sphere"],["Kepler the geometer","who thought planetary motion could be described by nested solids"],["Antoni Gaudí the geometrist","who used catenary models to let gravity solve his structural equations"],["Vitruvius","who located ideal human proportion inside the geometry of a building"],["Su Song the instrument-maker","whose clock tower modeled celestial motion mechanically"],["I.M. Pei the geometrist","architect who thought in pure volumes before materials"],["Eupalinos the tunneler","who built a kilometre-long tunnel from both ends and met in the middle"],["Filippo Brunelleschi","who solved a dome's geometry that had stumped engineers for a century"],["Eratosthenes","who calculated the Earth's circumference from shadow geometry alone"],["Al-Khwarizmi's geometric algebra","which translated shapes into solvable equations"],["Piero the perspectivist","(placed for range) whose vanishing points made illusion mathematically exact"],["Zhu Zaiyu","who calculated equal temperament through pure ratio, centuries before Europe"],["Omar Khayyam the geometer","who solved cubic equations through geometric construction"],["Vitruvian proportion itself","the human body read as a geometric argument"],["Gaudí's Sagrada Família team","who are still solving his geometry a century later"],["Archimedes","who found the exact ratios of the sphere and cylinder and considered it his finest work"],["Ibn al-Haytham the geometer","who modeled the geometry of light and vision directly"],["Le Corbusier","who built an entire proportional system, the Modulor, from the human body"],["Ramanujan the geometer","whose intuitive results anticipated formal proofs by decades"],["Ptolemy the cartographer","who solved the geometry of projecting a sphere onto a flat map"]],
-  memory:[["Simonides of Ceos","credited with inventing the method of loci for holding vast information"],["Hermippus the mnemonist","(ancient tradition) who catalogued figures by systematic recall"],["Zhang Song","reputed for reciting entire texts after a single reading, in Chinese legend"],["Ibn Sina the memorizer","who had reportedly memorised the Quran by age ten"],["Akbar's court historians","who held entire genealogies and treaties in working memory"],["Homer's rhapsodes","oral performers who held an epic's tens of thousands of lines by ear"],["Confucius's disciples","who preserved his teaching by memory before it was written down"],["The Vedic reciters","whose oral tradition preserved scripture with total fidelity for millennia"],["Matteo Ricci the memorist","who taught the memory palace technique to the Ming court"],["Thomas Aquinas","reputed to recall and cross-reference vast theological texts at will"],["Teuta of the bards","(Celtic oral tradition) keepers of law and lineage by memory alone"],["Griots of West Africa","hereditary oral historians holding centuries of genealogy by heart"],["The Talmudic scholars","whose oral law was memorised across generations before compilation"],["Panini the grammarian","whose entire grammar was composed for oral transmission and memorised whole"],["Seneca the Elder","reputed to recite thousands of lines after hearing them once"],["The Bardic colleges of Ireland","who trained reciters for years before they could perform"],["Sushruta's students","who memorised an entire surgical curriculum before touching a blade"],["Rabbi Akiva's students","who preserved oral law that later became the Mishnah"],["Themistocles","said to have known the names of all twenty thousand citizens of Athens"],["The keepers of the Icelandic sagas","who held centuries of lineage and law in oral memory"],["Confucian civil examiners","who had to reproduce classical texts from memory to qualify"],["The Rig Veda's transmitters","who preserved exact pronunciation across three thousand years, unwritten"],["Solomon Shereshevsky","(the historically documented mnemonist) whose recall bordered on total"],["Zhuge Liang the strategist","reputed to hold an entire campaign's logistics without notes"],["The heralds of medieval courts","who held entire genealogies of nobility on demand"],["Quintilian","rhetorician who formalised memory training as a core skill of oratory"],["The Aztec tlacuilo","record-keepers trained to recite the content behind each painted codex"],["Josephus","historian reputed to reconstruct long genealogies and events from memory"],["Sei Shōnagon the diarist","whose Pillow Book recalls court life in exact, layered detail"],["The Sanskrit grammarians","who preserved Panini's entire rule-set by oral chain for centuries"],["Charlemagne's court scholars","tasked with holding and correcting vast bodies of scripture"],["The Aboriginal songline keepers","who encode navigable geography across a continent in memorised song"],["Confucius himself","said to have refined the Book of Songs from memory and tradition combined"]]
+  systemic:[["Kurt Gödel","who proved a system's own limits from inside the system"],["Al-Khwarizmi the systemizer","whose method gave algebra and the algorithm their names"],["Ibn Sina's logic","which organised medicine and philosophy into one testable structure"],["Confucius on the rectification of names","who insisted clear categories precede clear thought"],["Euclid","who built an entire geometry from five stated assumptions"],["Zhuge Liang the tactician","whose battle plans read like proofs"],["Ptolemy the systemizer","who built a predictive model precise enough to use for centuries"],["Panini","grammarian whose rules for Sanskrit anticipated formal systems by two millennia"],["Alan Turing the logician","who formalised what a computation even is"],["Leibniz the calculator","who tried to build a universal logical language"],["Ada Lovelace the systemizer","who saw the general procedure inside a specific machine"],["Claude Shannon the systemizer","who reduced communication itself to a measurable, testable structure"],["Rosalind Franklin's method","the rigorous cross-checking that revealed a structure others guessed at"],["Emmy Noether the systemizer","who found the rule that made a hundred separate results one theorem"],["Sun Tzu the strategist","whose principles hold as a transferable system, not a set of anecdotes"],["Ibn Khaldun the systemizer","who reduced the rise and fall of states to a repeatable pattern"],["Zhu Xi the systemizer","who organised a millennium of commentary into one coherent structure"],["Hypatia the mathematician","who taught systematic method to a school of her own"],["Katherine Johnson the systemizer","whose calculations had to hold under total scrutiny"],["Al-Biruni the systemizer","who cross-checked every claim against independent measurement"],["Kepler the systemizer","who tested and discarded a dozen models before the ellipse held"],["Avicenna's Canon","which organised the entire medical knowledge of its era into one system"],["Confucius's disciples' compilation","who systemised an oral teaching into a lasting canon"],["Al-Jazari the systemizer","whose mechanical devices worked from documented, repeatable principles"],["Zhang Heng the systemizer","whose seismoscope depended on a mechanism others could verify"]],
+  geometry:[["Leonardo da Vinci the draughtsman","who thought in three dimensions before he thought in words"],["M.C. Escher","(the geometric tradition he drew from) impossible structures made rigorously consistent"],["Zaha Hadid the geometrist","who bent Euclidean form and made the bending load-bearing"],["Ictinus of the Parthenon","architect who used proportion as a form of argument"],["Piet Mondrian","(as a study in pure spatial relation) reducing form to relation itself"],["Buckminster Fuller","who found the strongest shape and built an entire philosophy on it"],["Hypatia the geometer","who taught conic sections at the edge of her era's mathematics"],["Al-Jazari the engineer","whose automata depended on precise spatial mechanism"],["Christopher Wren the geometrist","architect trained first as a mathematician"],["Frank Lloyd Wright","who thought about a building's volume before its walls"],["Piero della Francesca","painter-mathematician obsessed with perspective's exact geometry"],["Imhotep the architect","who translated abstract proportion into the first stepped pyramid"],["Zhang Heng the instrument-maker","who modeled the heavens as a working armillary sphere"],["Kepler the geometer","who thought planetary motion could be described by nested solids"],["Antoni Gaudí the geometrist","who used catenary models to let gravity solve his structural equations"],["Vitruvius","who located ideal human proportion inside the geometry of a building"],["Su Song the instrument-maker","whose clock tower modeled celestial motion mechanically"],["I.M. Pei the geometrist","architect who thought in pure volumes before materials"],["Eupalinos the tunneler","who built a kilometre-long tunnel from both ends and met in the middle"],["Filippo Brunelleschi","who solved a dome's geometry that had stumped engineers for a century"],["Piero the perspectivist","(placed for range) whose vanishing points made illusion mathematically exact"],["Gaudí's Sagrada Família team","who are still solving his geometry a century later"],["Ibn al-Haytham the geometer","who modeled the geometry of light and vision directly"],["Le Corbusier","who built an entire proportional system, the Modulor, from the human body"],["Ptolemy the cartographer","who solved the geometry of projecting a sphere onto a flat map"]],
+  memory:[["Simonides of Ceos","credited with inventing the method of loci for holding vast information"],["Hermippus the mnemonist","(ancient tradition) who catalogued figures by systematic recall"],["Zhang Song","reputed for reciting entire texts after a single reading, in Chinese legend"],["Ibn Sina the memorizer","who had reportedly memorised the Quran by age ten"],["Akbar's court historians","who held entire genealogies and treaties in working memory"],["Homer's rhapsodes","oral performers who held an epic's tens of thousands of lines by ear"],["Confucius's disciples","who preserved his teaching by memory before it was written down"],["The Vedic reciters","whose oral tradition preserved scripture with total fidelity for millennia"],["Matteo Ricci the memorist","who taught the memory palace technique to the Ming court"],["Teuta of the bards","(Celtic oral tradition) keepers of law and lineage by memory alone"],["Griots of West Africa","hereditary oral historians holding centuries of genealogy by heart"],["The Bardic colleges of Ireland","who trained reciters for years before they could perform"],["Sushruta's students","who memorised an entire surgical curriculum before touching a blade"],["The keepers of the Icelandic sagas","who held centuries of lineage and law in oral memory"],["The Rig Veda's transmitters","who preserved exact pronunciation across three thousand years, unwritten"],["Solomon Shereshevsky","(the historically documented mnemonist) whose recall bordered on total"],["Zhuge Liang the strategist","reputed to hold an entire campaign's logistics without notes"],["The heralds of medieval courts","who held entire genealogies of nobility on demand"],["The Aztec tlacuilo","record-keepers trained to recite the content behind each painted codex"],["Josephus","historian reputed to reconstruct long genealogies and events from memory"],["Sei Shōnagon the diarist","whose Pillow Book recalls court life in exact, layered detail"],["Charlemagne's court scholars","tasked with holding and correcting vast bodies of scripture"],["The Aboriginal songline keepers","who encode navigable geography across a continent in memorised song"],["Confucius himself","said to have refined the Book of Songs from memory and tradition combined"],["Panini the grammarian","whose entire grammar was composed for oral transmission and memorised whole"]],
+  applied:[["Aristotle","who built the first formal system for testing an argument's validity"],["George Boole","who reduced logical reasoning to an algebra of true and false"],["Gottlob Frege","who tried to derive all of mathematics from pure logic"],["Al-Farabi on logic","who translated Aristotelian method into a new tradition intact"],["Averroes","whose commentaries systemised Aristotle for two later traditions at once"],["Cantor","who built an entirely new system for reasoning about infinity"],["Boethius","who preserved and systemised classical logic for the age that followed him"],["Thales of Miletus","credited with the first purely logical proof in the Western tradition"],["Xenocrates","who organised Plato's teaching into a formal curriculum"],["Fibonacci the reckoner","whose sequence is the number series every later puzzle borrows from"],["Eratosthenes","who worked out the size of the Earth from a shadow and a day's walk"],["Al-Khwarizmi's algebra","which turned a worded problem into an equation solvable by rule"],["Zhu Zaiyu","who solved equal temperament as a pure problem of ratio"],["Omar Khayyam the algebraist","who classified and solved the cubic equations of his age"],["Vitruvian proportion itself","the human body read as a set of exact ratios"],["Archimedes","who reasoned out the exact ratio of sphere to cylinder and called it his finest work"],["Ramanujan the pattern-reader","who saw the relation between numbers decades before anyone could prove it"],["Thomas Aquinas","who argued by stating the strongest objection to his own position first"],["The Talmudic scholars","whose method turns every text into a chain of stated objection and reply"],["Seneca the Elder","who collected the declamations of his age — argument treated as a trainable craft"],["Rabbi Akiva's students","who derived binding conclusions from the smallest detail in a text"],["Confucian civil examiners","who marked candidates on argued policy essays, not recall alone"],["Quintilian","who taught that an argument is won by the order its parts are placed in"],["The Sanskrit grammarians","who analysed every word down to root, affix and the rule joining them"],["Themistocles","who read an ambiguous oracle correctly when the whole assembly read it wrong"]]
  },
  soulq:{
   cet:[["Søren Kierkegaard","who treated existence itself as the central question worth living"],["The Buddha's inquiry","who questioned the nature of suffering directly, not secondhand"],["Job's argument with God","who demanded an answer rather than accept silence, in scripture"],["Blaise Pascal","who weighed the wager of existence with total seriousness"],["Nagarjuna","philosopher who questioned the nature of existence itself down to its root"],["Ecclesiastes' author","who tested every form of meaning and reported back honestly"],["Marcus Aurelius the philosopher","who interrogated his own mortality daily in writing"],["Simone de Beauvoir","who examined existence as a condition to be chosen, not inherited"],["Shankara","who questioned the nature of the self down to its foundation"],["Epicurus","who reasoned directly about death rather than avoid the question"],["Rabbi Akiva's late calling","who took up the hardest questions only in his forties"],["Al-Ghazali","scholar who abandoned certainty to question everything from the ground up"],["The Stoic Epictetus","who questioned what was truly his to control"],["Camus's confrontation","(the tradition he wrote from) facing absurdity without flinching"],["Heraclitus","who reasoned that change itself was the one constant worth examining"],["Parmenides","who questioned whether change was even real to begin with"],["Zhuangzi's butterfly dream","who questioned whether he was a man dreaming a butterfly, or the reverse"],["Michel de Montaigne","who interrogated his own certainties in essay after essay"],["Anaximander","who reasoned about the origin of everything from an unbounded first principle"],["Democritus","who reasoned his way to atoms without any instrument that could see them"],["Xenophanes","who questioned whether the gods were built in humanity's own image"],["Zeno of Citium","who built an entire discipline around living according to reason"],["Ashvaghosha","poet-philosopher who questioned existence directly through verse"],["Hui Shi","logician whose paradoxes forced his rivals to examine their own assumptions"],["Mozi","who questioned inherited loyalty itself in favor of impartial reasoning"]],
@@ -2923,7 +2924,7 @@ const BUCKET_OF = {
          ISTJ:"builder", ISTP:"builder", ENTP:"rebel", ESTP:"rebel",
          INFJ:"healer", ISFJ:"healer", ISFP:"guardian", ESFJ:"guardian",
          INTP:"seeker", ENFP:"seeker", ESFP:"trickster", ENFJ:"trickster"},
-  module:{systemic:"visionary", geometry:"builder", memory:"guardian"},
+  module:{systemic:"visionary", geometry:"builder", memory:"guardian", applied:"seeker"},
   soulq: {cet:"seeker", pmp:"visionary", ta:"healer", cse:"guardian"},
   lineage:{pleiadian:"healer", sirian:"guardian", arcturian:"seeker", lyran:"visionary",
            andromedan:"rebel", orion:"trickster", draconian:"sovereign", terran:"builder"},
@@ -2988,7 +2989,8 @@ const SW = {
  logos:{
   systemic:{s:["Holds a multi-step rule in mind without losing the thread","Spots the exception that breaks a stated pattern","Transfers a solved structure to a new, unrelated problem"], w:["Can over-apply a rule to a case that's the exception","Slower on problems with no clean underlying structure"]},
   geometry:{s:["Manipulates spatial relationships without needing to see the answer drawn out","Distinguishes a true rotation from a mirror instantly","Reads a floor plan, a diagram or a chart at a glance"], w:["Struggles when a problem has no spatial analogue to lean on"]},
-  memory:{s:["Holds a long sequence under real time pressure","Reorders held information without losing any of it","Recovers quickly after a disrupted train of thought"], w:["Vulnerable to interruption at the exact moment of encoding"]}
+  memory:{s:["Holds a long sequence under real time pressure","Reorders held information without losing any of it","Recovers quickly after a disrupted train of thought"], w:["Vulnerable to interruption at the exact moment of encoding"]},
+  applied:{s:["Reads a question closely enough to catch what it is actually asking","Converts a worded problem into the relation underneath it","Rejects the first plausible answer long enough to check the others"], w:["Can slow down on items where the fast intuition was in fact correct","Precision with language and number does not always transfer to items with no stated rule"]}
  },
  anima:{
   pleiadian:{s:["Regulates a room's emotional temperature without being asked","Makes people feel safe enough to be honest"], w:["Absorbs states that were never actually theirs to carry"]},
@@ -3176,7 +3178,57 @@ const FILLS = ["none","half","solid"];
 const MODULES = [
   {key:"systemic", name:"Systemic Logic",  blurb:"Complete the matrix. Each row and column follows a rule.", n:8},
   {key:"geometry", name:"Mental Geometry", blurb:"OBJECTIVE: the target figure is shown once at the top. Exactly one of the four options below is that same figure turned on the spot — rotated, never flipped. The other three are its mirror image, which can never be produced by rotation. Find the rotation.", n:6},
-  {key:"memory",   name:"Working Memory",  blurb:"Watch the sequence, then enter it.", n:6}
+  {key:"memory",   name:"Working Memory",  blurb:"Watch the sequence, then enter it.", n:6},
+  {key:"applied",  name:"Applied Reason",  blurb:"Verbal, numerical and deductive items. Exactly one option is correct. Read the whole set before you choose — several are written so the first plausible answer is the wrong one.", n:21}
+];
+
+/* Module 4 · Applied Reason — 21 items ported from the IQ Snapshot bank,
+   ordered easy → hard so the difficulty ladder in logosShell() stays honest.
+   `a` is the index of the correct option in `o` as written here; option order
+   is shuffled per run in startLogos(), which rewrites the index. */
+const APPLIED_ITEMS = [
+  {d:"quantitative", k:"Arithmetic",         q:"What is 15% of 200?",
+   o:["15","20","30","45"], a:2},
+  {d:"verbal",       k:"Verbal analogy",     q:"Bird is to nest as bee is to:",
+   o:["Honey","Hive","Flower","Wing"], a:1},
+  {d:"pattern",      k:"Number series",      q:"What number comes next? 81, 27, 9, 3, ?",
+   o:["0","1","2","6"], a:1},
+  {d:"verbal",       k:"Classification",     q:"Which word does not belong with the others? Copper, Iron, Silver, Oxygen",
+   o:["Copper","Iron","Silver","Oxygen"], a:3},
+  {d:"logical",      k:"Ordering logic",     q:"A is older than B. C is younger than B. Who is oldest?",
+   o:["A","B","C","Cannot be determined"], a:0},
+  {d:"quantitative", k:"Rate and distance",  q:"A train travels 60 miles per hour for 2.5 hours. How far does it travel?",
+   o:["120 miles","135 miles","150 miles","180 miles"], a:2},
+  {d:"verbal",       k:"Vocabulary relation",q:"Which pair is most similar in meaning?",
+   o:["Exhausted and tired","Brave and timid","Ancient and modern","Silent and noisy"], a:0},
+  {d:"spatial",      k:"Shape sequence",     q:"What shape comes next? Triangle, diamond, square, triangle, diamond, ?",
+   o:["Circle","Triangle","Diamond","Square"], a:3},
+  {d:"pattern",      k:"Number series",      q:"What number comes next? 3, 7, 15, 31, ?",
+   o:["47","62","63","64"], a:2},
+  {d:"verbal",       k:"Verbal analogy",     q:"Author is to book as composer is to:",
+   o:["Paint","Instrument","Symphony","Library"], a:2},
+  {d:"logical",      k:"Logical deduction",  q:"All bloons are kelps. No kelps are mards. Which statement must be true?",
+   o:["All mards are bloons.","Some bloons are mards.","No bloons are mards.","No kelps are bloons."], a:2},
+  {d:"pattern",      k:"Letter pattern",     q:"What comes next? AZ, BY, CX, ?",
+   o:["DW","DV","EX","EW"], a:0},
+  {d:"verbal",       k:"Verbal analogy",     q:"Transparent is to opaque as flexible is to:",
+   o:["Rigid","Elastic","Clear","Curved"], a:0},
+  {d:"quantitative", k:"Rate reasoning",     q:"If 3 machines make 3 parts in 3 minutes, how many minutes do 9 machines need to make 9 parts?",
+   o:["3 minutes","6 minutes","9 minutes","27 minutes"], a:0},
+  {d:"pattern",      k:"Number series",      q:"What number comes next? 2, 3, 5, 8, 13, ?",
+   o:["18","20","21","23"], a:2},
+  {d:"logical",      k:"Logical deduction",  q:"Some zargs are nims. All nims are tors. Which statement must be true?",
+   o:["All zargs are tors.","Some zargs are tors.","No zargs are tors.","All tors are zargs."], a:1},
+  {d:"quantitative", k:"Reverse percentage", q:"A price is reduced by 20% and is now $80. What was the original price?",
+   o:["$96","$100","$104","$120"], a:1},
+  {d:"verbal",       k:"Verbal analogy",     q:"Candid is to deceptive as scarce is to:",
+   o:["Rare","Hidden","Abundant","Precise"], a:2},
+  {d:"logical",      k:"Logical deduction",  q:"If rain always makes the street wet, and the street is not wet, what must be true?",
+   o:["It rained earlier.","It did not rain.","The street is covered.","Rain is impossible."], a:1},
+  {d:"pattern",      k:"Letter pattern",     q:"What letter comes next? B, D, G, K, P, ?",
+   o:["T","U","V","W"], a:2},
+  {d:"quantitative", k:"Code reasoning",     q:"Using A=1, B=2, C=3, and so on, CAT = 24 and DOG = 26. What is FISH?",
+   o:["38","40","42","44"], a:2}
 ];
 let LRun = null, LTimer = null, memTimeouts = [];
 
@@ -3280,7 +3332,7 @@ function renderLogosIntro(){
     '<div class="frame" style="max-width:720px;margin:0 auto;text-align:center">'+
       '<svg viewBox="0 0 200 200" style="width:74px;height:74px;color:var(--gold)"><use href="#sig-logos"/></svg>'+
       '<p class="eyebrow" style="margin-top:14px">The Logos Intellectual Matrix</p>'+
-      '<h1 class="dsp h-lg" style="color:var(--ink)">Three Modules</h1>'+orn+
+      '<h1 class="dsp h-lg" style="color:var(--ink)">Four Modules</h1>'+orn+
       '<div style="text-align:left;max-width:460px;margin:0 auto">'+
         MODULES.map((m,i) => '<div class="stat"><span>Module '+(i+1)+' · '+esc(m.name)+'</span><b>'+m.n+' items</b></div>').join("")+
       '</div>'+
@@ -3292,7 +3344,12 @@ function renderLogosIntro(){
   $("#l-start").onclick = startLogos;
 }
 function startLogos(){
-  LRun = {mod:0, i:0, correct:[0,0,0], span:0, t0:Date.now(), sel:null, memInput:[], memSeq:[], memPhase:"show", memSpanTrial:0};
+  LRun = {mod:0, i:0, correct:[0,0,0,0], span:0, t0:Date.now(), sel:null, memInput:[], memSeq:[], memPhase:"show", memSpanTrial:0,
+          appliedHit:[],
+          applied:APPLIED_ITEMS.map(it => {
+            const picks = shuffle(it.o.map((label,i) => ({label, right:i === it.a})));
+            return {d:it.d, k:it.k, q:it.q, options:picks.map(p => p.label), correct:picks.findIndex(p => p.right)};
+          })};
   clearInterval(LTimer);
   LTimer = setInterval(() => { const el = $("#l-clock"); if (el) el.textContent = clock(); }, 1000);
   nextItem();
@@ -3309,6 +3366,7 @@ function nextItem(){
   const key = MODULES[LRun.mod].key;
   if (key === "systemic") LRun.item = genMatrix(LRun.i < 3 ? 1 : LRun.i < 6 ? 2 : 3);
   else if (key === "geometry") LRun.item = genRotationItem();
+  else if (key === "applied") LRun.item = LRun.applied[LRun.i];
   else return startMemoryTrial();
   renderLogos();
 }
@@ -3317,7 +3375,12 @@ function logosShell(inner){
   const total = MODULES.reduce((a,x)=>a+x.n,0);
   const done = MODULES.slice(0,LRun.mod).reduce((a,x)=>a+x.n,0) + LRun.i;
   const pct = Math.round(done/total*100);
-  const diff = LRun.mod === 0 ? (LRun.i < 3 ? "Initiate" : LRun.i < 6 ? "Adept" : "Sovereignty") : (LRun.i < 3 ? "Adept" : "Sovereignty");
+  // modules that ramp from the bottom get three bands; the two that open at
+  // Adept difficulty get two. Expressed as a fraction so it holds at any m.n.
+  const frac = m.n ? LRun.i / m.n : 0;
+  const diff = (m.key === "systemic" || m.key === "applied")
+    ? (frac < .375 ? "Initiate" : frac < .75 ? "Adept" : "Sovereignty")
+    : (frac < .5 ? "Adept" : "Sovereignty");
   return '<div class="test-head"><svg style="color:var(--gold)" viewBox="0 0 200 200"><use href="#sig-logos"/></svg>'+
       '<h2 class="dsp h-md" style="color:var(--ink)">The Logos Matrix</h2></div>'+
     '<div class="mod-grid" style="margin-top:20px">'+
@@ -3350,12 +3413,17 @@ function renderLogos(){
       '<p class="eyebrow center" style="margin:6px 0 0">Which completes it?</p>'+
       '<div class="opt-grid">'+it.options.map((a,i) =>
         '<button class="opt-tile" data-pick="'+i+'"><em>'+"ABCDEF"[i]+'</em>'+shapeSVG(a,40)+'</button>').join("")+'</div>';
-  } else {
+  } else if (key === "geometry"){
     inner = '<p class="eyebrow center" style="margin:18px 0 6px">Target figure</p>'+
       '<div class="center">'+pathSVG(it.target,104)+'</div>'+
       '<p class="eyebrow center" style="margin:14px 0 0">Which one is this figure rotated?</p>'+
       '<div class="opt-grid">'+it.options.map((p,i) =>
         '<button class="opt-tile" data-pick="'+i+'"><em>'+"ABCD"[i]+'</em>'+pathSVG(p,88)+'</button>').join("")+'</div>';
+  } else {
+    inner = '<p class="eyebrow" style="margin:18px 0 6px">'+esc(it.k)+'</p>'+
+      '<p class="q-text">'+esc(it.q)+'</p>'+
+      '<div class="opts">'+it.options.map((label,i) =>
+        '<button class="opt" data-pick="'+i+'"><span class="key">'+"ABCD"[i]+'</span><span>'+esc(label)+'</span></button>').join("")+'</div>';
   }
   inner += '<div class="nav-row"><span></span><button class="btn btn--gold" id="l-submit" disabled>Submit solution</button></div>';
   $("#view-logos").innerHTML = logosShell(inner);
@@ -3364,7 +3432,9 @@ function renderLogos(){
     b.classList.add("sel"); LRun.sel = +b.dataset.pick; $("#l-submit").disabled = false;
   });
   $("#l-submit").onclick = () => {
-    if (LRun.sel === LRun.item.correct) LRun.correct[LRun.mod]++;
+    const right = LRun.sel === LRun.item.correct;
+    if (right) LRun.correct[LRun.mod]++;
+    if (key === "applied") LRun.appliedHit[LRun.i] = right;
     LRun.i++; nextItem();
   };
 }
@@ -3425,18 +3495,26 @@ function renderMemory(){
 
 function finishLogos(){
   clearInterval(LTimer);
-  const sys = LRun.correct[0]/MODULES[0].n, geo = LRun.correct[1]/MODULES[1].n, mem = LRun.correct[2]/MODULES[2].n;
+  const sys = LRun.correct[0]/MODULES[0].n, geo = LRun.correct[1]/MODULES[1].n,
+        mem = LRun.correct[2]/MODULES[2].n, app = LRun.correct[3]/MODULES[3].n;
   const secs = Math.floor((Date.now()-LRun.t0)/1000);
-  const par = 720;                                  // 12 minutes is par for the battery
+  const par = 1200;                                 // 20 minutes is par for the four-module battery
   const speed = Math.max(0, Math.min(1, (par - secs)/par));
-  const percent = Math.round((sys*40 + geo*30 + mem*30)*0.9 + speed*10);
+  const percent = Math.round((sys*25 + geo*20 + mem*20 + app*35)*0.9 + speed*10);
   const band = p => p >= .85 ? "Ascendant" : p >= .65 ? "Elite" : p >= .45 ? "Consistent" : p >= .25 ? "Emerging" : "Latent";
-  const domModule = [["systemic",sys],["geometry",geo],["memory",mem]].sort((a,b)=>b[1]-a[1])[0][0];
+  const domModule = [["systemic",sys],["geometry",geo],["memory",mem],["applied",app]].sort((a,b)=>b[1]-a[1])[0][0];
+  // per-domain breakdown across the ported verbal/numerical/deductive bank
+  const domains = {};
+  LRun.applied.forEach((it,i) => {
+    const d = domains[it.d] || (domains[it.d] = {correct:0, of:0});
+    d.of++; if (LRun.appliedHit[i]) d.correct++;
+  });
   saveResult("logos", {
     systemic:{correct:LRun.correct[0], of:MODULES[0].n, band:band(sys)},
     geometry:{correct:LRun.correct[1], of:MODULES[1].n, grade:Math.max(1, Math.ceil(geo*5))},
     memory:{correct:LRun.correct[2], of:MODULES[2].n, span:LRun.span || 3,
             label:(LRun.span >= 7 ? "Ascendant recall" : LRun.span >= 6 ? "Sovereign recall" : LRun.span >= 5 ? "Steady recall" : "Foundational recall")},
+    applied:{correct:LRun.correct[3], of:MODULES[3].n, band:band(app), domains},
     percent, tier:tierFor(percent), seconds:secs, speed:Math.round(speed*100),
     domModule, kindred:pickKindred("logos","module",domModule)
   });
@@ -3601,7 +3679,7 @@ function pneumaPanel(p){
 function logosPanel(l){
   if (!l) return '<div class="frame center"><p class="eyebrow">Logos matrix</p>'+
     '<h2 class="dsp h-md" style="color:var(--ink)">Not yet measured</h2>'+orn+
-    '<p style="font-size:14px">Three modules, about twelve minutes.</p>'+
+    '<p style="font-size:14px">Four modules, about twenty minutes.</p>'+
     '<button class="btn btn--gold btn--wide" data-go="logos-intro">Unlock the Logos</button></div>';
   return '<div class="frame center">'+
     '<p class="eyebrow">Your Logos matrix</p>'+
@@ -3612,7 +3690,13 @@ function logosPanel(l){
       '<div class="tierbar t1"><em>Systemic logic</em><b>'+esc(l.systemic.band)+' band</b></div>'+
       '<div class="tierbar t2"><em>Mental geometry</em><b>Mastery grade '+l.geometry.grade+'</b></div>'+
       '<div class="tierbar"><em>Working memory</em><b>'+esc(l.memory.label)+' · span '+l.memory.span+'</b></div>'+
+      (l.applied ? '<div class="tierbar"><em>Applied reason</em><b>'+esc(l.applied.band)+' band · '+l.applied.correct+'/'+l.applied.of+'</b></div>' : "")+
     '</div>'+
+    (l.applied && l.applied.domains ? '<div class="pyramid" style="margin-top:10px">'+
+      Object.keys(l.applied.domains).map(d => {
+        const s = l.applied.domains[d];
+        return '<div class="tierbar"><em>'+esc(d)+' reasoning</em><b>'+s.correct+'/'+s.of+'</b></div>';
+      }).join("")+'</div>' : "")+
     '<p class="eyebrow" style="margin:18px 0 6px">'+l.percent+'% of instrument range</p>'+clearLink("logos")+'</div>'+
     swBlock("logos", l.domModule, l.domModule)+
     kindredBlock("logos", l.domModule+" reasoning");
