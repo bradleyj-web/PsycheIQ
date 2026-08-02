@@ -1,12 +1,32 @@
 # HANDOFF
 
+> **Positioning note (read first).** The front door of this product is **Mind • Body • Soul** — plain, beginner-friendly language. The Hermetic naming (Pneuma Map, Logos Matrix, Anima Field, Akashic Draw) is now a *deep lore layer*: it appears as a small secondary line under each plain name and in code comments, never as the entry point. See `PLAIN` and `PLAIN_ARCH` in `index.html` for the mapping. When adding anything user-facing, lead with what a beginner already understands; the mythology is the reward for going deeper, not the price of admission.
+
 Written for whichever agent (or human) picks this up next. There's no chat history attached to this repo, so this doc is the only record of what's pending and why things are built the way they are. Read this before touching `index.html`.
+
+## Assessment lineup (7 across 3 dimensions)
+
+| Dimension | Assessment | Lore name |
+|---|---|---|
+| 🧠 Mind | Personality Profile | The Pneuma Map |
+| 🧠 Mind | Thinking Style | The Sixteen Types |
+| 🧠 Mind | Mind IQ | The Logos Matrix |
+| 🧬 Body | Body IQ | The Corpus Field |
+| ✨ Soul | Soul IQ | The Anima Sophia |
+| ✨ Soul | Your Birth Sky | The Anima Field |
+| ✨ Soul | Past Life Story | The Akashic Draw |
+
+Results combine into **Your PsycheIQ Blueprint** (`blueprint()` in `index.html`) — a Mind/Body/Soul character sheet with a Growth Path pointing at the weakest completed dimension, plus a Growth Stage / Experience Level standing (`growthStanding()`) that gives users an accessible progress frame without requiring any tarot or Hermetic knowledge.
+
+**Body IQ has no test-specific Kindred Figures pool yet.** It currently falls back to drawing all 3 figures from its mapped shared bucket (see the fallback branch in `pickKindred()`). Writing a dedicated 100-name pool for it — keyed by `energy`/`stress`/`habits`/`attune` — would bring it in line with the other six and push the dataset to 900. The test in `tests/` asserts the *existing* 800; update its expectations if you add that pool.
 
 ## Pending task: rebuild the Deck page
 
 The current `/tarot` view (`renderTarot()`, around line 1968 of `index.html`) is a simple gallery: 22 Major Arcana cards, a "card of the day," tap-a-card-for-its-meaning. **This is a placeholder and needs to be replaced** with the interactive reading described below. This spec is transcribed as exactly as possible from the person who owns this product — preserve the intent even where the wording was loose.
 
 ### What it should become
+
+Note the repositioning above: tarot should read as a *reflective tool inside the Soul dimension*, not as the platform's headline. Frame it as "explore symbolic patterns to reflect on yourself," not "take a tarot test."
 
 A **limited reading using only the 22 Major Arcana** (no minor arcana cards are added to the deck — see "category" below for how the four suits get folded in instead).
 

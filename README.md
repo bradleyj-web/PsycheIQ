@@ -8,16 +8,19 @@ Live at **[psycheiq.live](https://psycheiq.live)**.
 
 ## What's inside
 
-Six instruments, feeding one composite **PsycheIQ Score**:
+**Mind • Body • Soul** is the front door. Seven assessments across three dimensions feed one **PsycheIQ Blueprint**:
 
-| Instrument | Category | What it measures |
+| Assessment | Dimension | What it looks at |
 |---|---|---|
-| The Pneuma Map | Character | 14 dilemmas → six-trait archetype |
-| The Sixteen Types | Character | Traditional four-axis typology |
-| The Logos Matrix | Mind | Matrix reasoning, mental rotation, working memory span |
-| Soul IQ | Soul | Existential reasoning, meaning, transcendent awareness, state command |
-| The Anima Field | Soul | Birth sky (real orbital mechanics) → starseed lineage, soul family, tarot significator |
-| The Akashic Draw | Soul | Timed forced-choice draw → one of 64 past-life narratives |
+| Personality Profile | 🧠 Mind | 14 dilemmas → six-trait archetype |
+| Thinking Style | 🧠 Mind | Four-axis typology, 16 types |
+| Mind IQ | 🧠 Mind | Matrix reasoning, mental rotation, working memory span |
+| Body IQ | 🧬 Body | Energy rhythm, stress response, habit strength, body awareness |
+| Soul IQ | ✨ Soul | Existential reasoning, meaning, transcendent awareness, state command |
+| Your Birth Sky | ✨ Soul | Birth chart from real orbital mechanics → lineage, soul family, significator |
+| Past Life Story | ✨ Soul | Timed forced-choice draw → one of 64 past-life narratives |
+
+Each carries a quieter "lore name" underneath (The Pneuma Map, The Logos Matrix, The Anima Field…) — deep layer, not the entry point.
 
 Plus: a Major Arcana reading room, daily competitive Trials with a leaderboard, live 1:1 tarot readings booking, and a Kindred Figures engine drawing from a pool of 800 historical/mythic names (200 shared archetypes + 100 unique per test).
 
