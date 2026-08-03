@@ -1,0 +1,10 @@
+{
+  "name": "psycheiq-deploy-helpers",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy-secrets": "node deploy-secrets.mjs"
+  },
+  "devDependencies": {}
+}

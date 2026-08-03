@@ -16,3 +16,8 @@ Thumbs.db
 *.log
 node_modules/
 psycheiq-repo/
+.env
+secrets.env
+secrets.env.*
+helpers/node_modules/
+helpers/package-lock.json
