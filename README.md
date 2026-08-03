@@ -77,7 +77,7 @@ This project includes a native Android WebView wrapper in `android/`.
 - Privacy policy URL: `https://bradleyj-web.github.io/PsycheIQ/privacy.html`
 - Play Store subscription product ID: `psycheiq_monthly_access`
 
-The Android app is configured as membership-only. It uses Google Play Billing for the `$12.99/month` membership, then unlocks tests and member results inside the hosted web app. The browser version can still keep a one-time report unlock as a future web checkout path.
+The Android app is configured as membership-only. It uses Google Play Billing for the `$19.99/month` membership, then unlocks tests and member results inside the hosted web app. The browser version can still keep a one-time report unlock as a future web checkout path.
 
 Build commands from `android/`:
 

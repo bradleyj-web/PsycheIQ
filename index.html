@@ -614,8 +614,8 @@ select{width:100%;padding:12px 13px;background:rgba(0,0,0,.32);border:1px solid 
       <p class="eyebrow">Ascension tiers</p>
       <p style="font-size:14px">Read one section free. Open all ten, drop the ads, and see how your two results speak to each other.</p>
       <div class="stat"><span>Seeker</span><b>Free</b></div>
-      <div class="stat"><span>Initiate · one report</span><b>$1</b></div>
-      <div class="stat"><span>Adept · everything</span><b>$12.99/mo</b></div>
+      <div class="stat"><span>Initiate · one report</span><b>$3.99</b></div>
+      <div class="stat"><span>Adept · everything</span><b>$19.99/mo</b></div>
       <button class="btn btn--wide" data-go="tiers" style="margin-top:16px">Compare tiers</button>
     </div>
     <div class="frame">
@@ -677,7 +677,7 @@ select{width:100%;padding:12px 13px;background:rgba(0,0,0,.32);border:1px solid 
     </div>
     <div class="frame price price--feature">
       <p class="eyebrow" style="color:var(--gold)">Adept · most chosen</p>
-      <div class="amt">$12.99</div><div class="per">per month</div>
+      <div class="amt">$19.99</div><div class="per">per month</div>
       <ul>
         <li>All 10 sections, both profiles</li>
         <li>Hermetic Synthesis: Pneuma × Logos</li>
@@ -686,11 +686,11 @@ select{width:100%;padding:12px 13px;background:rgba(0,0,0,.32);border:1px solid 
         <li>No ads, anywhere</li>
       </ul>
       <button class="btn btn--gold btn--wide js-trial">Start 3-day free trial</button>
-      <p class="terms">Your card is charged $12.99 when the 3-day trial ends. Cancel any time before then from Account and you pay nothing. We email you the day before the trial ends. Renews monthly until cancelled.</p>
+      <p class="terms">Your card is charged $19.99 when the 3-day trial ends. Cancel any time before then from Account and you pay nothing. We email you the day before the trial ends. Renews monthly until cancelled.</p>
     </div>
     <div class="frame price">
       <p class="eyebrow">Initiate</p>
-      <div class="amt">$1</div><div class="per">once, one report</div>
+      <div class="amt">$3.99</div><div class="per">once, one report</div>
       <ul>
         <li>All 10 sections for one result</li>
         <li>Yours permanently</li>
@@ -698,8 +698,8 @@ select{width:100%;padding:12px 13px;background:rgba(0,0,0,.32);border:1px solid 
         <li class="no">Second report still sealed</li>
         <li class="no">Ads remain</li>
       </ul>
-      <button class="btn btn--wide js-onetime">Unlock one report · $1</button>
-      <p class="terms">A single charge of $1. No subscription, nothing to cancel.</p>
+      <button class="btn btn--wide js-onetime">Unlock one report · $3.99</button>
+      <p class="terms">A single charge of $3.99. No subscription, nothing to cancel.</p>
     </div>
   </div>
   <div class="frame" style="margin-top:20px">
@@ -790,7 +790,7 @@ const State = {
   view: "home",
   pro: false,             // active subscription or trial
   trialEndsAt: null,
-  unlocked: new Set(),    // one-time $1 unlocks: "pneuma" | "logos"
+  unlocked: new Set(),    // one-time $3.99 unlocks: "pneuma" | "logos"
   resultViews: 0,
   pneuma: null,           // {traits:{}, order:[], archetype}
   logos: null,            // {systemic, geometry, span, percent, tier, seconds}
@@ -1052,13 +1052,13 @@ function openUpgrade(context){
     '<p class="eyebrow center">Sealed sections</p>'+
     '<h2 class="dsp h-md center" style="color:var(--ink)">Open All Ten Sections</h2>'+orn+
     '<p style="font-size:14.5px">You are reading section 1 of 10. The other nine cover your ascendant path, shadow work, correspondences, relational field, vocation, failure modes, daily praxis — and the synthesis of both instruments together.</p>'+
-    '<div class="stat"><span>Adept · everything, no ads</span><b>$12.99/mo</b></div>'+
-    '<div class="stat"><span>Initiate · this one report</span><b>$1 once</b></div>'+
+    '<div class="stat"><span>Adept · everything, no ads</span><b>$19.99/mo</b></div>'+
+    '<div class="stat"><span>Initiate · this one report</span><b>$3.99 once</b></div>'+
     '<div style="display:grid;gap:10px;margin-top:18px">'+
       '<button class="btn btn--gold btn--wide js-trial">Start 3-day free trial</button>'+
-      '<button class="btn btn--wide js-onetime">Unlock this report · $1</button>'+
+      '<button class="btn btn--wide js-onetime">Unlock this report · $3.99</button>'+
     '</div>'+
-    '<p class="terms">The trial needs a card. On '+trialEnd+' it becomes $12.99 a month unless you cancel first — one tap in Account, and we email you a day before. The $1 unlock is a single charge with nothing to cancel.</p>'
+    '<p class="terms">The trial needs a card. On '+trialEnd+' it becomes $19.99 a month unless you cancel first — one tap in Account, and we email you a day before. The $3.99 unlock is a single charge with nothing to cancel.</p>'
   );
 }
 
@@ -1066,7 +1066,7 @@ function openTrial(){
   const end = new Date(Date.now() + 3*864e5);
   modal(
     '<p class="eyebrow center">Adept · 3-day trial</p>'+
-    '<h2 class="dsp h-md center" style="color:var(--ink)">Three Days, Then $12.99</h2>'+orn+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Three Days, Then $19.99</h2>'+orn+
     '<label class="field"><span>Card number</span><input inputmode="numeric" placeholder="4242 4242 4242 4242"></label>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
       '<label class="field"><span>Expiry</span><input placeholder="MM / YY"></label>'+
@@ -1074,7 +1074,7 @@ function openTrial(){
     '</div>'+
     '<div class="frame frame--tight" style="margin:4px 0 16px">'+
       '<div class="stat"><span>Today</span><b>$0.00</b></div>'+
-      '<div class="stat" style="border:0"><span>'+end.toLocaleDateString(undefined,{month:"short",day:"numeric"})+' and monthly after</span><b>$12.99</b></div>'+
+      '<div class="stat" style="border:0"><span>'+end.toLocaleDateString(undefined,{month:"short",day:"numeric"})+' and monthly after</span><b>$19.99</b></div>'+
     '</div>'+
     '<button class="btn btn--gold btn--wide" id="m-trial">Start trial</button>'+
     '<p class="terms">Cancel before '+end.toLocaleDateString(undefined,{month:"long",day:"numeric"})+' and you are charged nothing. We send a reminder 24 hours before. Prototype: no card is processed — connect Stripe or Play Billing to take real payments.</p>'
@@ -1092,13 +1092,13 @@ function openOneTime(){
   }
   modal(
     '<p class="eyebrow center">Initiate \u00b7 one test</p>'+
-    '<h2 class="dsp h-md center" style="color:var(--ink)">Unlock One Test for $1</h2>'+orn+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Unlock One Test for $3.99</h2>'+orn+
     '<p style="font-size:14.5px">Full depth on a single instrument, plus the shareable card for that result. Yours permanently.</p>'+
     '<label class="field"><span>Which test</span><select id="one-pick">'+
       done.map(t => '<option value="'+t.id+'">'+esc(t.name)+' \u2014 '+esc(t.status())+'</option>').join("")+'</select></label>'+
     '<label class="field"><span>Card number</span><input inputmode="numeric" placeholder="4242 4242 4242 4242"></label>'+
-    '<button class="btn btn--gold btn--wide" id="m-one">Pay $1</button>'+
-    '<p class="terms">One charge of $1 for one test. No subscription and nothing to cancel. Ads remain on the free tier. Prototype: no card is processed.</p>'
+    '<button class="btn btn--gold btn--wide" id="m-one">Pay $3.99</button>'+
+    '<p class="terms">One charge of $3.99 for one test. No subscription and nothing to cancel. Ads remain on the free tier. Prototype: no card is processed.</p>'
   );
   $("#m-one").onclick = () => {
     const id = $("#one-pick").value;
@@ -2644,8 +2644,8 @@ function renderPastSummary(){
 /* ============================================================
    PSYCHEIQ — PROFILES, ENTITLEMENTS, FUNNELS
    Free    · 1 profile · any 3 tests stored · partial dashboard
-   $1      · stores that one test in full, permanently
-   $12.99  · 2 profiles · every test stored · full dashboard
+   $3.99   · stores that one test in full, permanently
+   $19.99  · 2 profiles · every test stored · full dashboard
    ============================================================ */
 const TESTIDS = ["pneuma","typology","logos","soulq","anima","past"];
 const FREE_SLOTS = 3;
@@ -2665,7 +2665,7 @@ function canTake(id){
   const p = activeP();
   if (State.pro) return true;
   if (p.slots.includes(id)) return true;      // already one of theirs — retaking is free
-  if (State.unlocked.has(id)) return true;    // bought outright for $1
+  if (State.unlocked.has(id)) return true;    // bought outright for $3.99
   return p.slots.length < FREE_SLOTS;
 }
 function syncFromProfile(){
@@ -2719,7 +2719,7 @@ function confirmClear(id){
     '<p class="eyebrow center">Clear a result</p>'+
     '<h2 class="dsp h-md center" style="color:var(--ink)">Clear '+esc(t.name)+'?</h2>'+orn+
     '<p style="font-size:14.5px">This deletes the result from '+esc(activeP().name)+' and frees the slot it occupies. '+
-    (State.unlocked.has(id) ? 'Your $1 unlock for this test stays on the account — retake it whenever you like.' :
+    (State.unlocked.has(id) ? 'Your $3.99 unlock for this test stays on the account — retake it whenever you like.' :
      'It cannot be recovered; you would need to take the test again.')+'</p>'+
     '<div class="btn-row" style="margin-top:16px"><button class="btn btn--gold" id="cl-yes">Clear it</button>'+
     '<button class="btn" id="cl-no">Keep it</button></div>');
@@ -2770,14 +2770,14 @@ function conversionFunnel(id){
     '<p class="eyebrow center">'+esc(t.name)+' \u00b7 complete</p>'+
     '<h2 class="dsp h-md center" style="color:var(--ink)">You Are Reading the Surface</h2>'+orn+
     '<p style="font-size:14.5px">'+esc(t.status() || "Your result")+' is the headline. Underneath it sit the full sections, the shareable card, and the way this result talks to the others.</p>'+
-    '<div class="stat"><span>This test, in full, forever</span><b>$1</b></div>'+
-    '<div class="stat"><span>All six + 2 profiles + no ads</span><b>$12.99/mo</b></div>'+
+    '<div class="stat"><span>This test, in full, forever</span><b>$3.99</b></div>'+
+    '<div class="stat"><span>All six + 2 profiles + no ads</span><b>$19.99/mo</b></div>'+
     (left > 0
       ? '<p class="terms">'+left+' of your '+FREE_SLOTS+' free slots '+(left === 1 ? "remains" : "remain")+'.</p>'
       : '<p class="terms">You have used all '+FREE_SLOTS+' free slots. Clear one to take another test, or open everything.</p>')+
     '<div style="display:grid;gap:10px;margin-top:14px">'+
       '<button class="btn btn--gold btn--wide js-trial">Start 3-day free trial</button>'+
-      '<button class="btn btn--wide js-onetime">Unlock this test \u00b7 $1</button>'+
+      '<button class="btn btn--wide js-onetime">Unlock this test \u00b7 $3.99</button>'+
       '<button class="btn btn--ghost btn--wide" id="fx-later">Not now</button>'+
     '</div>');
   $("#fx-later").onclick = closeModal;
@@ -2793,7 +2793,7 @@ function openSlotGate(id){
       'To add '+esc(t.name)+', open everything — or clear one of the three and take its place.</p>'+
     '<div style="display:grid;gap:10px;margin-top:16px">'+
       '<button class="btn btn--gold btn--wide js-trial">Unlock all six \u00b7 3-day trial</button>'+
-      '<button class="btn btn--wide js-onetime">Buy one test outright \u00b7 $1</button>'+
+      '<button class="btn btn--wide js-onetime">Buy one test outright \u00b7 $3.99</button>'+
     '</div>'+
     '<p class="eyebrow" style="margin:18px 0 8px">Or clear a slot</p>'+
     '<div style="display:grid;gap:8px">'+p.slots.map(s => {
@@ -2854,7 +2854,7 @@ function comboInsight(){
       : '<p class="teaser">'+esc(synthesisText().slice(0,120))+'…</p>'+
         '<p class="terms">The full cross-test analysis — where these results reinforce each other, where they contradict, and what that contradiction usually means — is part of the paid reading.</p>'+
         '<div class="btn-row" style="margin-top:12px"><button class="btn btn--gold js-trial">Open the full dashboard</button>'+
-        '<button class="btn js-onetime">Unlock one test · $1</button></div>')+
+        '<button class="btn js-onetime">Unlock one test · $3.99</button></div>')+
   '</div>';
 }
 
@@ -3125,7 +3125,7 @@ function karmaBlock(){
         (locked ? '<p class="teaser">'+esc(l.text.slice(0,54))+'…</p>' : '<p style="font-size:14.5px;margin:0">'+esc(l.text)+'</p>')+'</div>';
     }).join("")+'</div>'+
     (!open ? '<div class="btn-row" style="margin-top:16px"><button class="btn btn--gold js-trial">Read all three</button>'+
-             '<button class="btn js-onetime">Unlock one test · $1</button></div>' : "")+
+             '<button class="btn js-onetime">Unlock one test · $3.99</button></div>' : "")+
   '</div>';
 }
 
@@ -3509,7 +3509,7 @@ function synthesisBlock(){
     (!open
       ? '<p class="terms">'+(blocks.length-2)+' more sections \u2014 challenges, relationships, growth path and conclusion \u2014 are part of the full reading.</p>'+
         '<div class="btn-row" style="margin-top:12px"><button class="btn btn--gold js-trial">Read the full synthesis</button>'+
-        '<button class="btn js-onetime">Unlock one assessment · $1</button></div>'
+        '<button class="btn js-onetime">Unlock one assessment · $3.99</button></div>'
       : '<details style="margin-top:14px"><summary style="cursor:pointer;font:600 10px/1 Inter,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim)">Trait vector</summary>'+
         '<pre style="font-size:12px;color:var(--ink-3);overflow-x:auto;margin-top:10px">'+esc(JSON.stringify(v, null, 2))+'</pre></details>')+
   '</div>';
@@ -3983,7 +3983,7 @@ function renderResults(){
         '<div class="stat"><span>Shareable result cards</span><b>✦</b></div>'+        '<div class="stat"><span>No ads, anywhere</span><b>✦</b></div>'+
       '</div>'+
       '<div class="btn-row" style="margin-top:18px"><button class="btn btn--gold js-trial">Start 3-day trial</button>'+
-      '<button class="btn js-onetime">Unlock this profile · $1</button></div></div>' : "")+
+      '<button class="btn js-onetime">Unlock this profile · $3.99</button></div></div>' : "")+
     (l ? '<div class="frame" style="margin-top:20px"><p class="eyebrow">Matrix detail</p>'+
         '<div class="grid-3" style="gap:10px">'+
           '<div class="stat"><span>Systemic logic</span><b>'+l.systemic.correct+'/'+l.systemic.of+'</b></div>'+
@@ -4052,7 +4052,7 @@ function sectionsBlock(p, ctx, open){
         '<h3 class="dsp h-md">Nine Sections Sealed</h3>'+
         '<p style="font-size:14px;max-width:420px;margin:0 auto 18px">Ascendant path, shadow integration, correspondences, the stage of the work, relational field, vocation, failure modes, daily praxis — and the synthesis of both instruments.</p>'+
         '<div class="btn-row"><button class="btn btn--gold js-trial">Start 3-day trial</button>'+
-        '<button class="btn js-onetime">Unlock this report · $1</button></div>'+
+        '<button class="btn js-onetime">Unlock this report · $3.99</button></div>'+
       '</div></div>'+
       cards.slice(1,4).join("")+
     '</div></div>';

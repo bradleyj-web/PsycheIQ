@@ -64,7 +64,7 @@ A **limited reading using only the 22 Major Arcana** (no minor arcana cards are 
 ### Open decisions for whoever builds this
 
 - Should a completed reading save to the profile / count toward a "slot" the way the six instruments do (`saveResult()`/`afterTest()` pattern, see `part` of `index.html` around `function saveResult`)? The person hasn't said. Reasonable default: **no** — this reads as a lighter, repeatable tool (like the daily card), not a one-time "test." Don't gate it behind the 3-slot free-tier limit unless told to.
-- Free vs. paid: the rest of the app teases free, locks depth behind $1/$12.99. Decide whether the second paragraph of each 88-paragraph reading is a natural place for that pattern (paragraph 1 free, paragraph 2 unlocks) — consistent with how every other result page in this app already works (see `sectionsBlock()` for the pattern: first section free, `.teaser` class truncates the rest).
+- Free vs. paid: the rest of the app teases free, locks depth behind $3.99/$19.99. Decide whether the second paragraph of each 88-paragraph reading is a natural place for that pattern (paragraph 1 free, paragraph 2 unlocks) — consistent with how every other result page in this app already works (see `sectionsBlock()` for the pattern: first section free, `.teaser` class truncates the rest).
 
 ## Architecture notes (general)
 

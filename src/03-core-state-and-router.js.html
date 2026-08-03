@@ -11,7 +11,7 @@ const State = {
   view: "home",
   pro: false,             // active subscription or trial
   trialEndsAt: null,
-  unlocked: new Set(),    // one-time $1 unlocks: "pneuma" | "logos"
+  unlocked: new Set(),    // one-time $3.99 unlocks: "pneuma" | "logos"
   resultViews: 0,
   pneuma: null,           // {traits:{}, order:[], archetype}
   logos: null,            // {systemic, geometry, span, percent, tier, seconds}
@@ -273,13 +273,13 @@ function openUpgrade(context){
     '<p class="eyebrow center">Sealed sections</p>'+
     '<h2 class="dsp h-md center" style="color:var(--ink)">Open All Ten Sections</h2>'+orn+
     '<p style="font-size:14.5px">You are reading section 1 of 10. The other nine cover your ascendant path, shadow work, correspondences, relational field, vocation, failure modes, daily praxis — and the synthesis of both instruments together.</p>'+
-    '<div class="stat"><span>Adept · everything, no ads</span><b>$12.99/mo</b></div>'+
-    '<div class="stat"><span>Initiate · this one report</span><b>$1 once</b></div>'+
+    '<div class="stat"><span>Adept · everything, no ads</span><b>$19.99/mo</b></div>'+
+    '<div class="stat"><span>Initiate · this one report</span><b>$3.99 once</b></div>'+
     '<div style="display:grid;gap:10px;margin-top:18px">'+
       '<button class="btn btn--gold btn--wide js-trial">Start 3-day free trial</button>'+
-      '<button class="btn btn--wide js-onetime">Unlock this report · $1</button>'+
+      '<button class="btn btn--wide js-onetime">Unlock this report · $3.99</button>'+
     '</div>'+
-    '<p class="terms">The trial needs a card. On '+trialEnd+' it becomes $12.99 a month unless you cancel first — one tap in Account, and we email you a day before. The $1 unlock is a single charge with nothing to cancel.</p>'
+    '<p class="terms">The trial needs a card. On '+trialEnd+' it becomes $19.99 a month unless you cancel first — one tap in Account, and we email you a day before. The $3.99 unlock is a single charge with nothing to cancel.</p>'
   );
 }
 
@@ -287,7 +287,7 @@ function openTrial(){
   const end = new Date(Date.now() + 3*864e5);
   modal(
     '<p class="eyebrow center">Adept · 3-day trial</p>'+
-    '<h2 class="dsp h-md center" style="color:var(--ink)">Three Days, Then $12.99</h2>'+orn+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Three Days, Then $19.99</h2>'+orn+
     '<label class="field"><span>Card number</span><input inputmode="numeric" placeholder="4242 4242 4242 4242"></label>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
       '<label class="field"><span>Expiry</span><input placeholder="MM / YY"></label>'+
@@ -295,7 +295,7 @@ function openTrial(){
     '</div>'+
     '<div class="frame frame--tight" style="margin:4px 0 16px">'+
       '<div class="stat"><span>Today</span><b>$0.00</b></div>'+
-      '<div class="stat" style="border:0"><span>'+end.toLocaleDateString(undefined,{month:"short",day:"numeric"})+' and monthly after</span><b>$12.99</b></div>'+
+      '<div class="stat" style="border:0"><span>'+end.toLocaleDateString(undefined,{month:"short",day:"numeric"})+' and monthly after</span><b>$19.99</b></div>'+
     '</div>'+
     '<button class="btn btn--gold btn--wide" id="m-trial">Start trial</button>'+
     '<p class="terms">Cancel before '+end.toLocaleDateString(undefined,{month:"long",day:"numeric"})+' and you are charged nothing. We send a reminder 24 hours before. Prototype: no card is processed — connect Stripe or Play Billing to take real payments.</p>'
@@ -313,13 +313,13 @@ function openOneTime(){
   }
   modal(
     '<p class="eyebrow center">Initiate \u00b7 one test</p>'+
-    '<h2 class="dsp h-md center" style="color:var(--ink)">Unlock One Test for $1</h2>'+orn+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Unlock One Test for $3.99</h2>'+orn+
     '<p style="font-size:14.5px">Full depth on a single instrument, plus the shareable card for that result. Yours permanently.</p>'+
     '<label class="field"><span>Which test</span><select id="one-pick">'+
       done.map(t => '<option value="'+t.id+'">'+esc(t.name)+' \u2014 '+esc(t.status())+'</option>').join("")+'</select></label>'+
     '<label class="field"><span>Card number</span><input inputmode="numeric" placeholder="4242 4242 4242 4242"></label>'+
-    '<button class="btn btn--gold btn--wide" id="m-one">Pay $1</button>'+
-    '<p class="terms">One charge of $1 for one test. No subscription and nothing to cancel. Ads remain on the free tier. Prototype: no card is processed.</p>'
+    '<button class="btn btn--gold btn--wide" id="m-one">Pay $3.99</button>'+
+    '<p class="terms">One charge of $3.99 for one test. No subscription and nothing to cancel. Ads remain on the free tier. Prototype: no card is processed.</p>'
   );
   $("#m-one").onclick = () => {
     const id = $("#one-pick").value;

@@ -2,8 +2,8 @@
 /* ============================================================
    PSYCHEIQ — PROFILES, ENTITLEMENTS, FUNNELS
    Free    · 1 profile · any 3 tests stored · partial dashboard
-   $1      · stores that one test in full, permanently
-   $12.99  · 2 profiles · every test stored · full dashboard
+   $3.99   · stores that one test in full, permanently
+   $19.99  · 2 profiles · every test stored · full dashboard
    ============================================================ */
 const TESTIDS = ["pneuma","typology","logos","soulq","anima","past"];
 const FREE_SLOTS = 3;
@@ -23,7 +23,7 @@ function canTake(id){
   const p = activeP();
   if (State.pro) return true;
   if (p.slots.includes(id)) return true;      // already one of theirs — retaking is free
-  if (State.unlocked.has(id)) return true;    // bought outright for $1
+  if (State.unlocked.has(id)) return true;    // bought outright for $3.99
   return p.slots.length < FREE_SLOTS;
 }
 function syncFromProfile(){
@@ -77,7 +77,7 @@ function confirmClear(id){
     '<p class="eyebrow center">Clear a result</p>'+
     '<h2 class="dsp h-md center" style="color:var(--ink)">Clear '+esc(t.name)+'?</h2>'+orn+
     '<p style="font-size:14.5px">This deletes the result from '+esc(activeP().name)+' and frees the slot it occupies. '+
-    (State.unlocked.has(id) ? 'Your $1 unlock for this test stays on the account — retake it whenever you like.' :
+    (State.unlocked.has(id) ? 'Your $3.99 unlock for this test stays on the account — retake it whenever you like.' :
      'It cannot be recovered; you would need to take the test again.')+'</p>'+
     '<div class="btn-row" style="margin-top:16px"><button class="btn btn--gold" id="cl-yes">Clear it</button>'+
     '<button class="btn" id="cl-no">Keep it</button></div>');
@@ -128,14 +128,14 @@ function conversionFunnel(id){
     '<p class="eyebrow center">'+esc(t.name)+' \u00b7 complete</p>'+
     '<h2 class="dsp h-md center" style="color:var(--ink)">You Are Reading the Surface</h2>'+orn+
     '<p style="font-size:14.5px">'+esc(t.status() || "Your result")+' is the headline. Underneath it sit the full sections, the shareable card, and the way this result talks to the others.</p>'+
-    '<div class="stat"><span>This test, in full, forever</span><b>$1</b></div>'+
-    '<div class="stat"><span>All six + 2 profiles + no ads</span><b>$12.99/mo</b></div>'+
+    '<div class="stat"><span>This test, in full, forever</span><b>$3.99</b></div>'+
+    '<div class="stat"><span>All six + 2 profiles + no ads</span><b>$19.99/mo</b></div>'+
     (left > 0
       ? '<p class="terms">'+left+' of your '+FREE_SLOTS+' free slots '+(left === 1 ? "remains" : "remain")+'.</p>'
       : '<p class="terms">You have used all '+FREE_SLOTS+' free slots. Clear one to take another test, or open everything.</p>')+
     '<div style="display:grid;gap:10px;margin-top:14px">'+
       '<button class="btn btn--gold btn--wide js-trial">Start 3-day free trial</button>'+
-      '<button class="btn btn--wide js-onetime">Unlock this test \u00b7 $1</button>'+
+      '<button class="btn btn--wide js-onetime">Unlock this test \u00b7 $3.99</button>'+
       '<button class="btn btn--ghost btn--wide" id="fx-later">Not now</button>'+
     '</div>');
   $("#fx-later").onclick = closeModal;
@@ -151,7 +151,7 @@ function openSlotGate(id){
       'To add '+esc(t.name)+', open everything — or clear one of the three and take its place.</p>'+
     '<div style="display:grid;gap:10px;margin-top:16px">'+
       '<button class="btn btn--gold btn--wide js-trial">Unlock all six \u00b7 3-day trial</button>'+
-      '<button class="btn btn--wide js-onetime">Buy one test outright \u00b7 $1</button>'+
+      '<button class="btn btn--wide js-onetime">Buy one test outright \u00b7 $3.99</button>'+
     '</div>'+
     '<p class="eyebrow" style="margin:18px 0 8px">Or clear a slot</p>'+
     '<div style="display:grid;gap:8px">'+p.slots.map(s => {
@@ -212,7 +212,7 @@ function comboInsight(){
       : '<p class="teaser">'+esc(synthesisText().slice(0,120))+'…</p>'+
         '<p class="terms">The full cross-test analysis — where these results reinforce each other, where they contradict, and what that contradiction usually means — is part of the paid reading.</p>'+
         '<div class="btn-row" style="margin-top:12px"><button class="btn btn--gold js-trial">Open the full dashboard</button>'+
-        '<button class="btn js-onetime">Unlock one test · $1</button></div>')+
+        '<button class="btn js-onetime">Unlock one test · $3.99</button></div>')+
   '</div>';
 }
 
