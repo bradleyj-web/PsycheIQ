@@ -145,6 +145,10 @@ body.is-pro .js-join{display:none}
 
 /* ---------- hero ---------- */
 .hero{padding:clamp(38px,7vw,86px) 0 clamp(30px,5vw,54px);text-align:center;position:relative}
+.hero::before{content:"";position:absolute;inset:-1rem;background:url("images/hero.jpg") center/cover no-repeat;
+  opacity:.16;filter:saturate(.9);-webkit-mask-image:radial-gradient(75% 65% at 50% 40%,#000 0%,transparent 100%);
+  mask-image:radial-gradient(75% 65% at 50% 40%,#000 0%,transparent 100%);pointer-events:none}
+.hero>*{position:relative}
 .sigil-hero{width:min(272px,58vw);margin:26px auto 34px;position:relative}
 .sigil-hero svg{width:100%;height:auto;filter:drop-shadow(0 0 30px rgba(227,190,109,.34))}
 .sigil-hero .ring{transform-origin:100px 100px;animation:spin 64s linear infinite}
@@ -361,8 +365,10 @@ body.is-pro .adbar{display:none}
 .pl-pick:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 0 30px -12px rgba(227,190,109,.55)}
 .pl-pick.sel{border-color:var(--gold);background:rgba(227,190,109,.14)}
 .pl-art{width:100%;height:auto;display:block}
+img.pl-art{aspect-ratio:100/92;object-fit:cover;border-radius:2px}
 .pl-icons{display:flex;gap:12px;justify-content:center;margin-top:10px}
 .pl-icons svg{width:62px;height:58px;opacity:.9}
+.pl-icons img.pl-art{width:62px;height:58px;object-fit:cover}
 .pl-timer{height:3px;background:rgba(227,190,109,.14);overflow:hidden;margin-top:6px}
 .pl-timer i{display:block;height:100%;background:linear-gradient(90deg,#B98F41,#F9E7B4);
   box-shadow:0 0 12px rgba(227,190,109,.7);transition:width 1s linear}
@@ -2313,6 +2319,9 @@ const PL_ART = {
    m2:'<path d="M12 74h76M30 74V40l20-16 20 16v34" '+S+'/><path d="M30 40h40" '+SD+'/><path d="M44 74V58h12v16" '+SD+'/>'}}
 };
 function plTile(mod, key, which){
+  return '<img src="images/past/'+mod+'-'+key+'-'+which+'.jpg" class="pl-art" alt="" aria-hidden="true" loading="lazy" onerror="this.outerHTML=\''+PL_ART[mod][key][which].replace(/'/g,"\\'")+'\'" data-art>';
+}
+function plTileSVG(mod, key, which){
   return '<svg viewBox="0 0 100 92" class="pl-art" aria-hidden="true">'+PL_ART[mod][key][which]+'</svg>';
 }
 
