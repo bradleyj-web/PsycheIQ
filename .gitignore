@@ -1,5 +1,18 @@
+# Local development
+.agents/
+screenshots/
+supabase/.temp/
+android/.gradle/
+android/**/build/
+android/local.properties
+android/*.jks
+android/*.keystore
+
+# OS metadata
 .DS_Store
 Thumbs.db
+
+# Build artifacts
 *.log
 node_modules/
 psycheiq-repo/

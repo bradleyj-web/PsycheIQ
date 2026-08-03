@@ -1,0 +1,19 @@
+{
+  "name": "PsycheIQ",
+  "short_name": "PsycheIQ",
+  "description": "Psychology, IQ, archetype, Enneagram, MBTI-style, and pop culture personality tests.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fbfcfb",
+  "theme_color": "#0b4f4a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

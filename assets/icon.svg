@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">PsycheIQ icon</title>
+  <desc id="desc">A stylized brain with an all-seeing eye.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b4f4a"/>
+      <stop offset="1" stop-color="#6d5bd0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <path d="M119 340C57 271 69 178 171 113c23-68 105-78 145-30 58-49 138-3 134 87 68 39 43 162-56 180Z" fill="#8ee3d6" stroke="#fbfcfb" stroke-width="18" stroke-linejoin="round"/>
+  <path d="M105 238c76-107 230-111 326 0-94 111-246 111-326 0Z" fill="#fbfcfb" stroke="#d9534f" stroke-width="20" stroke-linejoin="round"/>
+  <circle cx="270" cy="238" r="51" fill="#b7791f"/>
+  <circle cx="270" cy="238" r="18" fill="#13211f"/>
+  <path d="M146 91 91 36M366 91l55-55M256 72V18" fill="none" stroke="#fbfcfb" stroke-width="16" stroke-linecap="round"/>
+</svg>
