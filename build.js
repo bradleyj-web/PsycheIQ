@@ -30,7 +30,14 @@ const MODULES = [
   "10-content-kindred-karma.js.html",// 800 kindred figures, strengths/weaknesses, karma
   "11-body-iq-and-blueprint.js.html",// Body IQ, plain-language layer, Blueprint
   "12-synthesis-engine.js.html",     // trait vector + modular synthesis content blocks
-  "13-engines-render-and-init.js.html" // Pneuma/Logos engines, results render, init; closes tags
+  "13-deck-reading-engine.js.html",  // The Deck: 22x4 reading engine, cooldown gate, promo codes
+  "14-access-numerology-locations.js.html", // access control, numerology, city database
+  "15-doors-results-cast.js.html",   // Nine Doors, results card, soul blueprint agg, dice cast
+  "16-dimensions-light-tarotsynth.js.html", // Mind/Body/Soul dims, light engine, tarot synthesis
+  "17-images-and-onboarding.js.html",// past-life art layer, blueprint dashboard, IMAGE LAYER, onboarding
+  "18-fools-journey.js.html",        // Fool's Journey: chapters, sigils, badges, deck skins
+  "19-payments-supabase-stripe.js.html", // accounts, entitlements, Stripe Checkout
+  "20-engines-render-and-init.js.html" // Pneuma/Logos engines, results render, init; closes tags
 ];
 
 const srcDir = path.join(__dirname, "src");

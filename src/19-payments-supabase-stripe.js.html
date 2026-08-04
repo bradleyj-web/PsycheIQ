@@ -1,0 +1,348 @@
+
+/* ============================================================
+   PSYCHEIQ — ACCOUNTS & PAYMENTS (Supabase + Stripe)
+   ------------------------------------------------------------
+   Everything in this module degrades gracefully. If
+   supabase-config.js is absent, or the supabase-js CDN script
+   did not load, PQPay.ready is false and the app keeps the
+   local prototype behaviour — so index.html still works when
+   opened straight off disk with no network.
+
+   Server contract (supabase/functions/):
+     create-checkout   POST {mode,testId,intent,email,successUrl,cancelUrl} -> {url}
+     checkout-status   POST {sessionId,testId} -> {ok,mode,access}
+     stripe-webhook    (Stripe -> Supabase, no client involvement)
+
+   Access model:
+     member  -> State.pro = true, every test unlocked
+     core    -> State.unlocked.add(test_id)
+   ============================================================ */
+
+/* `cfg` is a live getter, not a snapshot: supabase-config.js and the
+   supabase-js CDN bundle are both `defer`red, so they execute AFTER this
+   inline script block. Reading them lazily means every later check
+   (button clicks, pqBoot on DOMContentLoaded) sees the real values. */
+const PQPay = {
+  ready: false,
+  client: null,
+  get cfg(){ return (typeof window !== "undefined" && window.PSYCHEIQ_SUPABASE) || null; },
+  user: null,
+  session: null,
+};
+
+function pqInitSupabase(){
+  if (PQPay.client) return PQPay.client;
+  const cfg = PQPay.cfg;
+  const lib = typeof window !== "undefined" ? window.supabase : null;
+  if (!cfg || !cfg.url || !cfg.anonKey || !lib || !lib.createClient) return null;
+  try {
+    PQPay.client = lib.createClient(cfg.url, cfg.anonKey, {
+      auth: {persistSession: true, autoRefreshToken: true, detectSessionInUrl: true}
+    });
+    PQPay.ready = true;
+    return PQPay.client;
+  } catch (err){
+    console.warn("[psycheiq] Supabase init failed:", err);
+    return null;
+  }
+}
+
+function pqFunctionsUrl(name){
+  const cfg = PQPay.cfg;
+  if (!cfg) return "";
+  const base = cfg.functionsUrl || ((cfg.url || "").replace(/\/$/, "") + "/functions/v1");
+  return base.replace(/\/$/, "") + "/" + name;
+}
+
+/* Authorization header: the user's JWT when signed in, otherwise the
+   publishable anon key so the function gateway still accepts the call. */
+function pqAuthHeaders(){
+  const h = {"Content-Type": "application/json"};
+  const cfg = PQPay.cfg;
+  if (cfg && cfg.anonKey) h.apikey = cfg.anonKey;
+  const token = PQPay.session && PQPay.session.access_token;
+  h.Authorization = "Bearer " + (token || (cfg && cfg.anonKey) || "");
+  return h;
+}
+
+async function pqCall(name, payload){
+  const url = pqFunctionsUrl(name);
+  if (!url) throw new Error("Payments are not configured for this build.");
+  const res = await fetch(url, {
+    method: "POST",
+    headers: pqAuthHeaders(),
+    body: JSON.stringify(payload || {})
+  });
+  let data = null;
+  try { data = await res.json(); } catch (_){ data = null; }
+  if (!res.ok) throw new Error((data && data.error) || ("Request failed (" + res.status + ")"));
+  return data || {};
+}
+
+/* ---------------- session ---------------- */
+
+async function pqRefreshSession(){
+  const c = pqInitSupabase();
+  if (!c) return null;
+  const {data} = await c.auth.getSession();
+  PQPay.session = (data && data.session) || null;
+  PQPay.user = PQPay.session ? PQPay.session.user : null;
+  return PQPay.session;
+}
+
+function pqSignedIn(){ return Boolean(PQPay.user); }
+function pqEmail(){ return (PQPay.user && PQPay.user.email) || ""; }
+
+/* Magic-link sign in: no passwords to store, no reset flow to build. */
+async function pqSendMagicLink(email){
+  const c = pqInitSupabase();
+  if (!c) throw new Error("Accounts are not configured for this build.");
+  const {error} = await c.auth.signInWithOtp({
+    email: String(email || "").trim().toLowerCase(),
+    options: {emailRedirectTo: location.origin + location.pathname}
+  });
+  if (error) throw new Error(error.message);
+  return true;
+}
+
+async function pqSignOut(){
+  const c = pqInitSupabase();
+  if (c) await c.auth.signOut();
+  PQPay.session = null; PQPay.user = null;
+  State.pro = false; State.unlocked.clear(); State.lifetime = false;
+  document.body.classList.remove("is-pro");
+  rerender();
+  toast("Signed out. Results stored on this device are still here.");
+}
+
+/* ---------------- entitlements ---------------- */
+
+/* Reads the entitlements table (RLS restricts it to the signed-in user)
+   and mirrors it onto State. Returns true if anything was applied. */
+async function pqSyncEntitlements(){
+  const c = pqInitSupabase();
+  if (!c || !pqSignedIn()) return false;
+  const {data, error} = await c
+    .from("entitlements")
+    .select("access_type,test_id,active,current_period_end")
+    .eq("active", true);
+  if (error){ console.warn("[psycheiq] entitlement read failed:", error.message); return false; }
+
+  const now = Date.now();
+  let member = false;
+  const core = [];
+  (data || []).forEach(row => {
+    const live = !row.current_period_end || new Date(row.current_period_end).getTime() > now;
+    if (row.access_type === "member" && live) member = true;
+    else if (row.access_type === "core" && row.test_id) core.push(row.test_id);
+  });
+
+  pqApplyAccess({member, coreUnlocks: core});
+  return member || core.length > 0;
+}
+
+/* Single place where server truth is written onto client state. */
+function pqApplyAccess(access){
+  if (!access) return;
+  if (access.member){
+    State.pro = true;
+    State.trialEndsAt = null;
+    TESTIDS.forEach(id => State.unlocked.add(id));
+    document.body.classList.add("is-pro");
+  }
+  (access.coreUnlocks || []).forEach(id => { if (id) State.unlocked.add(id); });
+  persistProfiles();
+}
+
+/* ---------------- checkout ---------------- */
+
+function pqReturnUrls(mode, testId){
+  const base = location.origin + location.pathname;
+  const q = "pq_mode=" + encodeURIComponent(mode) + (testId ? "&pq_test=" + encodeURIComponent(testId) : "");
+  return {
+    successUrl: base + "?" + q + "&session_id={CHECKOUT_SESSION_ID}",
+    cancelUrl:  base + "?pq_cancelled=1"
+  };
+}
+
+/* mode: "member" (subscription) | "core" (one-time unlock of testId) */
+async function pqStartCheckout(mode, testId, intent){
+  if (!PQPay.cfg) { toast("Payments are not configured in this build."); return; }
+  const urls = pqReturnUrls(mode, testId);
+  try {
+    sessionStorage.setItem("pq:pendingTest", testId || "");
+  } catch (_){}
+  const data = await pqCall("create-checkout", {
+    mode,
+    testId: testId || "",
+    intent: intent || "result",
+    email: pqEmail(),
+    successUrl: urls.successUrl,
+    cancelUrl: urls.cancelUrl
+  });
+  if (!data.url) throw new Error("Stripe did not return a checkout URL.");
+  location.href = data.url;
+}
+
+/* Runs on load. If we came back from Stripe, verify the session
+   server-side before unlocking anything, then clean the URL. */
+async function pqHandleCheckoutReturn(){
+  const params = new URLSearchParams(location.search);
+  const sessionId = params.get("session_id");
+  const cancelled = params.get("pq_cancelled");
+  const cleanUrl = () => history.replaceState({}, "", location.origin + location.pathname);
+
+  if (cancelled){ cleanUrl(); toast("Checkout cancelled — nothing was charged."); return; }
+  if (!sessionId) return;
+
+  let testId = params.get("pq_test") || "";
+  if (!testId){ try { testId = sessionStorage.getItem("pq:pendingTest") || ""; } catch (_){} }
+
+  toast("Confirming your payment…");
+  try {
+    const res = await pqCall("checkout-status", {sessionId, testId});
+    pqApplyAccess(res.access);
+    await pqSyncEntitlements();
+    cleanUrl();
+    rerender();
+    toast(res.mode === "member"
+      ? "Membership active. Every assessment is open."
+      : "Unlocked. That report is open in full, permanently.");
+  } catch (err){
+    cleanUrl();
+    toast("We could not confirm that payment: " + err.message);
+  }
+  try { sessionStorage.removeItem("pq:pendingTest"); } catch (_){}
+}
+
+/* ---------------- modals ---------------- */
+
+function pqBusy(sel, label){
+  const b = $(sel); if (!b) return () => {};
+  const old = b.innerHTML;
+  b.disabled = true; b.innerHTML = label || "Working…";
+  return () => { b.disabled = false; b.innerHTML = old; };
+}
+
+/* Membership — $19.99/mo with a 3-day trial, taken on Stripe Checkout. */
+function pqOpenMembership(){
+  const end = new Date(Date.now() + 3*864e5);
+  modal(
+    '<p class="eyebrow center">Adept · 3-day trial</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Three Days, Then $19.99</h2>'+orn+
+    '<p style="font-size:14.5px">Every assessment in full, all ten result sections, two profiles, the Fool’s Journey, unlimited draws, and no ads.</p>'+
+    '<div class="frame frame--tight" style="margin:4px 0 16px">'+
+      '<div class="stat"><span>Today</span><b>$0.00</b></div>'+
+      '<div class="stat" style="border:0"><span>'+end.toLocaleDateString(undefined,{month:"short",day:"numeric"})+' and monthly after</span><b>$19.99</b></div>'+
+    '</div>'+
+    '<button class="btn btn--gold btn--wide" id="pq-member">Continue to secure checkout</button>'+
+    promoField("-tr")+
+    '<p class="terms">Card details are entered on Stripe’s own checkout page — they never touch PsycheIQ. Cancel before '+
+      end.toLocaleDateString(undefined,{month:"long",day:"numeric"})+' and you are charged nothing.</p>'
+  );
+  wirePromo("-tr");
+  $("#pq-member").onclick = async () => {
+    const done = pqBusy("#pq-member", "Opening Stripe…");
+    try { await pqStartCheckout("member", "", "membership"); }
+    catch (err){ done(); toast(err.message); }
+  };
+}
+
+/* One-time — $3.99 unlock of a single completed assessment. */
+function pqOpenOneTime(){
+  const done = TESTS.filter(t => t.done() && !State.unlocked.has(t.id));
+  if (!done.length){
+    modal('<p class="eyebrow center">Nothing to unlock yet</p><h2 class="dsp h-md center" style="color:var(--ink)">Run an Instrument First</h2>'+orn+
+      '<p style="font-size:14.5px">The single unlock opens one completed assessment’s full results. Take one, then come back.</p>'+
+      '<button class="btn btn--gold btn--wide" data-go="oracle">Choose an instrument</button>');
+    return;
+  }
+  modal(
+    '<p class="eyebrow center">Initiate · one report</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Unlock One Test for $3.99</h2>'+orn+
+    '<p style="font-size:14.5px">Full depth on a single instrument, plus the shareable card for that result. Yours permanently.</p>'+
+    '<label class="field"><span>Which test</span><select id="pq-pick">'+
+      done.map(t => '<option value="'+t.id+'">'+esc(t.name)+' — '+esc(t.status())+'</option>').join("")+'</select></label>'+
+    '<button class="btn btn--gold btn--wide" id="pq-one">Continue to secure checkout</button>'+
+    promoField("-one")+
+    '<p class="terms">A single charge of $3.99, taken on Stripe’s own checkout page. No subscription and nothing to cancel.</p>'
+  );
+  wirePromo("-one");
+  $("#pq-one").onclick = async () => {
+    const restore = pqBusy("#pq-one", "Opening Stripe…");
+    try { await pqStartCheckout("core", $("#pq-pick").value, "result"); }
+    catch (err){ restore(); toast(err.message); }
+  };
+}
+
+/* Account — magic-link sign in, membership status, sign out. */
+function pqOpenAccount(){
+  if (!PQPay.cfg){
+    modal('<p class="eyebrow center">Account</p><h2 class="dsp h-md center" style="color:var(--ink)">Not Configured</h2>'+orn+
+      '<p style="font-size:14.5px">This build has no backend attached, so results are stored on this device only.</p>');
+    return;
+  }
+  if (pqSignedIn()){
+    const plan = State.pro ? (State.lifetime ? "Lifetime access" : "Adept · membership active") : "Free tier";
+    modal(
+      '<p class="eyebrow center">Account</p>'+
+      '<h2 class="dsp h-md center" style="color:var(--ink)">Signed In</h2>'+orn+
+      '<div class="stat"><span>Email</span><b>'+esc(pqEmail())+'</b></div>'+
+      '<div class="stat"><span>Plan</span><b>'+esc(plan)+'</b></div>'+
+      '<div class="stat" style="border:0"><span>Unlocked reports</span><b>'+State.unlocked.size+'</b></div>'+
+      '<div style="display:grid;gap:10px;margin-top:18px">'+
+        (State.pro ? "" : '<button class="btn btn--gold btn--wide js-trial">Start 3-day free trial</button>')+
+        '<button class="btn btn--wide" id="pq-refresh">Refresh my access</button>'+
+        '<button class="btn btn--ghost btn--wide" id="pq-out">Sign out</button>'+
+      '</div>'+
+      '<p class="terms">Purchases follow the account, not the device. Sign in anywhere to restore them.</p>'
+    );
+    $("#pq-refresh").onclick = async () => {
+      const restore = pqBusy("#pq-refresh", "Checking…");
+      const found = await pqSyncEntitlements();
+      restore(); rerender();
+      toast(found ? "Access restored." : "No active purchases found on this account.");
+    };
+    $("#pq-out").onclick = () => { closeModal(); pqSignOut(); };
+    return;
+  }
+  modal(
+    '<p class="eyebrow center">Account</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">Sign In</h2>'+orn+
+    '<p style="font-size:14.5px">Enter your email and we send a one-tap sign-in link. No password to invent, none to forget.</p>'+
+    '<label class="field"><span>Email</span><input id="pq-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></label>'+
+    '<button class="btn btn--gold btn--wide" id="pq-link">Email me a sign-in link</button>'+
+    '<p class="terms">Signing in restores any membership or unlocks bought on another device.</p>'
+  );
+  $("#pq-link").onclick = async () => {
+    const v = ($("#pq-email").value || "").trim();
+    if (!/.+@.+\..+/.test(v)) return toast("That email does not look complete — check it and try again.");
+    const restore = pqBusy("#pq-link", "Sending…");
+    try { await pqSendMagicLink(v); closeModal(); toast("Check your inbox — the link signs you straight in."); }
+    catch (err){ restore(); toast(err.message); }
+  };
+}
+
+/* ---------------- boot ---------------- */
+
+async function pqBoot(){
+  if (!pqInitSupabase()) return;          // no backend in this build — stay local
+  await pqRefreshSession();
+  PQPay.client.auth.onAuthStateChange(async (_evt, session) => {
+    PQPay.session = session || null;
+    PQPay.user = session ? session.user : null;
+    if (PQPay.user){ await pqSyncEntitlements(); rerender(); }
+  });
+  if (pqSignedIn()) await pqSyncEntitlements();
+  await pqHandleCheckoutReturn();
+  rerender();
+}
+
+document.addEventListener("click", e => {
+  if (e.target.closest(".js-account")) pqOpenAccount();
+});
+
+/* Deferred scripts finish before DOMContentLoaded, so by this point
+   window.supabase and window.PSYCHEIQ_SUPABASE are both present. */
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", pqBoot);
+else pqBoot();

@@ -1,0 +1,624 @@
+/* ============================================================
+   PSYCHEIQ — THE NINE DOORS
+   ------------------------------------------------------------
+   An enneagram-structured instrument, renamed for the front
+   door. Nine core motivations, each with a wing, a stress
+   direction and a growth direction. The word "enneagram" is
+   deliberately absent from the user-facing copy.
+   Lore name: The Ennead Gate.
+   ============================================================ */
+const DOORS = {
+  1:{n:"The Refiner",    core:"To be correct, and to make things right",
+     fear:"Being corrupt, wrong, or irredeemably flawed",
+     desire:"Integrity — being good in a way that would survive inspection",
+     l:"You hold an internal standard almost nobody else can see, and you measure yourself against it constantly. The critical voice isn't cruelty; it's the same instinct that makes your work trustworthy, turned inward without an off switch.",
+     rel:"You show love by improving things — fixing, correcting, upgrading. Partners can experience that as criticism when it was meant as care. Say the appreciation out loud; you feel it far more than you express it.",
+     stress:"Under pressure you slide toward 4: resentment, moodiness, a sense that you alone are carrying the standard.",
+     growth:"In good conditions you move toward 7: play returns, and you discover that not everything has to be corrected to be enjoyed.",
+     work:"Quality control, editing, craft, law, medicine, anywhere the details carry consequence.",
+     watch:["Resentment at doing it right while others don't","Perfectionism disguised as high standards","Withholding warmth until the work is finished"]},
+  2:{n:"The Giver",      core:"To be needed, and to be genuinely loved for it",
+     fear:"Being unwanted, or worth nothing without what you provide",
+     desire:"To be loved for yourself rather than your usefulness",
+     l:"You read what people need with unusual accuracy and start meeting it before being asked. The difficulty is that you tend to know everyone's needs but your own, and you can end up quietly keeping score of what you gave.",
+     rel:"You give generously and struggle to receive. Ask directly for what you want — the indirect version reads as manipulation to people who'd have said yes if you'd simply asked.",
+     stress:"Under pressure you slide toward 8: the giving turns demanding, and the resentment comes out as force.",
+     growth:"In good conditions you move toward 4: you turn toward your own interior and find you have needs that were always legitimate.",
+     work:"Care work, teaching, hospitality, HR, client relationships, anything relational and sustained.",
+     watch:["Help that arrives uninvited","Keeping an unspoken ledger","Losing track of your own wants entirely"]},
+  3:{n:"The Achiever",   core:"To be valuable, and to be seen succeeding",
+     fear:"Being worthless apart from your accomplishments",
+     desire:"To be genuinely worth something, not just to look it",
+     l:"You adapt to what a room rewards and deliver it, efficiently. The engine is real and so is the ability. The cost is that you can lose the thread between what you're achieving and what you actually wanted.",
+     rel:"You show up as the capable one and can perform the relationship rather than be in it. Let someone see you when you haven't got it together — that's the version that gets loved.",
+     stress:"Under pressure you slide toward 9: sudden disengagement, going through the motions, numbness after the push.",
+     growth:"In good conditions you move toward 6: loyalty and genuine cooperation replace the solo performance.",
+     work:"Sales, leadership, entrepreneurship, performance, anywhere output is visible and measured.",
+     watch:["Image management standing in for identity","Working past the point of usefulness","Not knowing what you want when nobody's watching"]},
+  4:{n:"The Individualist", core:"To be authentic, and to matter as something specific",
+     fear:"Having no identity of your own, or being fundamentally ordinary",
+     desire:"To find and express who you actually are",
+     l:"You feel more than you let on and register beauty and absence at the same intensity. You're drawn to what's missing — which is also what gives your work its emotional accuracy.",
+     rel:"You want to be deeply known and you test whether people can handle the full picture. Intensity isn't the same as intimacy; steady ordinary presence may be the harder practice.",
+     stress:"Under pressure you slide toward 2: clinging, over-giving, needing to be needed to feel real.",
+     growth:"In good conditions you move toward 1: discipline arrives, and feeling turns into finished work.",
+     work:"Writing, design, therapy, music, anything where emotional truth is the deliverable.",
+     watch:["Envy dressed as discernment","Rejecting what's available for what's absent","Identifying with the wound"]},
+  5:{n:"The Observer",   core:"To understand, and to need very little",
+     fear:"Being depleted, invaded, or incapable",
+     desire:"Competence — to be genuinely capable and self-sufficient",
+     l:"You conserve energy and gather understanding before engaging. Privacy isn't coldness; it's how you keep enough reserve to function. You'd rather know thoroughly than participate approximately.",
+     rel:"You need more solitude than most and can withdraw when closeness demands spontaneity. Say when you're retreating and that you'll be back — silence reads as rejection to people who love you.",
+     stress:"Under pressure you slide toward 7: scattered, distractible, consuming information instead of acting.",
+     growth:"In good conditions you move toward 8: you engage directly and act on what you know instead of researching further.",
+     work:"Research, engineering, analysis, specialist crafts, anywhere depth beats breadth.",
+     watch:["Preparation as a permanent state","Hoarding time, energy or knowledge","Feeling before it can be analysed"]},
+  6:{n:"The Sentinel",   core:"To be secure, and to know what's actually reliable",
+     fear:"Being without support or guidance when it matters",
+     desire:"Real security, and something worth trusting",
+     l:"You run the failure scenarios ahead of time, which makes you the reason things don't go wrong. You're loyal past the point most people would leave, and you're most anxious about the decision, not the crisis.",
+     rel:"You commit hard and test whether the other person will stay. The doubt isn't about them; it's the scanning running as usual. Voice it rather than testing for it.",
+     stress:"Under pressure you slide toward 3: frantic activity, image management, working to outrun the anxiety.",
+     growth:"In good conditions you move toward 9: the scanning quietens and you find you can rest inside your own judgement.",
+     work:"Operations, security, risk, project management, anywhere foresight prevents disaster.",
+     watch:["Preparing for danger that never arrives","Seeking permission you don't need","Loyalty to what has stopped deserving it"]},
+  7:{n:"The Enthusiast", core:"To be free, satisfied, and moving",
+     fear:"Being trapped in pain, deprivation, or a life too small",
+     desire:"To be genuinely content rather than continuously stimulated",
+     l:"You generate options faster than anyone can act on them, and you keep the exits visible. The optimism is real and it's also, sometimes, how you get past feeling something difficult.",
+     rel:"You bring energy and struggle with the flat stretches. Staying through a hard conversation without reframing it into something lighter is the growth edge.",
+     stress:"Under pressure you slide toward 1: critical, rigid, suddenly severe about how things should be done.",
+     growth:"In good conditions you move toward 5: depth arrives, and you'd rather go far into one thing than skim five.",
+     work:"Ideation, startups, travel, media, anywhere variety and speed are advantages.",
+     watch:["Starting more than you'll finish","Reframing pain instead of feeling it","Commitment read as confinement"]},
+  8:{n:"The Challenger", core:"To be strong, and never at anyone's mercy",
+     fear:"Being controlled, betrayed, or made vulnerable",
+     desire:"To protect yourself and the people who are yours",
+     l:"You move directly and take up space without apologising for it. Conflict doesn't frighten you — you often find it clarifying. Underneath the force is a tenderness you protect very carefully.",
+     rel:"You protect fiercely and struggle to be soft first. Letting someone see you unguarded is the real risk, and the one that makes the relationship.",
+     stress:"Under pressure you slide toward 5: withdrawal, secrecy, cutting people off entirely.",
+     growth:"In good conditions you move toward 2: the strength turns openly protective and generous.",
+     work:"Leadership, crisis, negotiation, founding, advocacy — anywhere someone has to decide and absorb it.",
+     watch:["Intensity others experience as domination","All-or-nothing loyalty","Vulnerability treated as a threat"]},
+  9:{n:"The Peacemaker", core:"To be at peace, and to keep the connection intact",
+     fear:"Loss, separation, and conflict that fragments things",
+     desire:"Inner steadiness and harmony that isn't purchased by disappearing",
+     l:"You see every side genuinely, which makes you an unusually fair presence and makes your own position hard to locate. You merge with what's around you and can wake up unsure which preferences were ever yours.",
+     rel:"You're easy to be with and hard to find. Stating a preference early — before the resentment builds — is worth more than any amount of accommodation.",
+     stress:"Under pressure you slide toward 6: anxiety, doubt, worst-case scanning.",
+     growth:"In good conditions you move toward 3: you show up, claim your own agenda, and act on it.",
+     work:"Mediation, counselling, facilitation, design, anywhere holding multiple perspectives is the skill.",
+     watch:["Numbing out on the unimportant","Passive resistance instead of direct refusal","Losing your preference inside everyone else's"]}
+};
+
+/* 27 items — three per type, forced agreement scale */
+const DOOR_ITEMS = [
+  {t:1, q:"I notice the error in something before I notice what's good about it."},
+  {t:1, q:"There's a right way to do most things, and I can usually tell you what it is."},
+  {t:1, q:"I hold myself to a standard I'd never impose on anyone else."},
+  {t:2, q:"I sense what people need before they say it, and I move to provide it."},
+  {t:2, q:"I find it much easier to give help than to ask for it."},
+  {t:2, q:"I want to be the person others come to when it matters."},
+  {t:3, q:"I adapt quickly to whatever a situation rewards."},
+  {t:3, q:"How things look to others affects my decisions more than I admit."},
+  {t:3, q:"I measure myself mostly by what I've achieved lately."},
+  {t:4, q:"I feel fundamentally different from the people around me."},
+  {t:4, q:"I'm drawn to what's missing more than to what's present."},
+  {t:4, q:"My emotional life is more intense than I usually let on."},
+  {t:5, q:"I need substantial time alone or I stop functioning well."},
+  {t:5, q:"I'd rather understand something completely than participate in it partially."},
+  {t:5, q:"I conserve my energy carefully and resent demands on it."},
+  {t:6, q:"I run through what could go wrong before committing to anything."},
+  {t:6, q:"I'm loyal well past the point where others would have walked away."},
+  {t:6, q:"I look for something or someone genuinely trustworthy to rely on."},
+  {t:7, q:"I keep my options open and dislike closing doors."},
+  {t:7, q:"When something gets painful, I instinctively look for the upside."},
+  {t:7, q:"I start more things than I finish, and the starting is the good part."},
+  {t:8, q:"I say the direct thing when others are being careful."},
+  {t:8, q:"Being controlled by someone else is close to intolerable for me."},
+  {t:8, q:"I protect the people who are mine, whatever it takes."},
+  {t:9, q:"I can see everyone's side, which makes my own hard to locate."},
+  {t:9, q:"I'd rather absorb a small injustice than have the confrontation."},
+  {t:9, q:"I put off things that matter to me and attend to trivia instead."}
+];
+const NINEDOORS = {
+  view:"doors", sigil:"sig-nous", type:"likert", mins:7, reg:"T",
+  eyebrow:"PsycheIQ · Mind", title:"The Nine Doors", cta:"Open the doors",
+  blurb:"Twenty-seven statements about what actually drives you underneath the behaviour. Nine core motivations — you'll have one dominant door and a neighbouring one you also use.",
+  ground:"Structured on the enneagram of personality, which is a widely used typology with very little peer-reviewed validation behind it. It earns its place by giving people accurate language for motivation rather than behaviour. Treat your door as a vocabulary, never as a cage — and note that the stress and growth directions are the useful part, not the number.",
+  items:DOOR_ITEMS,
+  finish(ans){
+    const raw = {}; for (let i=1;i<=9;i++) raw[i] = 0;
+    ans.forEach((v,i) => raw[DOOR_ITEMS[i].t] += v);
+    const pct = {}; Object.keys(raw).forEach(k => pct[k] = Math.round((raw[k]-3)/12*100));
+    const order = Object.keys(raw).sort((a,b) => raw[b]-raw[a]).map(Number);
+    const core = order[0];
+    // wing = the higher-scoring of the two adjacent doors
+    const left = core === 1 ? 9 : core-1, right = core === 9 ? 1 : core+1;
+    const wing = raw[left] >= raw[right] ? left : right;
+    saveResult("doors", {raw, pct, order, core, wing,
+      label:core+"w"+wing, type:DOORS[core], wingType:DOORS[wing],
+      kindred:pickKindred("doors","door",String(core))});
+    afterTest("doors");
+  }
+};
+function doorsPanel(){
+  const d = State.doors;
+  if (!d) return miniCTA("The Nine Doors", "What Drives You", "Twenty-seven statements, nine core motivations.", "doors");
+  const open = isTestUnlocked("doors");
+  return '<div class="frame">'+
+    '<p class="eyebrow">The Nine Doors '+tag("T")+clearLink("doors")+'</p>'+
+    '<h2 class="dsp h-lg gilt">'+esc(d.type.n)+'</h2>'+
+    '<p style="font-size:12.5px;color:var(--ink-3);letter-spacing:.12em;text-transform:uppercase;margin:6px 0 12px">'+
+      'Door '+d.core+', wing '+d.wing+' · with '+esc(d.wingType.n)+'</p>'+
+    '<div class="stat"><span>Core motivation</span><b>'+esc(d.type.core)+'</b></div>'+
+    '<div class="stat"><span>Core fear</span><b>'+esc(d.type.fear)+'</b></div>'+
+    '<p style="font-size:14.5px;margin-top:14px">'+esc(d.type.l)+'</p>'+
+    (open
+      ? '<div class="ground" style="margin-top:14px">'+
+          '<p style="margin:0;font-size:13.8px"><b style="color:var(--gold-hi)">Under stress:</b> '+esc(d.type.stress)+'</p>'+
+          '<p style="margin:8px 0 0;font-size:13.8px"><b style="color:var(--gold-hi)">In growth:</b> '+esc(d.type.growth)+'</p></div>'
+      : '<p class="teaser">'+esc(d.type.stress.slice(0,70))+'…</p>'+
+        '<p class="terms">Your stress and growth directions — the most useful part — are in the full reading.</p>')+
+    '<div class="bars" style="margin-top:14px">'+d.order.slice(0,4).map(k =>
+      '<div class="bar-row"><span class="lb">Door '+k+' · '+DOORS[k].n+'</span>'+
+      '<div class="bar-track"><i data-w="'+d.pct[k]+'"></i></div><span class="pct">'+d.pct[k]+'</span></div>').join("")+'</div>'+
+    kindredBlock("doors", d.type.n)+'</div>';
+}
+
+/* ============================================================
+   PSYCHEIQ — THE RESULTS CARD (9 categories, one version)
+   ------------------------------------------------------------
+   Every test produces one standardised card with exactly nine
+   categories. The nine vary by test where a category doesn't
+   apply — resolveCard() picks the right set and fills it from
+   the test's own result data.
+   Free tier: categories 1-3 open, 4-9 teased.
+   ============================================================ */
+const CARD_ICONS = {
+  signature:"◆", strengths:"✦", blind:"☾", relationship:"♁", work:"◈",
+  stress:"⚡", growth:"△", kindred:"✧", shadow:"☉", detail:"◉", practice:"✺", meaning:"❋"
+};
+function cardRow(key, title, body, locked){
+  if (!body) return "";
+  const html = Array.isArray(body)
+    ? '<ul class="swlist">'+body.map(x => '<li>'+esc(x)+'</li>').join("")+'</ul>'
+    : '<p style="font-size:14.3px;margin:6px 0 0">'+esc(body)+'</p>';
+  const teased = Array.isArray(body)
+    ? '<ul class="swlist"><li>'+esc(body[0])+'</li><li class="teaser">'+esc((body[1]||"").slice(0,46))+'…</li></ul>'
+    : '<p class="teaser" style="margin:6px 0 0">'+esc(String(body).slice(0,96))+'…</p>';
+  return '<div class="cardrow">'+
+    '<div class="cardrow__i">'+(CARD_ICONS[key] || "◆")+'</div>'+
+    '<div class="cardrow__b"><h4>'+esc(title)+'</h4>'+(locked ? teased : html)+'</div></div>';
+}
+
+/* build the nine categories for a given test */
+function resolveCard(testId){
+  const r = State[testId]; if (!r) return null;
+  const C = [];
+  const push = (key, title, body) => C.push({key, title, body});
+
+  if (testId === "pneuma"){
+    const a = r.archetype, k = r.key;
+    const sw = SW.pneuma[k];
+    push("signature","Core Signature", a.core);
+    push("strengths","Strengths", sw.s);
+    push("blind","Blind Spots", sw.w);
+    push("relationship","Relationship Style", a.relational);
+    push("work","Work & Vocation", a.vocation);
+    push("stress","Under Pressure", a.failure);
+    push("growth","Growth Path", a.ascent);
+    push("shadow","Shadow Work", a.shadowWork);
+    push("practice","Daily Practice", a.praxis);
+  }
+  else if (testId === "typology"){
+    const t = r.type, sw = swPick("typology", r.code);
+    push("signature","Core Signature", t.l);
+    push("detail","Function Stack", "Your cognitive stack runs "+t.st+". The first two are what you lead with and trust; the last is the one that ambushes you under stress.");
+    push("strengths","Strengths", sw.s);
+    push("blind","Blind Spots", sw.w);
+    push("relationship","Relationship Style", TYPE_REL[r.code]);
+    push("work","Work & Vocation", TYPE_WORK[r.code]);
+    push("stress","Under Pressure", "Stress pushes you toward the inferior end of your stack ("+t.st.split(" · ")[3]+"), which is where you're least practised and most likely to overcorrect.");
+    push("growth","Growth Path", "Development for your type isn't becoming the opposite — it's using your auxiliary ("+t.st.split(" · ")[1]+") deliberately rather than defaulting to your dominant.");
+    push("kindred","Kindred Figures", (r.kindred||[]).map(k => k.name+" — "+k.epithet));
+  }
+  else if (testId === "doors"){
+    const d = r.type;
+    push("signature","Core Signature", d.l);
+    push("detail","Core Motivation", "You are driven by: "+d.core+". Underneath that sits the fear of "+d.fear.toLowerCase()+", and the desire for "+d.desire.toLowerCase()+".");
+    push("strengths","Strengths", [d.core, "Reads situations through motivation rather than surface", "Consistent under conditions that scatter other types"]);
+    push("blind","Blind Spots", d.watch);
+    push("relationship","Relationship Style", d.rel);
+    push("work","Work & Vocation", d.work);
+    push("stress","Under Pressure", d.stress);
+    push("growth","Growth Path", d.growth);
+    push("kindred","Kindred Figures", (r.kindred||[]).map(k => k.name+" — "+k.epithet));
+  }
+  else if (testId === "logos"){
+    const sw = SW.logos[r.domModule];
+    push("signature","Core Signature", "You scored in the "+r.tier.name+" band at "+r.percent+"% of this instrument's range, strongest in "+r.domModule+" reasoning.");
+    push("detail","Module Breakdown", ["Systemic logic: "+r.systemic.correct+"/"+r.systemic.of+" ("+r.systemic.band+" band)","Mental geometry: "+r.geometry.correct+"/"+r.geometry.of+" (mastery grade "+r.geometry.grade+")","Working memory: span "+r.memory.span+" ("+r.memory.label+")"]);
+    push("strengths","Strengths", sw.s);
+    push("blind","Blind Spots", sw.w);
+    push("relationship","Relationship Style", "Reasoning style shows up relationally as how you argue. Your strength in "+r.domModule+" means you tend to win on structure — which is not the same as being understood. Slow down and check the other person is still with you.");
+    push("work","Work & Vocation", "This profile suits work where the problem is genuinely hard and the answer is checkable: analysis, engineering, diagnosis, strategy, research.");
+    push("stress","Under Pressure", "Your speed factor was "+r.speed+"%. Time pressure changes reasoning quality more than most people expect — under load, accuracy drops before you notice it has.");
+    push("growth","Growth Path", "The gain isn't a higher score; it's knowing which problems deserve this machinery and which need a decision instead of an analysis.");
+    push("kindred","Kindred Figures", (r.kindred||[]).map(k => k.name+" — "+k.epithet));
+  }
+  else if (testId === "body"){
+    const t = r.type;
+    push("signature","Core Signature", t.l);
+    push("detail","Dimension Breakdown", Object.keys(BODY_DIMS).map(k => BODY_DIMS[k].n+": "+r.pct[k]+"%"));
+    push("strengths","Strengths", t.s);
+    push("blind","Blind Spots", t.w);
+    push("relationship","Relationship Style", BODY_REL[r.order[0]]);
+    push("work","Work & Vocation", "Your rhythm suits work shaped around "+BODY_DIMS[r.order[0]].n.toLowerCase()+". The mismatch to avoid is a role built entirely on your weakest dimension, "+BODY_DIMS[r.order[3]].n.toLowerCase()+".");
+    push("stress","Under Pressure", "Your stress response scored "+r.pct.stress+"%. "+(r.pct.stress >= 60 ? "You regulate well, which means you may under-report strain until it's structural." : "Pressure lands physically for you — the body registers it before you consciously do."));
+    push("growth","Growth Path", t.g);
+    push("practice","This Week", "One change, held for seven days, in your weakest dimension: "+BODY_DIMS[r.order[3]].n.toLowerCase()+".");
+  }
+  else if (testId === "soulq"){
+    const top = SQ_FACTORS[r.order[0]], low = SQ_FACTORS[r.order[3]];
+    push("signature","Core Signature", "Soul IQ "+r.index+"/100 — "+r.band+". Strongest in "+top.n+", quietest in "+low.n+".");
+    push("detail","Factor Breakdown", Object.keys(SQ_FACTORS).map(k => SQ_FACTORS[k].n+": "+r.pct[k]+"%"));
+    push("strengths","Strengths", [top.l, "Comfortable with questions that don't resolve", "Draws meaning from experience rather than waiting to be given it"]);
+    push("blind","Blind Spots", ["Self-report rewards people who like the idea of themselves",""+low.n+" is the underdeveloped register","Insight that never lands as action"]);
+    push("relationship","Relationship Style", SOUL_REL[r.order[0]]);
+    push("meaning","Meaning & Purpose", top.l);
+    push("stress","Under Pressure", "Under strain the inner life is the first thing dropped — practice goes, reflection goes, and the loss isn't noticed for weeks.");
+    push("growth","Growth Path", "Development here is downward, not upward: one insight brought into one ordinary, specific action this week.");
+    push("kindred","Kindred Figures", (r.kindred||[]).map(k => k.name+" — "+k.epithet));
+  }
+  else if (testId === "anima"){
+    const l = r.lineage;
+    push("signature","Core Signature", l.mark);
+    push("detail","Your Sky", r.chart
+      ? ["Sun in "+signOf(r.chart.sun).n, "Moon in "+signOf(r.chart.moon).n, (r.chart.rising !== null ? "Rising in "+signOf(r.chart.rising).n : "Rising unavailable — needs birth time"), "Lunar phase: "+r.chart.phase]
+      : "No birth data entered yet — add it to place the sky beside the lineage.");
+    push("strengths","Strengths", (SW.anima[l.id]||{}).s);
+    push("blind","Blind Spots", (SW.anima[l.id]||{}).w);
+    push("relationship","Relationship Style", LINEAGE_REL[l.id]);
+    push("work","The Work", l.mission);
+    push("shadow","Shadow", l.shadow);
+    push("meaning","Soul Family", r.family.n+" — "+r.family.l);
+    push("kindred","Kindred Figures", (r.kindred||[]).map(k => k.name+" — "+k.epithet));
+  }
+  else if (testId === "past"){
+    const L = r.life;
+    push("signature","The Life", L.paras[0]);
+    push("detail","The Office You Held", L.paras[1]);
+    push("meaning","The Ground", L.paras[2]);
+    push("strengths","What It Left You", (SW.past[r.role]||{}).s);
+    push("blind","What It Still Costs", (SW.past[r.role]||{}).w);
+    push("relationship","Relationship Style", PAST_REL[r.role]);
+    push("work","Work & Vocation", "The office of "+r.role_o.title.replace("The ","").toLowerCase()+" translates into present work that rewards the same instinct.");
+    push("growth","Growth Path", "The pattern from that life is useful until it's automatic. Notice where you're running it because it fits, and where you're running it because it's familiar.");
+    push("kindred","Kindred Figures", (r.kindred||[]).map(k => k.name+" — "+k.epithet));
+  }
+  return C.slice(0,9);
+}
+
+/* --- relationship-style content per result --- */
+const TYPE_REL = {
+  INTJ:"You commit deliberately and rarely, then treat the relationship as something to be built properly. Partners may need more spontaneous warmth than your long-range planning naturally produces.",
+  INTP:"You connect through ideas and can mistake intellectual intimacy for the emotional kind. Say the plain feeling out loud occasionally; the analysis of the feeling isn't the same thing.",
+  ENTJ:"You take charge of the relationship's logistics and can steamroll preferences you never asked for. Ask more than you direct.",
+  ENTP:"You energise and provoke, and can debate a partner who wanted comfort. Learn to tell which one is being asked for.",
+  INFJ:"You read people deeply and reveal yourself slowly, which can leave partners feeling known but not knowing you. Reciprocate the disclosure.",
+  INFP:"You love with a private intensity that doesn't always reach the surface. What's obvious inside you may be invisible from outside — say it.",
+  ENFJ:"You orient around what others need and lose your own thread. State a preference before it becomes a resentment.",
+  ENFP:"You bring enormous warmth and struggle with the flat maintenance stretches. Staying is the skill, not starting.",
+  ISTJ:"You show love through reliability and are baffled when that isn't received as romance. It is love — just say the words alongside it.",
+  ISFJ:"You anticipate needs and quietly keep score. Ask directly rather than waiting to be noticed.",
+  ESTJ:"You organise the shared life competently and can manage a partner rather than meet them. Leave things unoptimised sometimes.",
+  ESFJ:"You build the warm room everyone relaxes in, then feel unappreciated inside it. Name what you need out loud.",
+  ISTP:"You show up in practical acts rather than words, and withdraw when things get emotionally loud. Signal the retreat so it isn't read as rejection.",
+  ISFP:"You love privately and dislike defending your choices. Let people close enough to see the interior you protect.",
+  ESTP:"You're fully present and immediate, and can get restless in the quiet middle of a relationship. Stillness is the unpractised skill.",
+  ESFP:"You bring the relationship alive and avoid the heavy conversation. Sit in the difficult one without lightening it."
+};
+const TYPE_WORK = {
+  INTJ:"Strategy, architecture, long-horizon planning — anywhere the payoff is measured in years.",
+  INTP:"Research, theory, systems design, debugging — where the problem is genuinely unsolved.",
+  ENTJ:"Executive leadership, operations at scale, turnarounds — where someone must decide.",
+  ENTP:"Innovation, founding, consulting, argument — where the brief is to break the frame.",
+  INFJ:"Counselling, writing, mission-driven organisations — where insight into people is the deliverable.",
+  INFP:"Writing, craft, advocacy, therapy — where the work must align with a private standard.",
+  ENFJ:"Teaching, leadership, community-building — where people are moved toward something.",
+  ENFP:"Creative direction, entrepreneurship, facilitation — variety and human energy.",
+  ISTJ:"Administration, finance, law, logistics — where accuracy and continuity matter.",
+  ISFJ:"Healthcare, education, support roles — sustained care that others rely on.",
+  ESTJ:"Management, operations, enforcement of standards — running the thing properly.",
+  ESFJ:"Hospitality, HR, community roles — holding a group together over time.",
+  ISTP:"Engineering, trades, emergency response — hands-on problems with real feedback.",
+  ISFP:"Design, craft, care work — aesthetics and values expressed through making.",
+  ESTP:"Sales, negotiation, crisis work — live situations that reward reading the moment.",
+  ESFP:"Performance, hospitality, front-of-house — presence as the product."
+};
+const BODY_REL = {
+  energy:"You need a partner who tolerates variety and doesn't read your restlessness as dissatisfaction with them. Shared novelty keeps you engaged more than shared routine.",
+  stress:"You're the steady one, which means other people's stress finds you by default. Being the anchor is a role, and roles need renegotiating occasionally.",
+  habits:"You show love through consistency — the reliable presence, the thing done again. Partners who want spontaneity may need you to break your own pattern on purpose.",
+  attune:"You read physical and emotional states early, sometimes before the other person has noticed. Check your read rather than acting on it silently."
+};
+const SOUL_REL = {
+  cet:"You bring the big questions into relationships and can make ordinary companionship feel unexamined. Not everything needs interrogating.",
+  pmp:"You look for shared meaning and can struggle with partners who don't frame life that way. Meaning can be lived rather than discussed.",
+  ta:"You sense things about people they haven't said, which is either deeply intimate or unnerving. Ask instead of assuming the read is right.",
+  cse:"Your inner practice is real and can become a place you go instead of toward the other person. Bring the state back into the room."
+};
+const LINEAGE_REL = {
+  pleiadian:"You regulate the emotional temperature of your relationships, often without being asked. Notice when you're managing rather than relating.",
+  sirian:"You're loyal to the form of a relationship — the ritual, the commitment, the promise. That's stabilising, and occasionally it outlives the life inside it.",
+  arcturian:"You see what could be improved in the people you love, and you say so. Precision is a form of attention; it doesn't always land as one.",
+  lyran:"You start relationships with real intensity and can lose interest once they're established. Staying is the discipline.",
+  andromedan:"You keep an exit visible even inside good relationships. Choosing to stay, out loud, is worth more than you think.",
+  orion:"You're drawn to relationships with charge and polarity, and can create conflict to feel connected. Ease is not the absence of intimacy.",
+  draconian:"You want plainly and take up space. Sharing power before you're asked to is the growth edge.",
+  terran:"You show up in practical, material care — food, repair, presence. Say the feeling occasionally too."
+};
+const PAST_REL = {
+  warrior:"You protect the people who are yours and can command where you meant to care. Ask before deciding on someone's behalf.",
+  singer:"You give a great deal of yourself outwardly and keep the private part back. Let one person see the offstage version.",
+  builder:"You build the shared structure and trust it to speak for you. It doesn't always — say the thing directly.",
+  waterman:"You read conditions before committing and can hold back waiting for perfect weather. Sometimes you go out in a decent forecast."
+};
+
+/* --- render one standardised card --- */
+function resultsCard(testId){
+  const rec = State[testId]; if (!rec) return "";
+  const cats = resolveCard(testId); if (!cats) return "";
+  const open = isTestUnlocked(testId);
+  const t = TESTS.find(x => x.id === testId) || {name:testId};
+  return '<div class="frame geo rcard" style="margin-top:20px">'+
+    '<div class="rcard__head">'+
+      '<div>'+dimBadgeFor(testId)+'<p class="eyebrow" style="margin:8px 0 0">'+esc(t.name)+(t.lore ? ' · '+esc(t.lore) : "")+'</p>'+
+      '<h2 class="dsp h-md" style="color:var(--ink);margin-top:4px">Results Card</h2></div>'+
+      '<div style="text-align:right"><span class="pill">9 categories</span>'+clearLink(testId)+'</div>'+
+    '</div>'+
+    '<div class="orn"><i>◆</i></div>'+
+    cats.map((c,i) => cardRow(c.key, (i+1)+". "+c.title, c.body, i > 2 && !open)).join("")+
+    (!open ? '<div class="rcard__gate">'+
+      '<p style="font-size:14px;margin:0 0 12px">Categories 4–9 — including your relationship style, pressure response and growth path — open with the full result.</p>'+
+      '<div class="btn-row"><button class="btn btn--gold js-onetime">Unlock this test · $3.99</button>'+
+      '<button class="btn js-trial">Unlock everything · trial</button></div></div>' : "")+
+  '</div>';
+}
+
+/* ============================================================
+   SOUL BLUEPRINT — the aggregate dashboard
+   ============================================================ */
+function soulBlueprint(){
+  const done = TESTIDS.filter(id => State[id]);
+  if (!done.length) return "";
+  const s = psycheScore();
+  const g = growthStanding();
+  const num = State.anima && State.anima.numerology;
+
+  /* how the results interact — pairwise resonances actually held */
+  const inter = [];
+  if (State.pneuma && State.doors)
+    inter.push(["Personality × Motivation", PLAIN_ARCH[State.pneuma.key]+" driven by "+State.doors.type.n.toLowerCase()+"'s core need. Behaviour and motive are different layers — where they disagree is where most of your internal friction sits."]);
+  if (State.typology && State.pneuma)
+    inter.push(["Thinking × Temperament", State.typology.code+" processing running on "+TRAITS[State.pneuma.order[0]].label.toLowerCase()+". The type describes how you take information in; the trait describes what you reach for first."]);
+  if (State.logos && State.body)
+    inter.push(["Mind × Body", "Reasoning at "+State.logos.percent+"% of range, physical regulation at "+State.body.index+". Cognitive capacity is downstream of sleep, stress and recovery more than anyone likes to admit."]);
+  if (State.soulq && State.doors)
+    inter.push(["Soul × Motivation", "Your inner life is strongest in "+SQ_FACTORS[State.soulq.order[0]].n+", driven by a "+State.doors.type.n.toLowerCase()+"'s engine. Meaning and motive pulling together is rare; pulling apart is common."]);
+  const ts = (typeof tarotStats === "function") ? tarotStats() : null;
+  if (ts && ts.topCardN >= 3)
+    inter.push(["The Deck × everything", ARCANA[ts.topCard].n+" has come up "+ts.topCardN+
+      " times across "+ts.total+" pulls. A card that keeps returning regardless of what you asked is usually describing the standing situation rather than any one question."]);
+  if (State.past && State.anima)
+    inter.push(["Prior Life × Sky", State.past.life.title+" under a "+(State.anima.chart ? signOf(State.anima.chart.sun).n+" Sun" : State.anima.lineage.n+" lineage")+". Both are mythic readings, and they tend to converge on one image."]);
+
+  const open = shareUnlocked();
+  return '<div class="frame geo" style="margin-bottom:20px">'+
+    '<p class="eyebrow center">Soul Blueprint</p>'+
+    '<h2 class="dsp h-lg gilt center">'+(s ? s.score+" / 100" : "In progress")+'</h2>'+
+    '<p class="center" style="font-size:13px;color:var(--ink-3);margin-top:4px">'+
+      done.length+' of '+TESTIDS.length+' assessments · '+(g ? esc(g.stage)+' stage · '+esc(g.level) : "")+'</p>'+
+    '<div class="orn"><i>◆</i></div>'+
+    dimProgressStrip()+
+    '<div class="bpgrid">'+
+      TESTIDS.map(id => {
+        const t = TESTS.find(x => x.id === id) || {};
+        const have = !!State[id];
+        return '<div class="bpcell'+(have ? " on" : "")+'">'+
+          '<span class="bpcell__d">'+dimBadge((PLAIN[id]||{}).dim)+'</span>'+
+          '<b>'+esc(t.name || id)+'</b>'+
+          '<span class="bpcell__v">'+(have ? esc(String(t.status ? t.status() : "Complete")) : "—")+'</span></div>';
+      }).join("")+tarotBlueprintBlock()+
+    '</div>'+
+    (num ? numerologySynthesis(num) : "")+
+    (inter.length
+      ? '<div style="margin-top:18px"><p class="eyebrow center">How your results interact</p>'+
+        inter.slice(0, open ? inter.length : 1).map(([h,b]) =>
+          '<div class="frame frame--tight" style="margin-top:10px"><p class="eyebrow" style="margin-bottom:4px">'+esc(h)+'</p>'+
+          '<p style="font-size:14px;margin:0">'+esc(b)+'</p></div>').join("")+
+        (!open && inter.length > 1
+          ? '<p class="terms center" style="margin-top:10px">'+(inter.length-1)+' more cross-test readings in the full Blueprint.</p>'+
+            '<div class="btn-row" style="margin-top:8px"><button class="btn btn--gold js-trial">Open the full Blueprint</button></div>'
+          : "")+
+        '</div>'
+      : '<p class="terms center" style="margin-top:14px">Complete a second assessment and the Blueprint starts reading them against each other.</p>')+
+  '</div>';
+}
+
+/* ============================================================
+   PSYCHEIQ — THE CAST (dice layer for the reading)
+   ------------------------------------------------------------
+   Two dice deepen the Major Arcana draw, read the same way the
+   cards are: the meaning shifts with the category asked.
+     d10 -> Growth Stage    (1 Beginning ... 10 Transforming)
+     d4  -> Court Rank      Page(Novice) Knight(Explorer)
+                            Queen(Builder) King(Master)
+   10x4 + 4x4 = 56 readings.
+   ============================================================ */
+const STAGES_10 = [
+  {n:1,  t:"Beginning",    l:"The very start. Nothing is established, which also means nothing is stuck."},
+  {n:2,  t:"Learning",     l:"Absorbing rather than producing. It feels like nothing is happening; it isn't nothing."},
+  {n:3,  t:"Growing",      l:"Traction. The thing has its own momentum now and wants feeding."},
+  {n:4,  t:"Building",     l:"Structure time. What was loose needs a frame or it dissipates."},
+  {n:5,  t:"Challenging",  l:"The resistance arrives. This is where most things quietly die."},
+  {n:6,  t:"Balancing",    l:"Recalibration after the struggle. Adjust proportions rather than starting over."},
+  {n:7,  t:"Refining",     l:"The rough version works. Now it's craft — the passes nobody applauds."},
+  {n:8,  t:"Expanding",    l:"Scale. What worked small is ready to be bigger."},
+  {n:9,  t:"Integrating",  l:"The parts come together into one coherent whole."},
+  {n:10, t:"Transforming", l:"The end of a cycle and the start of a different kind of thing."}
+];
+const RANKS = [
+  {k:"page",   court:"Page",   level:"Novice",   l:"New here, curiosity intact, habits not yet hardened."},
+  {k:"knight", court:"Knight", level:"Explorer", l:"Skill and momentum, judgement still arriving."},
+  {k:"queen",  court:"Queen",  level:"Builder",  l:"Mastery held inwardly. You steward rather than prove."},
+  {k:"king",   court:"King",   level:"Master",   l:"Authority in the domain. You set direction for others."}
+];
+
+const STAGE_READ = {
+ 1:{wands:"You're at the start of something creative and it barely exists. Protect it from opinion — including your own — until it has enough shape to survive being looked at.",
+    pentacles:"The opening of a work or money cycle. Nothing is established, which means nothing is stuck yet. Move while the shape is still soft.",
+    cups:"A relationship, or a new chapter inside one, is just beginning. Don't front-load it with expectations it hasn't had a chance to earn.",
+    swords:"The very start of a decision. You have less information now than you will later — resist looking decisive before you're actually informed."},
+ 2:{wands:"You're absorbing rather than producing, which feels like stalling. It isn't. Study the people who did this well before building your own version.",
+    pentacles:"A skill-acquisition phase. The pay lags the learning here, which is normal and temporary — don't read the lag as failure.",
+    cups:"You're finding out who this person actually is, past the first impression. Ask considerably more than you assume.",
+    swords:"Gathering information before committing. Stay in this phase slightly longer than is comfortable; the urge to conclude is not readiness."},
+ 3:{wands:"The work has traction and is picking up speed. Feed it, and don't get pulled to the next idea just because this one now requires actual labour.",
+    pentacles:"Genuine growth in income, role or capability. Reinvest before you upgrade the lifestyle around it.",
+    cups:"This is deepening under its own momentum. Let it, without rushing to define what it is.",
+    swords:"Your position is strengthening. Consolidate what you've gained before pushing further."},
+ 4:{wands:"Structure time. The creative phase needs a frame — a deadline, a form, a constraint — or it dissipates into potential.",
+    pentacles:"You're building the durable thing: the business, the savings, the qualification. Unglamorous and exactly right.",
+    cups:"You're constructing something shared — a home, a routine, a set of agreements. Build it deliberately rather than by default.",
+    swords:"Turning a decision into a plan. The thinking is finished; the architecture isn't."},
+ 5:{wands:"The resistance arrives. This is the point most creative work dies, and getting through it is the only thing separating finished from abandoned.",
+    pentacles:"Real difficulty — a setback, a shortfall, a loss. Test what you built rather than defending it.",
+    cups:"Conflict that can't be smoothed over. It's asking for honesty, not for harmony.",
+    swords:"Direct opposition. Meet it squarely; avoidance is going to cost more than the confrontation would."},
+ 6:{wands:"After the struggle, recalibration. Adjust the proportions rather than tearing it down and starting again.",
+    pentacles:"Rebalancing work, money and life after something tipped over. Sustainability beats intensity from here.",
+    cups:"Restoring equilibrium after conflict. This works when both people give something back, not just one.",
+    swords:"Weighing what the fight actually revealed. The correct position is probably somewhere neither side started."},
+ 7:{wands:"The rough version works. Now it's craft — the unglamorous passes that separate good from finished.",
+    pentacles:"Optimising rather than expanding. Small improvements compound harder here than a new venture would.",
+    cups:"Stable ground. This is about quality rather than survival now, which means the small things matter more.",
+    swords:"Sharpening a position that's basically right. Precision, not reinvention."},
+ 8:{wands:"Scale it. What worked small is ready to be bigger, and the real constraint is your willingness to be seen.",
+    pentacles:"Growth phase — more reach, more responsibility, more demand. Build the capacity before it arrives, not after.",
+    cups:"The circle widens: new people, new commitments. Keep the core intact while it grows.",
+    swords:"Apply the working solution somewhere new. What you learned here transfers further than you think."},
+ 9:{wands:"The parts come together. Disparate work resolves into one coherent body — that's the achievement, not any single piece of it.",
+    pentacles:"Consolidating what you've built into something that runs without your constant attention.",
+    cups:"The relationship integrates into the rest of your life rather than sitting beside it.",
+    swords:"Everything you learned assembles into judgement. You know how to think about this class of problem now."},
+ 10:{wands:"The end of a cycle and the beginning of a different one. What you make next won't resemble this.",
+    pentacles:"A fundamental change in your material situation — not an improvement, a change of kind.",
+    cups:"This becomes something else entirely. Both people are different on the other side of it.",
+    swords:"The frame itself changes. The question you started with is no longer the right question."}
+};
+const RANK_READ = {
+ page:{wands:"You're new to this creative territory and it shows in the best way. Ask the obvious questions before you learn not to.",
+       pentacles:"Early in this material domain — low stakes, high learning rate. Make the cheap mistakes now, deliberately.",
+       cups:"New to this kind of relating. Bring openness rather than technique; you don't have technique yet and it would show.",
+       swords:"New to this class of problem. Don't perform certainty — the beginner's questions are the genuinely useful ones here."},
+ knight:{wands:"Skill and momentum, not yet much judgement about where to point them. Charge, but choose the hill first.",
+       pentacles:"Actively pursuing — the role, the deal, the growth. Energy is high; make sure the direction was chosen rather than inherited.",
+       cups:"Pursuing connection with real intensity. Check whether you're courting the person or the feeling of pursuit.",
+       swords:"Attacking the problem head-on. Speed is your advantage and simultaneously your exposure."},
+ queen:{wands:"Mastery held inwardly. You know what you're doing and don't need to prove it — let the work carry the argument.",
+       pentacles:"You've built something real and now you steward it. Maintenance is the discipline, and it's less exciting than building was.",
+       cups:"You hold emotional space for other people competently. Check that somebody is holding it for you.",
+       swords:"Clear, well-earned judgement. You see the problem whole and choose deliberately rather than reactively."},
+ king:{wands:"Authority in this domain — you set direction for others now, not only for yourself. Use it on purpose.",
+       pentacles:"Command of the material sphere. The live question is what you do with the surplus.",
+       cups:"Emotional maturity that steadies whole systems rather than one relationship. People organise themselves around it.",
+       swords:"Decisive mastery. You cut cleanly, and the responsibility for the cut is entirely yours."}
+};
+
+/* --- dice art --- */
+function dieD10(face){
+  return '<svg viewBox="0 0 100 100" class="die__svg" aria-hidden="true">'+
+    '<path d="M50 6L88 38 50 94 12 38z" fill="none" stroke="#E3BE6D" stroke-width="2.2" stroke-linejoin="round"/>'+
+    '<path d="M12 38h76M50 6v88M50 6L12 38M50 6l38 32" fill="none" stroke="#E3BE6D" stroke-width=".9" opacity=".45"/>'+
+    '<path d="M50 6L88 38 50 94 12 38z" fill="#E3BE6D" opacity=".08"/>'+
+    '<text x="50" y="52" text-anchor="middle" font-family="Cinzel,serif" font-size="30" fill="#F9E7B4">'+face+'</text></svg>';
+}
+function dieD4(glyph){
+  return '<svg viewBox="0 0 100 100" class="die__svg" aria-hidden="true">'+
+    '<path d="M50 10L92 84H8z" fill="none" stroke="#E3BE6D" stroke-width="2.2" stroke-linejoin="round"/>'+
+    '<path d="M50 10v52M50 62L8 84M50 62l42 22" fill="none" stroke="#E3BE6D" stroke-width=".9" opacity=".45"/>'+
+    '<path d="M50 10L92 84H8z" fill="#E3BE6D" opacity=".08"/>'+
+    '<text x="50" y="70" text-anchor="middle" font-family="Cinzel,serif" font-size="22" fill="#F9E7B4">'+esc(glyph)+'</text></svg>';
+}
+
+/* --- the cast --- */
+function castDice(){
+  const stage = STAGES_10[Math.floor(Math.random()*10)];
+  const rank  = RANKS[Math.floor(Math.random()*4)];
+  return {stage, rank};
+}
+function diceSection(){
+  if (!TarotRun || TarotRun.picked === null) return "";
+  const cat = TarotRun.cat;
+  if (!TarotRun.cast){
+    return '<div class="frame" style="max-width:720px;margin:20px auto 0;text-align:center">'+
+      '<p class="eyebrow">Deepen the reading</p>'+
+      '<h3 class="dsp h-md" style="color:var(--ink)">Cast the Dice</h3>'+
+      '<p style="font-size:14px;max-width:520px;margin:10px auto 16px">The card says what. The dice say <b style="color:var(--gold-hi)">where you are in it</b> and <b style="color:var(--gold-hi)">how far along you are</b>.</p>'+
+      '<div class="dicerow">'+
+        '<div class="die die--idle">'+dieD10("?")+'<span class="die__cap">Stage · d10</span></div>'+
+        '<div class="die die--idle">'+dieD4("?")+'<span class="die__cap">Rank · d4</span></div>'+
+      '</div>'+
+      '<button class="btn btn--gold" id="tt-cast" style="margin-top:18px">Cast</button></div>';
+  }
+  const {stage, rank} = TarotRun.cast;
+  const rolling = TarotRun.rolling;
+  return '<div class="frame geo" style="max-width:720px;margin:20px auto 0;text-align:center">'+
+    '<p class="eyebrow">The cast '+tag("Y")+'</p>'+
+    '<div class="dicerow">'+
+      '<div class="die'+(rolling ? " die--rolling" : " die--settled")+'">'+dieD10(stage.n)+
+        '<span class="die__cap">'+esc(stage.t)+'</span></div>'+
+      '<div class="die'+(rolling ? " die--rolling" : " die--settled")+'" style="animation-delay:.12s">'+dieD4(rank.court[0])+
+        '<span class="die__cap">'+esc(rank.court)+' ('+esc(rank.level)+')</span></div>'+
+    '</div>'+
+    (rolling ? '<p class="eyebrow" style="margin-top:16px">casting…</p>' :
+      '<div style="margin-top:18px">'+
+        '<div class="castrow"><div class="castrow__n">'+stage.n+'</div>'+
+          '<div><p class="eyebrow" style="margin:0 0 3px">Growth stage · '+esc(stage.t)+'</p>'+
+          '<p style="font-size:14.3px;margin:0">'+esc(STAGE_READ[stage.n][cat])+'</p></div></div>'+
+        '<div class="castrow"><div class="castrow__n">'+esc(rank.court[0])+'</div>'+
+          '<div><p class="eyebrow" style="margin:0 0 3px">'+esc(rank.court)+' · '+esc(rank.level)+'</p>'+
+          '<p style="font-size:14.3px;margin:0">'+esc(RANK_READ[rank.k][cat])+'</p></div></div>'+
+        '<p class="lead" style="max-width:560px;margin:16px auto 0;font-size:1.05rem">'+
+          esc(ARCANA[TarotRun.picked].n+" at "+stage.t.toLowerCase()+", held as "+rank.level.toLowerCase()+".")+'</p>'+
+        '<button class="btn" id="tt-recast" style="margin-top:16px">Cast again</button>'+
+      '</div>')+
+  '</div>';
+}
+function wireDice(){
+  const cast = $("#tt-cast");
+  if (cast) cast.onclick = () => {
+    TarotRun.cast = castDice();
+    TarotRun.rolling = true;
+    renderTarot();
+    setTimeout(() => {
+      if (!TarotRun) return;
+      TarotRun.rolling = false; renderTarot();
+      setTimeout(() => burstFrom(".dicerow", {count:26, spread:170, life:1000}), 60);
+    }, 900);
+  };
+  const re = $("#tt-recast");
+  if (re) re.onclick = () => {
+    TarotRun.cast = castDice();
+    TarotRun.rolling = true;
+    renderTarot();
+    setTimeout(() => {
+      if (!TarotRun) return;
+      TarotRun.rolling = false; renderTarot();
+      setTimeout(() => burstFrom(".dicerow", {count:26, spread:170, life:1000}), 60);
+    }, 900);
+  };
+}
+

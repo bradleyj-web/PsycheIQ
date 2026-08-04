@@ -433,11 +433,20 @@ function renderResults(){
       '<h1 class="dsp h-md" style="color:var(--ink)">Your PsycheIQ Blueprint</h1></div>'+
     '</div>'+orn+
     profileBar()+
+    '<div class="frame geo" style="text-align:center;margin-bottom:20px"><p class="eyebrow">The whole picture</p>'+
+      '<h3 class="dsp h-md" style="color:var(--ink)">Your Soul Blueprint</h3>'+
+      '<p style="font-size:14px;margin:8px 0 12px">Every system read against every other — cross-insights, metrics and your composite score.</p>'+
+      '<button class="btn btn--gold" data-go="blueprint">Open the Blueprint</button></div>'+
     blueprint()+
     scoreBlock()+
+    dimHeader("Mind","Personality, reasoning, thinking style and motivation")+
     '<div class="grid-2">'+pneumaPanel(p)+typologyPanel()+'</div>'+
-    '<div class="grid-2" style="margin-top:20px">'+logosPanel(l)+soulqPanel()+'</div>'+
-    '<div class="grid-2" style="margin-top:20px">'+bodyPanel()+'<div></div></div>'+
+    '<div class="grid-2" style="margin-top:20px">'+doorsPanel()+logosPanel(l)+'</div>'+
+    dimHeader("Body","How your physical experience shapes everything above it")+
+    '<div class="grid-2">'+bodyPanel()+'<div></div></div>'+
+    dimHeader("Soul","Meaning, values, intuition and personal growth")+
+    '<div class="grid-2">'+soulqPanel()+'<div></div></div>'+
+
     '<div class="frame" style="margin-top:20px;text-align:center">'+
       '<p class="eyebrow">Hermetic synthesis</p>'+
       '<h2 class="dsp h-md" style="color:var(--ink)">Your Life Path</h2>'+orn+
@@ -450,7 +459,6 @@ function renderResults(){
       '</div>'+
     '</div>'+
     (p ? '<div class="frame" style="margin-top:20px"><p class="eyebrow center">Pneuma trait spectrum</p>'+radarSVG()+'</div>' : "")+
-    comboInsight()+
     animaBlock()+
     growthBlock()+
     synthesisBlock()+
@@ -475,13 +483,17 @@ function renderResults(){
           '<div class="stat"><span>Recall span</span><b>'+l.memory.span+'</b></div>'+
         '</div>'+
         '<p class="terms">Completed in '+Math.floor(l.seconds/60)+' min '+(l.seconds%60)+' s \u00b7 speed factor '+l.speed+'%, worth up to ten points of the total. Unsupervised and unnormed: treat the band as a label inside PsycheIQ, not a psychometric score.</p></div>' : "")+
-    '<div class="btn-row" style="margin-top:24px"><button class="btn" data-go="oracle">Run another instrument</button></div>';
+    TESTIDS.filter(id => State[id]).map(id => resultsCard(id)).join("")+
+    '<div class="btn-row" style="margin-top:24px"><button class="btn" data-go="oracle">Run another assessment</button></div>';
 
   wireProfileBar();
+  /* the reveal: dust across the top, then a burst off the score */
+  burstCurtain();
+  setTimeout(() => burstFrom(".scoreband__num b", {count:38, spread:230, life:1300}), 260);
   const dl = $("#crest-dl"); if (dl) dl.onclick = downloadCrest;
   $$(".js-upgrade").forEach(b => b.onclick = () => openUpgrade("results"));
   setTimeout(() => $$(".bar-track i").forEach(i => i.style.width = i.dataset.w+"%"), 60);
-  maybeInterstitial();
+  /* pre-results ad handled by adGate at test completion */
 }
 function pneumaPanel(p){
   if (!p) return '<div class="frame center"><p class="eyebrow">Pneuma archetype</p>'+
@@ -593,6 +605,7 @@ function rerender(){
   else if (State.view === "essays" && State.essay && !$("#essay-reader").hidden) openEssay(State.essay);
   else if (State.view === "oracle") renderOracle();
   else if (State.view === "readings") renderReadings();
+  else if (State.view === "blueprint") renderBlueprint();
 }
 
 
@@ -671,11 +684,12 @@ function renderAnimaIntro(){
 }
 
 function renderBirthForm(){
-  const opts = CITIES.map((c,i) => '<option value="'+i+'">'+esc(c[0])+'</option>').join("");
+  const opts = ALL_CITIES.map((c,i) => '<option value="'+i+'">'+esc(c[0])+'</option>').join("");
   $("#view-anima").innerHTML =
     '<div class="frame" style="max-width:620px;margin:0 auto">'+
       '<p class="eyebrow center">Part one</p>'+
       '<h1 class="dsp h-md center" style="color:var(--ink)">Your Birth Sky</h1>'+orn+
+      '<label class="field"><span>Full name at birth · optional, adds 3 numerology numbers</span><input id="b-name" placeholder="First Middle Last" autocomplete="name"></label>'+
       '<label class="field"><span>Date of birth</span><input type="date" id="b-date"></label>'+
       '<label class="field"><span>Time of birth · optional, needed for the rising sign</span><input type="time" id="b-time"></label>'+
       '<label class="field"><span>Nearest city</span><select id="b-city"><option value="">— choose, or set values below —</option>'+opts+'</select></label>'+
@@ -689,7 +703,7 @@ function renderBirthForm(){
       '<div class="btn-row" style="margin-top:14px"><button class="btn btn--ghost" id="b-back">Back</button></div>'+
     '</div>';
   $("#b-city").onchange = e => {
-    const c = CITIES[+e.target.value]; if (!c) return;
+    const c = ALL_CITIES[+e.target.value]; if (!c) return;
     $("#b-lat").value = c[1]; $("#b-lon").value = c[2]; $("#b-off").value = c[3];
   };
   $("#b-back").onclick = renderAnimaIntro;
@@ -700,6 +714,8 @@ function renderBirthForm(){
     const lat = parseFloat($("#b-lat").value), lon = parseFloat($("#b-lon").value), off = parseFloat($("#b-off").value);
     ARun = ARun || {};
     ARun.chart = computeChart(d, t, isNaN(lat)?null:lat, isNaN(lon)?null:lon, isNaN(off)?0:off);
+    ARun.birthName = ($("#b-name") && $("#b-name").value) || "";
+    ARun.numerology = numerologyFor(d, ARun.birthName);
     renderChartResult();
   };
 }
@@ -740,6 +756,7 @@ function renderChartResult(){
       '<div class="stat"><span>Dominant element</span><b>'+c.dominant+'</b></div>'+
       '<div class="ground" style="margin-top:16px">'+tag("M")+
         '<p style="margin:8px 0 0;font-size:13.5px">These are real positions. The zodiac they are read against has drifted about one sign from the constellations since it was fixed, because of the 25,772-year precession of the equinoxes — which is why sidereal and tropical astrology disagree by roughly 24 degrees. Both traditions know this; neither is a computational error.</p></div>'+
+      numerologyBlock(ARun.numerology)+
       '<button class="btn btn--gold btn--wide" id="a-next" style="margin-top:18px">Continue to the ten questions</button>'+
     '</div>';
   $("#a-next").onclick = () => startLineage();
@@ -784,7 +801,8 @@ function finishAnima(){
   const family = FAMILIES[(lIdx + tIdx + 2) % FAMILIES.length];
   const sunSign = ARun.chart ? signOf(ARun.chart.sun).n : null;
   const major = sunSign ? MAJORS[sunSign] : MAJORS[Object.keys(MAJORS)[(lIdx*3) % 12]];
-  saveResult("anima", {chart:ARun.chart || null, lineage, second, scores:score, family, major, sunSign,
+  saveResult("anima", {chart:ARun.chart || null, numerology:ARun.numerology || null, birthName:ARun.birthName || "",
+    lineage, second, scores:score, family, major, sunSign,
     kindred:pickKindred("anima","lineage",lineage.id)});
   afterTest("anima");
 }
@@ -799,6 +817,7 @@ function animaBlock(){
   const c = a.chart, l = a.lineage;
   return '<div class="frame" style="margin-top:20px">'+
     '<p class="eyebrow center">The Anima Field</p>'+
+    '<div style="max-width:280px;margin:0 auto 12px">'+lineageArt(l.id, l.n)+'</div>'+
     '<h2 class="dsp h-lg gilt center">'+esc(l.n)+' Lineage</h2>'+
     '<p class="center" style="font-size:13px;color:var(--ink-3);margin-top:6px">'+esc(l.star)+' · secondary current: '+esc(a.second.n)+'</p>'+orn+
     '<div class="grid-2">'+
@@ -829,6 +848,7 @@ function animaBlock(){
              '<button class="btn btn--wide" data-go="anima-intro">Add birth data</button>')+
       '</div>'+
     '</div>'+
+    (a.numerology ? numerologyBlock(a.numerology) : "")+
     (State.pro || State.unlocked.size ? '<hr class="rule">'+
       '<p class="eyebrow center">Where this meets the science</p>'+
       ["manifest","gnosis","precession"].map(k => groundCard(GROUND[k])).join("") : "")+
@@ -872,14 +892,34 @@ function renderAnimaSummary(){
   link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:"application/manifest+json"}));
   document.head.appendChild(link);
 
+  loadOnboardState();
+  setTimeout(applyDeck, 300);
   renderHomeEssays();
   renderHomeArt();
+  buildStarfield();
   const sky = document.createElement("div"); sky.className = "skyfield";
   [["Leo",6,12,150],["Scorpio",74,8,170],["Aquarius",12,66,160],["Taurus",78,70,150],["Gemini",44,38,140]]
     .forEach(([s,x,y,z]) => { const d = document.createElement("div");
       d.style.cssText = "left:"+x+"%;top:"+y+"%;opacity:.5"; d.innerHTML = constellationSVG(s, z); sky.appendChild(d); });
   document.body.appendChild(sky);
+
+  /* drifting embers — ambient motion behind the whole app */
+  if (!window.matchMedia || !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    const em = document.createElement("div"); em.className = "embers";
+    for (let i = 0; i < 26; i++){
+      const e = document.createElement("i"); e.className = "ember";
+      const dur = 14 + Math.random()*18, size = 2 + Math.random()*3;
+      e.style.cssText = "left:"+(Math.random()*100).toFixed(1)+"%;width:"+size.toFixed(1)+"px;height:"+size.toFixed(1)+
+        "px;animation-duration:"+dur.toFixed(1)+"s;animation-delay:-"+(Math.random()*dur).toFixed(1)+
+        "s;--drift:"+(Math.random()*80-40).toFixed(0)+"px";
+      em.appendChild(e);
+    }
+    document.body.appendChild(em);
+  }
   loadRec();
+  loadEntitlement();
+  loadTarotGate();
+  loadTarotLog();
   loadProfiles().then(() => { renderOracle(); if (State.view === "results") renderResults(); });
   renderOracle();
   go("home");
