@@ -22,11 +22,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Copy the whole repo minus development-only directories, rather than
+      # hand-listing files. The old list silently omitted images/ and CNAME,
+      # so every piece of artwork 404'd in production and the custom domain
+      # had to be re-set by hand. An allow-list here is a footgun: anything
+      # added to the app has to be remembered in two places.
       - name: Prepare site files
         run: |
           mkdir _site
-          cp index.html privacy.html styles.css app.js supabase-config.js manifest.json service-worker.js .nojekyll _site/
-          cp -R assets _site/assets
+          rsync -a ./ _site/ \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude '_site' \
+            --exclude 'node_modules' \
+            --exclude 'src' \
+            --exclude 'tests' \
+            --exclude 'helpers' \
+            --exclude 'android' \
+            --exclude 'marketing' \
+            --exclude 'supabase' \
+            --exclude 'build.js' \
+            --exclude '*.md' \
+            --exclude 'secrets.env*' \
+            --exclude 'package*.json'
+          test -f _site/index.html
+          test -d _site/images
+          test -f _site/CNAME
+          echo "deploying $(find _site -type f | wc -l) files, $(du -sh _site | cut -f1)"
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3

@@ -883,14 +883,11 @@ function renderAnimaSummary(){
     '<stop offset="50%" stop-color="#E3BE6D"/><stop offset="50%" stop-color="#E3BE6D" stop-opacity="0"/></linearGradient></defs>';
   document.body.appendChild(defs);
 
-  // installable PWA manifest, generated in-page so this stays a single file
-  const manifest = {name:"PsycheIQ", short_name:"PsycheIQ", start_url:".", display:"standalone",
-    background_color:"#070A1C", theme_color:"#070A1C", description:"Six instruments across mind, character and soul, and one composite score.",
-    icons:[{src:"images/icon-192.png", sizes:"192x192", type:"image/png"},{src:"images/icon-512.png", sizes:"512x512", type:"image/png"}]};
-  const link = document.createElement("link");
-  link.rel = "manifest";
-  link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:"application/manifest+json"}));
-  document.head.appendChild(link);
+  /* The PWA manifest is now a real file linked from <head> (manifest.json).
+     This used to build one in-page as a blob URL, which injected a second
+     rel="manifest" link and pointed at images/icon-192.png and
+     images/icon-512.png — neither of which exists; the icons live in
+     assets/. Between the duplicate link and the 404s, install never worked. */
 
   loadOnboardState();
   setTimeout(applyDeck, 300);
@@ -916,8 +913,18 @@ function renderAnimaSummary(){
     }
     document.body.appendChild(em);
   }
+  /* Offline shell. Skipped on file:// (no SW allowed there) so the single
+     file still opens straight off disk without throwing. */
+  if (typeof navigator !== "undefined" && "serviceWorker" in navigator &&
+      typeof location !== "undefined" && String(location.protocol).startsWith("http")){
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("service-worker.js")
+        .catch(err => console.warn("[psycheiq] service worker not registered:", err));
+    });
+  }
   loadRec();
-  loadEntitlement();
+  wireFoundersPanel();   // static box on the pricing page; wired once
+  loadEntitlement();     // resolves async, then refreshes that box
   loadTarotGate();
   loadTarotLog();
   loadProfiles().then(() => { renderOracle(); if (State.view === "results") renderResults(); });

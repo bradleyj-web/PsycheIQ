@@ -2,15 +2,28 @@
    PSYCHEIQ — ACCESS CONTROL, NUMEROLOGY, LOCATION DATABASE
    ============================================================ */
 
-/* ---------------- promo codes ---------------- */
+/* ---------------- founders / promo codes ----------------
+   IMPORTANT: these are checked in the browser, so anyone who opens
+   devtools can read them straight out of the bundle. That is an
+   acceptable trade for handing a code to friends and family; it is
+   NOT a way to run a paid discount. For anything public, use a Stripe
+   promotion code instead — create-checkout already sends
+   allow_promotion_codes:true, so a 100%-off coupon works with no code
+   change and is validated server-side.
+
+   Redemption is stored per device. Signing in on a second device does
+   not carry it across, because the entitlements table has no client
+   insert policy (by design — the browser must never be able to grant
+   itself access). Redeem the code again on each device.
+   -------------------------------------------------------- */
 const PROMO_CODES = {
-  "PSYCHEIQ":{tier:"lifetime", label:"Lifetime unlimited access"}
+  "PSYCHEIQ":{tier:"lifetime", label:"Founders access"}
 };
 function applyPromo(raw){
   const code = String(raw || "").trim().toUpperCase();
   if (!code) return {ok:false, msg:"Enter a code first."};
   const hit = PROMO_CODES[code];
-  if (!hit) return {ok:false, msg:"That code isn't recognised."};
+  if (!hit) return {ok:false, msg:"That code isn't recognised — check the spelling and try again."};
   State.pro = true;
   State.lifetime = hit.tier === "lifetime";
   State.trialEndsAt = null;
@@ -18,7 +31,8 @@ function applyPromo(raw){
   TESTIDS.forEach(id => State.unlocked.add(id));
   persistProfiles();
   Store.set("pq:entitlement", {lifetime:State.lifetime, code:code});
-  return {ok:true, msg:hit.label+" unlocked. Every test, every profile, no ads."};
+  refreshFoundersPanel();
+  return {ok:true, msg:hit.label+" unlocked. Every assessment, every profile, no ads — permanently."};
 }
 async function loadEntitlement(){
   const e = await Store.get("pq:entitlement");
@@ -27,24 +41,46 @@ async function loadEntitlement(){
     TESTIDS.forEach(id => State.unlocked.add(id));
     document.body.classList.add("is-pro");
   }
+  refreshFoundersPanel();
 }
 function promoField(idSuffix){
   const s = idSuffix || "";
   return '<div class="promo">'+
-    '<label class="field" style="margin:0"><span>Promo code</span>'+
-      '<input id="promo'+s+'" placeholder="Enter code" autocomplete="off" autocapitalize="characters"></label>'+
-    '<button class="btn" id="promo-go'+s+'">Apply</button>'+
+    '<label class="field" style="margin:0"><span>Founders code</span>'+
+      '<input id="promo'+s+'" placeholder="Enter code" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>'+
+    '<button class="btn" id="promo-go'+s+'">Redeem</button>'+
   '</div>';
 }
 function wirePromo(idSuffix){
   const s = idSuffix || "";
   const btn = $("#promo-go"+s); if (!btn) return;
-  btn.onclick = () => {
-    const r = applyPromo($("#promo"+s).value);
+  const input = $("#promo"+s);
+  const run = () => {
+    const r = applyPromo(input ? input.value : "");
     toast(r.msg);
     if (r.ok){ closeModal(); rerender(); }
   };
+  btn.onclick = run;
+  if (input) input.onkeydown = e => { if (e.key === "Enter"){ e.preventDefault(); run(); } };
 }
+
+/* The pricing page carries a permanent founders box in static markup,
+   so it is wired once at boot rather than per-render. */
+function refreshFoundersPanel(){
+  const note = $("#promo-state-tiers");
+  if (!note) return;
+  const box = $("#promo-tiers"), btn = $("#promo-go-tiers");
+  if (State.lifetime){
+    note.textContent = "Founders access is active on this device. Nothing to pay, nothing to cancel.";
+    if (box){ box.value = ""; box.disabled = true; box.placeholder = "Redeemed"; }
+    if (btn){ btn.disabled = true; btn.textContent = "Redeemed"; }
+  } else {
+    note.textContent = "Codes are redeemed per device — enter it again on your phone or another browser.";
+    if (box){ box.disabled = false; box.placeholder = "Enter your code"; }
+    if (btn){ btn.disabled = false; btn.textContent = "Redeem"; }
+  }
+}
+function wireFoundersPanel(){ wirePromo("-tiers"); refreshFoundersPanel(); }
 
 /* ---------------- free-tier tarot: one pull per hour ---------------- */
 const TAROT_COOLDOWN_MS = 60*60*1000;

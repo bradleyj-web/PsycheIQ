@@ -4,8 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070A1C">
-<meta name="description" content="The Hermetic Nous — map your Pneuma archetype and sharpen your Logos matrix. Two instruments, one profile.">
-<title>PsycheIQ · Body, Mind and Soul Intelligence</title>
+<meta name="description" content="Know your mind, body and soul. Eight assessments — personality, thinking style, IQ, body and soul intelligence, your birth sky, your past life and the deck — combined into one PsycheIQ Blueprint.">
+<title>PsycheIQ · Mind, Body and Soul Intelligence</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1137,6 +1142,16 @@ select{width:100%;padding:12px 13px;background:rgba(0,0,0,.32);border:1px solid 
     </div>
   </div>
   <div class="frame" style="margin-top:20px">
+    <p class="eyebrow">Founders code</p>
+    <p style="font-size:14px;margin:0 0 12px">Been given a code? Enter it here to open everything permanently — every assessment, every profile, no ads, nothing to cancel.</p>
+    <div class="promo">
+      <label class="field" style="margin:0"><span>Code</span>
+        <input id="promo-tiers" placeholder="Enter your code" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
+      <button class="btn btn--gold" id="promo-go-tiers">Redeem</button>
+    </div>
+    <p class="terms" id="promo-state-tiers"></p>
+  </div>
+  <div class="frame" style="margin-top:20px">
     <p class="eyebrow">Billing, plainly</p>
     <p style="font-size:14px;margin:0">Trials need a card because the subscription starts automatically when they end — that is the part people miss, so we say it twice and email you before it happens. Cancelling takes one tap in Account and keeps your access until the paid period runs out. Prices are in USD and include no hidden add-ons.</p>
   </div>
@@ -1487,9 +1502,9 @@ function openJoin(){
     '<label class="field"><span>Email</span><input type="email" placeholder="you@domain.com" autocomplete="email"></label>'+
     '<label class="field"><span>Password</span><input type="password" placeholder="••••••••" autocomplete="current-password"></label>'+
     '<button class="btn btn--gold btn--wide" id="m-join">Continue</button>'+
-    '<p class="terms">Prototype: accounts are not connected yet. Point this at your auth provider to make it real.</p>'
+    '<p class="terms">This device cannot reach the account service right now. Your results are saved here in the meantime.</p>'
   );
-  $("#m-join").onclick = () => { closeModal(); toast("Accounts arrive with the backend — your results are already saved for this session."); };
+  $("#m-join").onclick = () => { closeModal(); toast("Cannot reach the account service — your results are saved on this device."); };
 }
 
 function openUpgrade(context){
@@ -1527,7 +1542,7 @@ function openTrial(){
     '</div>'+
     '<button class="btn btn--gold btn--wide" id="m-trial">Start trial</button>'+
     promoField("-tr")+
-    '<p class="terms">Cancel before '+end.toLocaleDateString(undefined,{month:"long",day:"numeric"})+' and you are charged nothing. We send a reminder 24 hours before. Prototype: no card is processed — connect Stripe or Play Billing to take real payments.</p>'
+    '<p class="terms">Cancel before '+end.toLocaleDateString(undefined,{month:"long",day:"numeric"})+' and you are charged nothing. We send a reminder 24 hours before. This device is running offline, so no card is processed — access applies here only until you are back online.</p>'
   );
   wirePromo("-tr");
   $("#m-trial").onclick = () => { State.pro = true; State.trialEndsAt = end; document.body.classList.add("is-pro"); closeModal(); rerender(); toast("Trial started. Ads off, all ten sections open."); };
@@ -1551,7 +1566,7 @@ function openOneTime(){
     '<label class="field"><span>Card number</span><input inputmode="numeric" placeholder="4242 4242 4242 4242"></label>'+
     '<button class="btn btn--gold btn--wide" id="m-one">Pay $3.99</button>'+
     promoField("-one")+
-    '<p class="terms">One charge of $3.99 for one test. No subscription and nothing to cancel. Ads remain on the free tier. Prototype: no card is processed.</p>'
+    '<p class="terms">One charge of $3.99 for one test. No subscription and nothing to cancel. Ads remain on the free tier. This device is running offline, so no card is processed.</p>'
   );
   wirePromo("-one");
   $("#m-one").onclick = () => {
@@ -3599,7 +3614,7 @@ function conversionFunnel(id){
     '<h2 class="dsp h-md center" style="color:var(--ink)">You Are Reading the Surface</h2>'+orn+
     '<p style="font-size:14.5px">'+esc(t.status() || "Your result")+' is the headline. Underneath it sit the full sections, the shareable card, and the way this result talks to the others.</p>'+
     '<div class="stat"><span>This test, in full, forever</span><b>$3.99</b></div>'+
-    '<div class="stat"><span>All six + 2 profiles + no ads</span><b>$19.99/mo</b></div>'+
+    '<div class="stat"><span>All eight + 2 profiles + no ads</span><b>$19.99/mo</b></div>'+
     (left > 0
       ? '<p class="terms">'+left+' of your '+FREE_SLOTS+' free slots '+(left === 1 ? "remains" : "remain")+'.</p>'
       : '<p class="terms">You have used all '+FREE_SLOTS+' free slots. Clear one to take another test, or open everything.</p>')+
@@ -4579,15 +4594,28 @@ document.addEventListener("click", e => {
    PSYCHEIQ — ACCESS CONTROL, NUMEROLOGY, LOCATION DATABASE
    ============================================================ */
 
-/* ---------------- promo codes ---------------- */
+/* ---------------- founders / promo codes ----------------
+   IMPORTANT: these are checked in the browser, so anyone who opens
+   devtools can read them straight out of the bundle. That is an
+   acceptable trade for handing a code to friends and family; it is
+   NOT a way to run a paid discount. For anything public, use a Stripe
+   promotion code instead — create-checkout already sends
+   allow_promotion_codes:true, so a 100%-off coupon works with no code
+   change and is validated server-side.
+
+   Redemption is stored per device. Signing in on a second device does
+   not carry it across, because the entitlements table has no client
+   insert policy (by design — the browser must never be able to grant
+   itself access). Redeem the code again on each device.
+   -------------------------------------------------------- */
 const PROMO_CODES = {
-  "PSYCHEIQ":{tier:"lifetime", label:"Lifetime unlimited access"}
+  "PSYCHEIQ":{tier:"lifetime", label:"Founders access"}
 };
 function applyPromo(raw){
   const code = String(raw || "").trim().toUpperCase();
   if (!code) return {ok:false, msg:"Enter a code first."};
   const hit = PROMO_CODES[code];
-  if (!hit) return {ok:false, msg:"That code isn't recognised."};
+  if (!hit) return {ok:false, msg:"That code isn't recognised — check the spelling and try again."};
   State.pro = true;
   State.lifetime = hit.tier === "lifetime";
   State.trialEndsAt = null;
@@ -4595,7 +4623,8 @@ function applyPromo(raw){
   TESTIDS.forEach(id => State.unlocked.add(id));
   persistProfiles();
   Store.set("pq:entitlement", {lifetime:State.lifetime, code:code});
-  return {ok:true, msg:hit.label+" unlocked. Every test, every profile, no ads."};
+  refreshFoundersPanel();
+  return {ok:true, msg:hit.label+" unlocked. Every assessment, every profile, no ads — permanently."};
 }
 async function loadEntitlement(){
   const e = await Store.get("pq:entitlement");
@@ -4604,24 +4633,46 @@ async function loadEntitlement(){
     TESTIDS.forEach(id => State.unlocked.add(id));
     document.body.classList.add("is-pro");
   }
+  refreshFoundersPanel();
 }
 function promoField(idSuffix){
   const s = idSuffix || "";
   return '<div class="promo">'+
-    '<label class="field" style="margin:0"><span>Promo code</span>'+
-      '<input id="promo'+s+'" placeholder="Enter code" autocomplete="off" autocapitalize="characters"></label>'+
-    '<button class="btn" id="promo-go'+s+'">Apply</button>'+
+    '<label class="field" style="margin:0"><span>Founders code</span>'+
+      '<input id="promo'+s+'" placeholder="Enter code" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>'+
+    '<button class="btn" id="promo-go'+s+'">Redeem</button>'+
   '</div>';
 }
 function wirePromo(idSuffix){
   const s = idSuffix || "";
   const btn = $("#promo-go"+s); if (!btn) return;
-  btn.onclick = () => {
-    const r = applyPromo($("#promo"+s).value);
+  const input = $("#promo"+s);
+  const run = () => {
+    const r = applyPromo(input ? input.value : "");
     toast(r.msg);
     if (r.ok){ closeModal(); rerender(); }
   };
+  btn.onclick = run;
+  if (input) input.onkeydown = e => { if (e.key === "Enter"){ e.preventDefault(); run(); } };
 }
+
+/* The pricing page carries a permanent founders box in static markup,
+   so it is wired once at boot rather than per-render. */
+function refreshFoundersPanel(){
+  const note = $("#promo-state-tiers");
+  if (!note) return;
+  const box = $("#promo-tiers"), btn = $("#promo-go-tiers");
+  if (State.lifetime){
+    note.textContent = "Founders access is active on this device. Nothing to pay, nothing to cancel.";
+    if (box){ box.value = ""; box.disabled = true; box.placeholder = "Redeemed"; }
+    if (btn){ btn.disabled = true; btn.textContent = "Redeemed"; }
+  } else {
+    note.textContent = "Codes are redeemed per device — enter it again on your phone or another browser.";
+    if (box){ box.disabled = false; box.placeholder = "Enter your code"; }
+    if (btn){ btn.disabled = false; btn.textContent = "Redeem"; }
+  }
+}
+function wireFoundersPanel(){ wirePromo("-tiers"); refreshFoundersPanel(); }
 
 /* ---------------- free-tier tarot: one pull per hour ---------------- */
 const TAROT_COOLDOWN_MS = 60*60*1000;
@@ -7107,8 +7158,10 @@ function pqOpenAccount(){
         '<button class="btn btn--wide" id="pq-refresh">Refresh my access</button>'+
         '<button class="btn btn--ghost btn--wide" id="pq-out">Sign out</button>'+
       '</div>'+
-      '<p class="terms">Purchases follow the account, not the device. Sign in anywhere to restore them.</p>'
+      (State.lifetime ? "" : '<hr class="rule">'+promoField("-acct"))+
+      '<p class="terms">Purchases follow the account, not the device. Sign in anywhere to restore them. Founders codes are redeemed per device.</p>'
     );
+    if (!State.lifetime) wirePromo("-acct");
     $("#pq-refresh").onclick = async () => {
       const restore = pqBusy("#pq-refresh", "Checking…");
       const found = await pqSyncEntitlements();
@@ -7124,8 +7177,12 @@ function pqOpenAccount(){
     '<p style="font-size:14.5px">Enter your email and we send a one-tap sign-in link. No password to invent, none to forget.</p>'+
     '<label class="field"><span>Email</span><input id="pq-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></label>'+
     '<button class="btn btn--gold btn--wide" id="pq-link">Email me a sign-in link</button>'+
+    (State.lifetime ? "" : '<hr class="rule">'+
+      '<p style="font-size:14px;margin:0 0 10px">Have a founders code? You do not need an account to use it.</p>'+
+      promoField("-acct"))+
     '<p class="terms">Signing in restores any membership or unlocks bought on another device.</p>'
   );
+  if (!State.lifetime) wirePromo("-acct");
   $("#pq-link").onclick = async () => {
     const v = ($("#pq-email").value || "").trim();
     if (!/.+@.+\..+/.test(v)) return toast("That email does not look complete — check it and try again.");
@@ -8043,14 +8100,11 @@ function renderAnimaSummary(){
     '<stop offset="50%" stop-color="#E3BE6D"/><stop offset="50%" stop-color="#E3BE6D" stop-opacity="0"/></linearGradient></defs>';
   document.body.appendChild(defs);
 
-  // installable PWA manifest, generated in-page so this stays a single file
-  const manifest = {name:"PsycheIQ", short_name:"PsycheIQ", start_url:".", display:"standalone",
-    background_color:"#070A1C", theme_color:"#070A1C", description:"Six instruments across mind, character and soul, and one composite score.",
-    icons:[{src:"images/icon-192.png", sizes:"192x192", type:"image/png"},{src:"images/icon-512.png", sizes:"512x512", type:"image/png"}]};
-  const link = document.createElement("link");
-  link.rel = "manifest";
-  link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:"application/manifest+json"}));
-  document.head.appendChild(link);
+  /* The PWA manifest is now a real file linked from <head> (manifest.json).
+     This used to build one in-page as a blob URL, which injected a second
+     rel="manifest" link and pointed at images/icon-192.png and
+     images/icon-512.png — neither of which exists; the icons live in
+     assets/. Between the duplicate link and the 404s, install never worked. */
 
   loadOnboardState();
   setTimeout(applyDeck, 300);
@@ -8076,8 +8130,18 @@ function renderAnimaSummary(){
     }
     document.body.appendChild(em);
   }
+  /* Offline shell. Skipped on file:// (no SW allowed there) so the single
+     file still opens straight off disk without throwing. */
+  if (typeof navigator !== "undefined" && "serviceWorker" in navigator &&
+      typeof location !== "undefined" && String(location.protocol).startsWith("http")){
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("service-worker.js")
+        .catch(err => console.warn("[psycheiq] service worker not registered:", err));
+    });
+  }
   loadRec();
-  loadEntitlement();
+  wireFoundersPanel();   // static box on the pricing page; wired once
+  loadEntitlement();     // resolves async, then refreshes that box
   loadTarotGate();
   loadTarotLog();
   loadProfiles().then(() => { renderOracle(); if (State.view === "results") renderResults(); });

@@ -295,8 +295,10 @@ function pqOpenAccount(){
         '<button class="btn btn--wide" id="pq-refresh">Refresh my access</button>'+
         '<button class="btn btn--ghost btn--wide" id="pq-out">Sign out</button>'+
       '</div>'+
-      '<p class="terms">Purchases follow the account, not the device. Sign in anywhere to restore them.</p>'
+      (State.lifetime ? "" : '<hr class="rule">'+promoField("-acct"))+
+      '<p class="terms">Purchases follow the account, not the device. Sign in anywhere to restore them. Founders codes are redeemed per device.</p>'
     );
+    if (!State.lifetime) wirePromo("-acct");
     $("#pq-refresh").onclick = async () => {
       const restore = pqBusy("#pq-refresh", "Checking…");
       const found = await pqSyncEntitlements();
@@ -312,8 +314,12 @@ function pqOpenAccount(){
     '<p style="font-size:14.5px">Enter your email and we send a one-tap sign-in link. No password to invent, none to forget.</p>'+
     '<label class="field"><span>Email</span><input id="pq-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></label>'+
     '<button class="btn btn--gold btn--wide" id="pq-link">Email me a sign-in link</button>'+
+    (State.lifetime ? "" : '<hr class="rule">'+
+      '<p style="font-size:14px;margin:0 0 10px">Have a founders code? You do not need an account to use it.</p>'+
+      promoField("-acct"))+
     '<p class="terms">Signing in restores any membership or unlocks bought on another device.</p>'
   );
+  if (!State.lifetime) wirePromo("-acct");
   $("#pq-link").onclick = async () => {
     const v = ($("#pq-email").value || "").trim();
     if (!/.+@.+\..+/.test(v)) return toast("That email does not look complete — check it and try again.");

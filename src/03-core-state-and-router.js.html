@@ -272,9 +272,9 @@ function openJoin(){
     '<label class="field"><span>Email</span><input type="email" placeholder="you@domain.com" autocomplete="email"></label>'+
     '<label class="field"><span>Password</span><input type="password" placeholder="••••••••" autocomplete="current-password"></label>'+
     '<button class="btn btn--gold btn--wide" id="m-join">Continue</button>'+
-    '<p class="terms">Prototype: accounts are not connected yet. Point this at your auth provider to make it real.</p>'
+    '<p class="terms">This device cannot reach the account service right now. Your results are saved here in the meantime.</p>'
   );
-  $("#m-join").onclick = () => { closeModal(); toast("Accounts arrive with the backend — your results are already saved for this session."); };
+  $("#m-join").onclick = () => { closeModal(); toast("Cannot reach the account service — your results are saved on this device."); };
 }
 
 function openUpgrade(context){
@@ -312,7 +312,7 @@ function openTrial(){
     '</div>'+
     '<button class="btn btn--gold btn--wide" id="m-trial">Start trial</button>'+
     promoField("-tr")+
-    '<p class="terms">Cancel before '+end.toLocaleDateString(undefined,{month:"long",day:"numeric"})+' and you are charged nothing. We send a reminder 24 hours before. Prototype: no card is processed — connect Stripe or Play Billing to take real payments.</p>'
+    '<p class="terms">Cancel before '+end.toLocaleDateString(undefined,{month:"long",day:"numeric"})+' and you are charged nothing. We send a reminder 24 hours before. This device is running offline, so no card is processed — access applies here only until you are back online.</p>'
   );
   wirePromo("-tr");
   $("#m-trial").onclick = () => { State.pro = true; State.trialEndsAt = end; document.body.classList.add("is-pro"); closeModal(); rerender(); toast("Trial started. Ads off, all ten sections open."); };
@@ -336,7 +336,7 @@ function openOneTime(){
     '<label class="field"><span>Card number</span><input inputmode="numeric" placeholder="4242 4242 4242 4242"></label>'+
     '<button class="btn btn--gold btn--wide" id="m-one">Pay $3.99</button>'+
     promoField("-one")+
-    '<p class="terms">One charge of $3.99 for one test. No subscription and nothing to cancel. Ads remain on the free tier. Prototype: no card is processed.</p>'
+    '<p class="terms">One charge of $3.99 for one test. No subscription and nothing to cancel. Ads remain on the free tier. This device is running offline, so no card is processed.</p>'
   );
   wirePromo("-one");
   $("#m-one").onclick = () => {

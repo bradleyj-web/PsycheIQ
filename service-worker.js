@@ -1,18 +1,30 @@
-const CACHE_NAME = "psycheiq-v25";
+const CACHE_NAME = "psycheiq-v26";
+
+/* Only files that definitely exist. cache.addAll() is atomic — one 404
+   rejects the whole install and the worker never activates, which is what
+   would have happened here once app.js was removed. Artwork is deliberately
+   not precached: it is ~9 MB and the fetch handler caches each image the
+   first time it is actually requested. */
 const APP_SHELL = [
   "./",
   "./index.html",
   "./privacy.html",
   "./styles.css",
-  "./supabase-config.js?v=24",
-  "./app.js?v=25",
+  "./supabase-config.js",
   "./manifest.json",
   "./assets/psyche-hero.svg",
   "./assets/icon.svg"
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) =>
+      // tolerate an individual miss rather than bricking the install
+      Promise.all(APP_SHELL.map((url) =>
+        cache.add(url).catch((err) => console.warn("[sw] skipped " + url, err))
+      ))
+    )
+  );
   self.skipWaiting();
 });
 
