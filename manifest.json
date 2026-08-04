@@ -1,18 +1,30 @@
 {
-  "name": "PsycheIQ",
+  "name": "PsycheIQ · Mind, Body and Soul Intelligence",
   "short_name": "PsycheIQ",
-  "description": "Psychology, IQ, archetype, Enneagram, MBTI-style, and pop culture personality tests.",
+  "description": "Eight assessments across mind, body and soul — personality, thinking style, IQ, body intelligence, soul intelligence, your birth sky, your past life, and the deck.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#fbfcfb",
-  "theme_color": "#0b4f4a",
+  "background_color": "#070A1C",
+  "theme_color": "#070A1C",
   "orientation": "portrait-primary",
   "icons": [
     {
       "src": "assets/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

@@ -1,11 +1,10 @@
-
 /* ============================================================
    PSYCHEIQ — PROFILES, ENTITLEMENTS, FUNNELS
    Free    · 1 profile · any 3 tests stored · partial dashboard
-   $3.99   · stores that one test in full, permanently
+   $3.99      · stores that one test in full, permanently
    $19.99  · 2 profiles · every test stored · full dashboard
    ============================================================ */
-const TESTIDS = ["pneuma","typology","logos","soulq","anima","past"];
+const TESTIDS = ["pneuma","typology","doors","logos","body","soulq","anima","past"];
 const FREE_SLOTS = 3;
 
 function newProfile(n){ return {name:n || "Profile I", results:{}, slots:[], made:Date.now()}; }
@@ -105,8 +104,12 @@ document.addEventListener("click", e => {
 
 /* ---------------- conversion funnels ---------------- */
 function afterTest(id){
-  go("results");
-  setTimeout(() => conversionFunnel(id), 700);
+  adGate("result", () => {
+    go("results");
+    /* extra celebration on a freshly completed assessment */
+    setTimeout(() => burstCentre({count:44, spread:280, life:1400}), 120);
+    setTimeout(() => conversionFunnel(id), 1400);
+  });
 }
 function conversionFunnel(id){
   if (State.pro) return;
@@ -129,7 +132,7 @@ function conversionFunnel(id){
     '<h2 class="dsp h-md center" style="color:var(--ink)">You Are Reading the Surface</h2>'+orn+
     '<p style="font-size:14.5px">'+esc(t.status() || "Your result")+' is the headline. Underneath it sit the full sections, the shareable card, and the way this result talks to the others.</p>'+
     '<div class="stat"><span>This test, in full, forever</span><b>$3.99</b></div>'+
-    '<div class="stat"><span>All six + 2 profiles + no ads</span><b>$19.99/mo</b></div>'+
+    '<div class="stat"><span>All eight + 2 profiles + no ads</span><b>$19.99/mo</b></div>'+
     (left > 0
       ? '<p class="terms">'+left+' of your '+FREE_SLOTS+' free slots '+(left === 1 ? "remains" : "remain")+'.</p>'
       : '<p class="terms">You have used all '+FREE_SLOTS+' free slots. Clear one to take another test, or open everything.</p>')+
@@ -137,8 +140,10 @@ function conversionFunnel(id){
       '<button class="btn btn--gold btn--wide js-trial">Start 3-day free trial</button>'+
       '<button class="btn btn--wide js-onetime">Unlock this test \u00b7 $3.99</button>'+
       '<button class="btn btn--ghost btn--wide" id="fx-later">Not now</button>'+
-    '</div>');
+    '</div>'+
+    promoField("-fx"));
   $("#fx-later").onclick = closeModal;
+  wirePromo("-fx");
 }
 function openSlotGate(id){
   const t = TESTS.find(x => x.id === id);
@@ -153,11 +158,13 @@ function openSlotGate(id){
       '<button class="btn btn--gold btn--wide js-trial">Unlock all six \u00b7 3-day trial</button>'+
       '<button class="btn btn--wide js-onetime">Buy one test outright \u00b7 $3.99</button>'+
     '</div>'+
+    promoField("-gate")+
     '<p class="eyebrow" style="margin:18px 0 8px">Or clear a slot</p>'+
     '<div style="display:grid;gap:8px">'+p.slots.map(s => {
       const x = TESTS.find(y => y.id === s) || {name:s};
       return '<button class="btn btn--ghost btn--wide" data-clear="'+s+'">Clear '+esc(x.name)+'</button>';
     }).join("")+'</div>');
+  wirePromo("-gate");
 }
 function openProfileGate(){
   modal('<p class="eyebrow center">Profiles</p>'+
@@ -220,3 +227,4 @@ function comboInsight(){
 function backBtn(label){
   return '<button class="btn btn--ghost" data-go="oracle">← '+(label || "Back")+'</button>';
 }
+

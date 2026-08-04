@@ -68,11 +68,14 @@ A **limited reading using only the 22 Major Arcana** (no minor arcana cards are 
 
 ## Architecture notes (general)
 
-- **Modular source, single-file output.** Author in `src/` (13 ordered modules), run `node build.js` to produce `index.html`. Never hand-edit `index.html`. Module order matters: everything from `03-` onward shares one `<script>` block, so top-level `const` declarations must precede their use at load time (function declarations hoist across the whole script, so cross-module *calls* are order-independent).
+- **Modular source, single-file output.** Author in `src/` (20 ordered modules), run `node build.js` to produce `index.html`. Never hand-edit `index.html`. Module order matters: everything from `03-` onward shares one `<script>` block, so top-level `const` declarations must precede their use at load time (function declarations hoist across the whole script, so cross-module *calls* are order-independent).
+- **Modules 13–20 were added when the Aug-2 build was merged back in** (deck reading engine, numerology + city database, Nine Doors / results card / dice cast, dimensions + light engine + tarot synthesis, image layer + onboarding, Fool's Journey, payments, then the original engines/init module which must stay last because it closes `</script></body></html>`).
+- **Accounts and payments are real** (`src/19-payments-supabase-stripe.js.html`). Supabase Auth via magic link, entitlements read from the `entitlements` table under RLS, Stripe Checkout launched through the `create-checkout` edge function and verified on return through `checkout-status`. The module degrades to the old local-prototype behaviour whenever `window.PSYCHEIQ_SUPABASE` or the supabase-js CDN bundle is absent, so `index.html` still works opened straight off disk.
+- **Unreferenced root files.** `app.js`, `iq_module.js` and `styles.css` are not loaded by `index.html` (everything is inlined by the build). They are leftovers from an earlier layout — verify before relying on them.
 - **State object** (`const State = {...}`, near the top of the script) holds every test result. `saveResult(id, data)` writes into the active profile; `afterTest(id)` navigates to results and fires the post-test conversion funnel.
 - **Rendering is manual DOM string-building**, not a framework — every `render*()` function does `$("#view-x").innerHTML = '...'`. Follow the existing style (template literals via string concatenation, `esc()` on anything user- or data-derived that touches innerHTML).
 - **Design tokens** are CSS custom properties at the top of the `<style>` block (`--gold`, `--void`, `--gold-line`, etc.) — reuse them, don't hardcode new colors.
-- **Payments, accounts, and the leaderboard's cross-device sync are stubbed.** Wiring notes are in a comment block near the end of the `<script>` tag (search for "WIRING POINTS FOR PRODUCTION").
+- **The leaderboard's cross-device sync is still stubbed.** Remaining wiring notes are in a comment block near the end of the `<script>` tag (search for "WIRING POINTS FOR PRODUCTION"). Payments and accounts are no longer stubs — see above.
 
 ## Testing
 
@@ -80,6 +83,12 @@ A **limited reading using only the 22 Major Arcana** (no minor arcana cards are 
 
 ```bash
 node tests/verify-content-pools.js
+```
+
+`tests/verify-image-manifest.js` runs the built app headlessly, asks it for every image path it can ever request, and asserts each one exists in `images/`. It checks the manifest *and* walks `PL_QS` directly, because artwork resolves through `imgOr()`/`plTile()` which fall back to inline SVG on a 404 — a broken path is invisible in the browser. Run it after touching art, filenames, or the past-life question set:
+
+```bash
+node tests/verify-image-manifest.js
 ```
 
 If you build the 88-paragraph tarot content, **write a sibling test the same way** — load the script, assert all 22×4 combinations exist, are non-empty, and contain no `undefined`/`NaN`. The pattern in `verify-content-pools.js` is written to be copied.

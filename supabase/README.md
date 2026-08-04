@@ -2,6 +2,25 @@
 
 This folder prepares PsycheIQ for real accounts, saved results, support tickets, and Stripe-backed access.
 
+## 0. Test mode first
+
+Do the whole loop against Stripe **test** keys before switching anything to live. Nothing below changes between modes except which keys and price IDs you paste in.
+
+1. In Stripe, flip the dashboard to **Test mode** (toggle, top right).
+2. Create two test products: a **one-time $3.99** price and a **recurring $19.99/month** price. Copy both `price_…` IDs.
+3. Set the Supabase secrets from step 3 below using `sk_test_…` and those test price IDs.
+4. Deploy the functions (step 4) and add the webhook (step 5). Stripe issues a **separate signing secret per mode** — use the test one now.
+5. Open the site, take any assessment, and click an unlock button. Pay with card `4242 4242 4242 4242`, any future expiry, any CVC.
+6. You should land back on the site, see "Confirming your payment…", then the unlock. Check `entitlements` in the Supabase table editor — there should be a new active row.
+
+To go live later: swap `STRIPE_SECRET_KEY` to `sk_live_…`, create the same two products in live mode, update both price IDs, add a live-mode webhook endpoint, and update `STRIPE_WEBHOOK_SECRET`. No code changes.
+
+**Trial note.** The membership button is worded as a 3-day trial. Stripe only actually grants that if the recurring price has a trial period configured — set `trial_period_days: 3` on the price (or on `subscription_data` in `create-checkout`) before launch, or reword the button.
+
+### What the front end does
+
+`src/19-payments-supabase-stripe.js.html` handles all of it: magic-link sign-in, reading `entitlements` under RLS, launching Checkout, and verifying the session on return. If `supabase-config.js` or the supabase-js CDN bundle fails to load, it silently reverts to the offline prototype behaviour — so a bad deploy degrades instead of white-screening.
+
 ## 1. Create the Supabase project
 
 1. Go to https://supabase.com/dashboard.

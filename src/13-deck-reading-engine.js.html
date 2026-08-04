@@ -1,0 +1,223 @@
+/* ============================================================
+   PSYCHEIQ — THE DECK (reading engine)
+   A limited reading: 22 Major Arcana only. The four minor suits
+   appear as the *category of the question*, not as drawable
+   cards — so the same card reads differently depending on what
+   you brought to it. 22 x 4 = 88 distinct readings.
+   Sits inside the Soul dimension as a reflective tool.
+   ============================================================ */
+const TAROT_CATS = {
+  wands:{n:"Intuition & Creativity", sub:"Inspiration, making, instinct, creative direction", suit:"Wands", el:"Fire",
+    art:'<path d="M50 86V28M38 54h24M40 68h20" fill="none" stroke="#E3BE6D" stroke-width="2.4" stroke-linecap="round"/><path d="M50 12c-6 8-3 13 0 16 3-3 6-8 0-16z" fill="#E3BE6D" opacity=".85"/><path d="M43 34l7-6 7 6" fill="none" stroke="#E3BE6D" stroke-width="1.6" stroke-linecap="round"/>'},
+  pentacles:{n:"Money & Career", sub:"Work, income, material things, practical security", suit:"Pentacles", el:"Earth",
+    art:'<circle cx="50" cy="52" r="27" fill="none" stroke="#E3BE6D" stroke-width="2.4"/><path d="M50 30l16.5 12-6.3 19.5H39.8L33.5 42z" fill="none" stroke="#E3BE6D" stroke-width="1.8"/><path d="M50 30v41M33.5 42l33 20M66.5 42l-33 20" fill="none" stroke="#E3BE6D" stroke-width="1.2" opacity=".65"/>'},
+  cups:{n:"Relationships & Family", sub:"Love, family, friendship, tradition, belonging", suit:"Cups", el:"Water",
+    art:'<path d="M31 32h38l-4.5 22a15 15 0 0 1-29 0z" fill="none" stroke="#E3BE6D" stroke-width="2.4"/><path d="M50 70v11M37 81h26" fill="none" stroke="#E3BE6D" stroke-width="2.4" stroke-linecap="round"/><path d="M39 41c7 4.5 15 4.5 22 0" fill="none" stroke="#E3BE6D" stroke-width="1.3" opacity=".7"/>'},
+  swords:{n:"Conflict & Strategy", sub:"Decisions, disputes, logic, planning, hard calls", suit:"Swords", el:"Air",
+    art:'<path d="M50 16v58" fill="none" stroke="#E3BE6D" stroke-width="2.6" stroke-linecap="round"/><path d="M35 60h30" fill="none" stroke="#E3BE6D" stroke-width="2.4" stroke-linecap="round"/><path d="M50 74l-5.5 9h11z" fill="#E3BE6D" opacity=".85"/><path d="M44 25l6-11 6 11" fill="none" stroke="#E3BE6D" stroke-width="1.6" stroke-linejoin="round"/>'}
+};
+
+/* --- 22 cards x 4 categories = 88 readings --- */
+const TAROT_READ = {
+ 0:{wands:"A creative impulse with no track record behind it. The work is asking you to start before you feel qualified — the not-knowing is the condition here, not the obstacle. Begin badly and correct in motion.",
+    pentacles:"A leap in work or money that looks reckless written down. The card doesn't promise safety; it says the cautious route has stopped paying. Check the drop properly, then step.",
+    cups:"Meeting someone — or re-meeting someone — with your defences down. Openness is the entire point, and the risk of looking foolish is the price of the connection.",
+    swords:"You're about to act without the full plan. That's fine if you've named the worst outcome and can genuinely live with it. Reckless is only reckless when it's unexamined."},
+ 1:{wands:"Everything you need is already on the table. Stop sourcing and start making — what's missing is focus, not materials.",
+    pentacles:"You have more leverage than you're using. A skill, a contact, or capital sitting idle. The card asks which one you're pretending not to have.",
+    cups:"You're shaping this relationship more than you admit. Intentionally or not, you set its temperature — so set it on purpose.",
+    swords:"You can win this one. The real question is whether the win is worth what the manoeuvre costs you afterward."},
+ 2:{wands:"The idea isn't ready to be spoken aloud. Let it stay underground a while longer; naming it now would collapse it into something smaller.",
+    pentacles:"Information is being withheld — possibly from you, possibly by you. Don't sign anything until the quiet part has been said out loud.",
+    cups:"Something unspoken is doing the real work here, and you both know it. Ask whether the silence is protection or avoidance.",
+    swords:"You already know the answer and are shopping for external confirmation. Trust the read you had before you started reasoning at it."},
+ 3:{wands:"Fertile ground. What you start now has unusual momentum behind it — the constraint is your capacity to tend it, not the quality of the soil.",
+    pentacles:"Abundance through patience: the kind that compounds rather than spikes. Don't harvest this early.",
+    cups:"Nurture is the theme — giving it, needing it, or the imbalance between the two. Care that never comes back eventually turns into resentment.",
+    swords:"Force will not work here. This resolves by providing rather than pushing, which will feel unbearably slow."},
+ 4:{wands:"The creative work needs structure now. The loose exploratory phase has run its course; give it a frame or it stays potential forever.",
+    pentacles:"Take actual control of the material situation — the budget, the contract, the ownership. Authority here means responsibility, not comfort.",
+    cups:"A question of boundaries and who sets the terms. Firmness isn't coldness, though it can be received as it.",
+    swords:"Command this rather than negotiate it. One of the rare situations where decisiveness genuinely beats consensus."},
+ 5:{wands:"Learn the tradition before you break it. The rule you're impatient with usually encodes a failure somebody already had, expensively.",
+    pentacles:"The conventional route and the conventional reward — the qualification, the institution, the established path. Unglamorous, and it works.",
+    cups:"Family expectation or inherited tradition is in play. The question is whether you're keeping this because it's yours or because it was handed to you.",
+    swords:"Established process beats improvisation here. Follow the procedure — it exists to protect you from exactly this situation."},
+ 6:{wands:"Two creative directions and only enough of you for one. Choosing kills the other, and that cost is real rather than rhetorical.",
+    pentacles:"A choice between two work paths that's about values more than money. Pick the one you can still defend in five years.",
+    cups:"A real union, or a real decision about one. Less about romance than alignment: are the two of you actually pointed the same direction?",
+    swords:"This decision is values-based, not logical. Stop trying to solve it with a spreadsheet — it will keep giving you the wrong answer."},
+ 7:{wands:"Drive is high and direction is questionable. Harness the momentum before it carries you somewhere you didn't choose.",
+    pentacles:"Progress through sheer will — a target hit by force, a move made on nerve. Sustainable for a season, not for a decade.",
+    cups:"Two opposing pulls held together by effort. It keeps moving as long as you keep steering, which is tiring and currently necessary.",
+    swords:"Victory through control and nerve. Hold the opposing forces in tension rather than resolving one of them away."},
+ 8:{wands:"Creative power handled with patience. The raw thing doesn't need taming into obedience — it needs pointing somewhere.",
+    pentacles:"Endurance over intensity. This is a long grind, and being gentle with yourself is the strategy rather than the reward.",
+    cups:"Compassion under pressure. What this needs right now is steadiness, not the confrontation you're rehearsing.",
+    swords:"The soft answer wins this one. Meeting force with force escalates something you still have the option to defuse."},
+ 9:{wands:"Withdraw to find the idea. Input is drowning the signal — what you need is solitude, not more research.",
+    pentacles:"Step back far enough to see whether this is still the right work. A pause is not the same as losing momentum.",
+    cups:"Deliberate solitude: either genuinely needed, or being used to avoid something. Only you know which, and you do know.",
+    swords:"Think this through alone before consulting anybody. Other people's clarity will overwrite yours before you've found it."},
+ 10:{wands:"The creative cycle is turning on its own. Timing matters more than effort right now — read the turn rather than force it.",
+    pentacles:"A change in circumstances you didn't cause and can't fully steer. Position yourself for it instead of bracing against it.",
+    cups:"A relationship enters a new phase by circumstance rather than decision. Let the turn happen instead of pinning it in place.",
+    swords:"External factors are about to overtake your plan. Build for reversibility rather than precision."},
+ 11:{wands:"An honest assessment of the work. Is it as good as you tell people, or as bad as you fear at three in the morning? Neither, and you know roughly where.",
+    pentacles:"Contracts, tax, fair exchange. Something needs balancing properly, and the numbers will not be argued with.",
+    cups:"Accountability inside a relationship. Somebody is owed an honest reckoning — possibly them, from you.",
+    swords:"Decide on the merits rather than the loyalties. The card is unsentimental on purpose."},
+ 12:{wands:"The project is stuck because you keep approaching it the same way. Suspend it and invert the question rather than pushing harder.",
+    pentacles:"A delay you cannot fix. The only useful move is to use the wait rather than fight it.",
+    cups:"Seeing this from the other person's position — genuinely, not as a rhetorical stop before returning to your own.",
+    swords:"Give up the need to resolve this now. The answer requires a different vantage point, and that requires time you don't want to spend."},
+ 13:{wands:"A creative phase is finished. Mourn it properly and stop trying to resuscitate the version of the work that already died.",
+    pentacles:"An ending in work or money — a role, an income, a structure. Ending it deliberately beats letting it rot slowly.",
+    cups:"A relationship changes form permanently. Not necessarily lost, but the previous version isn't coming back.",
+    swords:"Cut it. The prolonging now costs more than the ending would have cost months ago."},
+ 14:{wands:"Blend two things that shouldn't work together. The proportion is where the art actually lives.",
+    pentacles:"Moderation in spending, working, committing. The extreme version of this plan fails; the measured version holds.",
+    cups:"Patience and gradual repair. Nothing here resolves in a single conversation, however much you want it to.",
+    swords:"The middle path is genuinely correct this time, which is unusual. Neither extreme argument is right."},
+ 15:{wands:"You're bound to a creative habit that stopped serving — an aesthetic, a persona, a way of working. Notice the chains are loose.",
+    pentacles:"Material dependence: a job, a salary, a lifestyle you've outgrown and can't picture leaving. Name what it's actually buying you.",
+    cups:"A dynamic that's compulsive rather than chosen. Attachment and connection can feel identical from the inside; they aren't.",
+    swords:"You're trapped by a story you keep telling about this situation. Examine the story before you try to fix the situation."},
+ 16:{wands:"Sudden collapse of a creative structure. Painful and clarifying at once — what fell was already unsound underneath.",
+    pentacles:"An abrupt material disruption. Not a punishment, a correction: something built on a bad foundation finding out.",
+    cups:"A shock that reveals what was actually holding this together. Rebuild from the truth it exposed, not from the version before.",
+    swords:"The plan breaks. Stop defending it and start reading what the break just showed you."},
+ 17:{wands:"Inspiration returns after a dry stretch. Quiet, unforced, real — protect it from being immediately monetised or announced.",
+    pentacles:"Recovery after material difficulty. Slow, steady and genuine. Don't rush the repair to prove you've recovered.",
+    cups:"Healing and renewed trust. What was damaged can mend, provided you stay in the open with it.",
+    swords:"Clarity after a period of confusion. The way forward is visible now — act while it's still lit."},
+ 18:{wands:"Work from instinct rather than analysis. The material is dream-logic, and analysing it too early will kill it.",
+    pentacles:"Something in the money or work picture is unclear, or being misrepresented. Don't commit until it's properly lit.",
+    cups:"Projection is doing a great deal of work here. You may be relating to your idea of them rather than to them.",
+    swords:"You don't have enough information, and your mind is filling the gaps with fear. Separate what you know from what you've imagined."},
+ 19:{wands:"Uncomplicated creative joy. The work is good and you're allowed to enjoy that without immediately qualifying it.",
+    pentacles:"Success that's visible and straightforward. Take the credit instead of deflecting it — deflection isn't modesty here.",
+    cups:"Warmth and honesty; the plainly good thing. Don't excavate it looking for the hidden problem.",
+    swords:"This is simpler than you've made it. The clarity was available the whole time, underneath the analysis."},
+ 20:{wands:"A reckoning with past work and a call toward a new phase. What you make next is the answer to what you made before.",
+    pentacles:"An assessment of your career direction. Something is asking for a decision you've been deferring for a while.",
+    cups:"Forgiveness, or the deliberate refusal of it. An old relational matter surfaces and now requires an actual answer.",
+    swords:"Evaluate honestly, then act. This card is about the verdict, not about extending the deliberation."},
+ 21:{wands:"Completion. Finish it, release it, and let the next thing be a genuinely different thing rather than a sequel.",
+    pentacles:"A material cycle closes — the goal met, the debt cleared, the role completed. Mark it properly before starting the next.",
+    cups:"Wholeness, or the completion of a chapter within a relationship. Integration rather than resolution.",
+    swords:"The problem is actually solved. Stop re-litigating it, close the file, and resist the urge to reopen it the next time you feel uncertain."}
+};
+
+/* --- deck state + rendering --- */
+let TarotRun = null;
+/* tarotBack() moved to the image layer (part23) */
+const tarotBack = () => tarotBackArt();
+
+function renderTarot(){
+  if (!TarotRun) return renderTarotCategories();
+  if (TarotRun.picked === null || TarotRun.picked === undefined) return renderTarotDeck();
+  return renderTarotReading();
+}
+function renderTarotCategories(){
+  const daily = dailyCardIndex();
+  $("#view-tarot").innerHTML =
+    '<p class="eyebrow center">PsycheIQ · The Deck</p>'+
+    '<div class="gilt-wrap"><h1 class="dsp h-lg gilt center">Draw a Card</h1></div>'+
+    '<div class="orn"><i>◆</i></div>'+
+    '<p class="lead center" style="max-width:660px;margin:0 auto 8px">Twenty-two Major Arcana, shuffled face-down. Pick one — but choose what you\u2019re asking about first, because the same card answers differently depending on what you brought to it.</p>'+
+    '<p class="center" style="margin-bottom:24px">'+tag("Y")+'</p>'+
+    '<div class="grid-2">'+Object.keys(TAROT_CATS).map(k => {
+      const c = TAROT_CATS[k];
+      return '<button class="catcard" data-cat="'+k+'">'+
+        '<svg viewBox="0 0 100 100" class="catcard__art" aria-hidden="true">'+c.art+'</svg>'+
+        '<h3 class="dsp h-md" style="color:var(--ink)">'+esc(c.n)+'</h3>'+
+        '<p style="font-size:13.5px;color:var(--ink-2);margin:8px 0 0">'+esc(c.sub)+'</p>'+
+        '<p class="eyebrow" style="margin:10px 0 0">'+esc(c.suit)+' · '+esc(c.el)+'</p></button>';
+    }).join("")+'</div>'+
+    '<div class="frame" style="margin-top:22px;text-align:center">'+
+      '<p class="eyebrow">Card of the day</p>'+
+      '<h3 class="dsp h-md gilt">'+esc(ARCANA[daily].n)+'</h3>'+
+      '<p style="font-size:13.5px;margin-top:6px">'+esc(ARCANA[daily].k)+'</p>'+
+      '<p class="terms">Drawn from the date — everyone reading today sees the same card. It changes at midnight.</p></div>';
+}
+function renderTarotDeck(){
+  const c = TAROT_CATS[TarotRun.cat];
+  $("#view-tarot").innerHTML =
+    '<div class="testbar"><button class="btn btn--ghost" id="tt-back">← Change question</button>'+
+      '<span class="pill">'+esc(c.suit)+' · '+esc(c.n)+'</span></div>'+
+    '<div class="gilt-wrap"><h1 class="dsp h-lg gilt center">Choose Your Card</h1></div>'+
+    '<p class="lead center" style="max-width:600px;margin:6px auto 4px">Asking about <b style="color:var(--gold-hi)">'+esc(c.n.toLowerCase())+'</b>. Shuffle as often as you like, then take the one that pulls.</p>'+
+    '<div class="btn-row" style="margin:18px 0 22px"><button class="btn btn--gold" id="tt-shuffle">Shuffle the deck</button></div>'+
+    '<div class="deckgrid'+(TarotRun.shuffling ? " is-shuffling" : "")+'">'+
+      TarotRun.order.map((cardIdx, pos) =>
+        '<button class="deckcard" data-draw="'+pos+'" style="animation-delay:'+(pos*20)+'ms" aria-label="Face-down card '+(pos+1)+'">'+tarotBack()+'</button>').join("")+
+    '</div>';
+  $("#tt-shuffle").onclick = shuffleTarot;
+  $("#tt-back").onclick = () => { TarotRun = null; renderTarot(); };
+  $$("[data-draw]").forEach(b => b.onclick = () => {
+    b.classList.add("is-drawn");
+    const chosen = TarotRun.order[+b.dataset.draw];
+    setTimeout(() => adGate("tarot", () => {
+      if (!TarotRun) return;
+      TarotRun.picked = chosen;
+      TarotRun.cast = null; TarotRun.rolling = false;
+      markTarotPull();
+      recordPull(chosen, TarotRun.cat, null);
+      renderTarot();
+    }), 280);
+  });
+}
+function shuffleTarot(){
+  TarotRun.order = shuffle(TarotRun.order.slice());
+  TarotRun.shuffling = true;
+  renderTarotDeck();
+  setTimeout(() => { if (TarotRun) TarotRun.shuffling = false; }, 700);
+}
+function renderTarotReading(){
+  const i = TarotRun.picked, a = ARCANA[i], c = TAROT_CATS[TarotRun.cat];
+  const reading = (TAROT_READ[i] && TAROT_READ[i][TarotRun.cat]) || a.k;
+  $("#view-tarot").innerHTML =
+    '<div class="testbar"><button class="btn btn--ghost" id="tt-newcat">← Ask about something else</button>'+
+      '<span class="pill">'+esc(c.suit)+' · '+esc(c.n)+'</span></div>'+
+    '<div class="frame geo" style="max-width:720px;margin:0 auto;text-align:center">'+
+      '<p class="eyebrow">Your card '+tag("Y")+'</p>'+
+      '<div class="revealcard">'+imgOr(tarotImgPath(i),
+        '<svg viewBox="0 0 100 100" class="revealcard__art" aria-hidden="true">'+arcanaArt(i)+'</svg>',
+        "imgslot--reveal", ARCANA[i].n)+'</div>'+
+      '<p class="eyebrow" style="margin-top:14px">'+esc(a.r)+'</p>'+
+      '<h1 class="dsp h-lg gilt">'+esc(a.n)+'</h1>'+
+      '<p style="font-size:13px;color:var(--ink-3);margin:8px 0 0">'+esc(a.k)+'</p>'+
+      '<div class="orn"><i>◆</i></div>'+
+      '<p class="eyebrow">Read for '+esc(c.n)+'</p>'+
+      '<p class="lead" style="max-width:580px;margin:10px auto 0;color:#C4CAE6">'+esc(reading)+'</p>'+
+      '<div class="btn-row" style="margin-top:24px">'+
+        '<button class="btn btn--gold" id="tt-again">Draw again</button>'+
+        '<button class="btn" id="tt-switch">Ask about something else</button></div>'+
+      '<p class="terms">A reflective tool, not a prediction. The value is in what the image makes you notice about a situation you already know something about.</p></div>'+
+    '<div class="frame" style="max-width:720px;margin:20px auto 0;text-align:center">'+
+      '<p class="eyebrow">Want this read properly?</p>'+
+      '<p style="font-size:14.5px;max-width:520px;margin:8px auto 14px">One card opens a question. A live spread works it through — with your PsycheIQ profile in front of me, so we start where you already are.</p>'+
+      '<button class="btn btn--gold" data-go="readings">Book a live reading</button></div>'+
+    diceSection()+
+    tarotSynthesis(i, TarotRun.cat, TarotRun.cast)+
+    tarotSummaryPanel();
+  $("#tt-again").onclick = () => {
+    const g = tarotReady();
+    if (!g.ok){ $("#view-tarot").innerHTML = tarotGateScreen(g); return; }
+    TarotRun.picked = null; shuffleTarot();
+  };
+  const swap = () => { TarotRun = null; renderTarot(); };
+  $("#tt-switch").onclick = swap;
+  $("#tt-newcat").onclick = swap;
+  wireDice();
+  /* the card reveal */
+  setTimeout(() => { flareFrom(".revealcard"); burstFrom(".revealcard", {count:34, spread:210, life:1250}); }, 180);
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-cat]"); if (!b) return;
+  TarotRun = {cat:b.dataset.cat, order:shuffle(ARCANA.map((_,i) => i)), picked:null, shuffling:true};
+  renderTarotDeck();
+  setTimeout(() => { if (TarotRun) TarotRun.shuffling = false; }, 700);
+});
+

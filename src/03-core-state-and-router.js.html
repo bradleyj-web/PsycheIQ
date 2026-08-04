@@ -211,17 +211,26 @@ const orn = '<div class="orn"><i>◆</i></div>';
 const isUnlocked = which => State.pro || State.unlocked.has(which);
 
 /* ---------------- routing ---------------- */
-const VIEWS = ["home","oracle","pneuma","logos","anima","typology","soulq","body","past","readings","tarot","trials","results","tiers","essays","community","about"];
+const VIEWS = ["home","oracle","pneuma","logos","anima","typology","soulq","body","doors","past","readings","tarot","trials","blueprint","onboard","journey","results","tiers","essays","community","about"];
 function go(name){
   if (name === "pneuma-intro"){ renderPneumaIntro(); name = "pneuma"; }
   else if (name === "logos-intro"){ renderLogosIntro(); name = "logos"; }
   else if (name === "typology"){ quizIntro(TYPOLOGY); }
   else if (name === "soulq"){ quizIntro(SOULIQ); }
   else if (name === "body"){ quizIntro(BODYIQ); }
+  else if (name === "doors"){ quizIntro(NINEDOORS); }
   else if (name === "past"){ State.past ? renderPastSummary() : renderPastIntro(); }
   else if (name === "readings"){ renderReadings(); wireReadings(); }
-  else if (name === "tarot"){ renderTarot(); }
+  else if (name === "tarot"){
+    const g = tarotReady();
+    if (!g.ok){ VIEWS.forEach(v => { const el = $("#view-"+v); if (el) el.hidden = (v !== "tarot"); });
+      $("#view-tarot").innerHTML = tarotGateScreen(g); State.view = "tarot"; window.scrollTo({top:0}); return; }
+    renderTarot();
+  }
   else if (name === "trials"){ renderTrials(); }
+  else if (name === "blueprint"){ renderBlueprint(); }
+  else if (name === "onboard"){ renderOnboard(1); }
+  else if (name === "journey"){ renderJourney(); }
   else if (name === "anima" || name === "anima-intro"){ if (!State.anima || name === "anima-intro") renderAnimaIntro(); else renderAnimaSummary(); name = "anima"; }
   else if (name === "results"){ renderResults(); }
   else if (name === "oracle"){ renderOracle(); }
@@ -256,15 +265,16 @@ function escClose(e){ if (e.key === "Escape") closeModal(); }
 function closeModal(){ $("#modal-root").innerHTML = ""; document.removeEventListener("keydown", escClose); }
 
 function openJoin(){
+  if (typeof PQPay !== "undefined" && PQPay.cfg) return pqOpenAccount();
   modal(
     '<p class="eyebrow center">Login or join</p>'+
     '<h2 class="dsp h-md center" style="color:var(--ink)">Keep Your Profile</h2>'+orn+
     '<label class="field"><span>Email</span><input type="email" placeholder="you@domain.com" autocomplete="email"></label>'+
     '<label class="field"><span>Password</span><input type="password" placeholder="••••••••" autocomplete="current-password"></label>'+
     '<button class="btn btn--gold btn--wide" id="m-join">Continue</button>'+
-    '<p class="terms">Prototype: accounts are not connected yet. Point this at your auth provider to make it real.</p>'
+    '<p class="terms">This device cannot reach the account service right now. Your results are saved here in the meantime.</p>'
   );
-  $("#m-join").onclick = () => { closeModal(); toast("Accounts arrive with the backend — your results are already saved for this session."); };
+  $("#m-join").onclick = () => { closeModal(); toast("Cannot reach the account service — your results are saved on this device."); };
 }
 
 function openUpgrade(context){
@@ -284,6 +294,9 @@ function openUpgrade(context){
 }
 
 function openTrial(){
+  /* Real Stripe Checkout when a backend is configured (see module 19);
+     the simulated card form below is the offline/prototype fallback. */
+  if (typeof PQPay !== "undefined" && PQPay.cfg) return pqOpenMembership();
   const end = new Date(Date.now() + 3*864e5);
   modal(
     '<p class="eyebrow center">Adept · 3-day trial</p>'+
@@ -298,12 +311,15 @@ function openTrial(){
       '<div class="stat" style="border:0"><span>'+end.toLocaleDateString(undefined,{month:"short",day:"numeric"})+' and monthly after</span><b>$19.99</b></div>'+
     '</div>'+
     '<button class="btn btn--gold btn--wide" id="m-trial">Start trial</button>'+
-    '<p class="terms">Cancel before '+end.toLocaleDateString(undefined,{month:"long",day:"numeric"})+' and you are charged nothing. We send a reminder 24 hours before. Prototype: no card is processed — connect Stripe or Play Billing to take real payments.</p>'
+    promoField("-tr")+
+    '<p class="terms">Cancel before '+end.toLocaleDateString(undefined,{month:"long",day:"numeric"})+' and you are charged nothing. We send a reminder 24 hours before. This device is running offline, so no card is processed — access applies here only until you are back online.</p>'
   );
+  wirePromo("-tr");
   $("#m-trial").onclick = () => { State.pro = true; State.trialEndsAt = end; document.body.classList.add("is-pro"); closeModal(); rerender(); toast("Trial started. Ads off, all ten sections open."); };
 }
 
 function openOneTime(){
+  if (typeof PQPay !== "undefined" && PQPay.cfg) return pqOpenOneTime();
   const done = TESTS.filter(t => t.done() && !State.unlocked.has(t.id));
   if (!done.length){
     modal('<p class="eyebrow center">Nothing to unlock yet</p><h2 class="dsp h-md center" style="color:var(--ink)">Run an Instrument First</h2>'+orn+
@@ -319,8 +335,10 @@ function openOneTime(){
       done.map(t => '<option value="'+t.id+'">'+esc(t.name)+' \u2014 '+esc(t.status())+'</option>').join("")+'</select></label>'+
     '<label class="field"><span>Card number</span><input inputmode="numeric" placeholder="4242 4242 4242 4242"></label>'+
     '<button class="btn btn--gold btn--wide" id="m-one">Pay $3.99</button>'+
-    '<p class="terms">One charge of $3.99 for one test. No subscription and nothing to cancel. Ads remain on the free tier. Prototype: no card is processed.</p>'
+    promoField("-one")+
+    '<p class="terms">One charge of $3.99 for one test. No subscription and nothing to cancel. Ads remain on the free tier. This device is running offline, so no card is processed.</p>'
   );
+  wirePromo("-one");
   $("#m-one").onclick = () => {
     const id = $("#one-pick").value;
     State.unlocked.add(id);
@@ -371,7 +389,7 @@ function renderHomeArt(){
     '<p style="font-size:13.5px;margin-top:8px">'+esc(ARCANA[i].k)+'</p>'+
     '<button class="btn btn--wide" data-go="tarot" style="margin-top:12px">Open the deck</button>';
   const sign = (State.anima && State.anima.chart) ? signOf(State.anima.chart.sun).n : SIGNS[new Date().getMonth()].n;
-  $("#home-medallion").innerHTML = zodiacMedallion(sign, 132);
+  $("#home-medallion").innerHTML = zodiacArt(sign, 132);
   $("#home-zstrip").innerHTML = SIGNS.map(s => '<button data-sign="'+s.n+'" title="'+s.n+'">'+s.g+'</button>').join("");
 }
 document.addEventListener("click", e => {
@@ -379,7 +397,7 @@ document.addEventListener("click", e => {
   const s = SIGNS.find(x => x.n === b.dataset.sign);
   modal('<p class="eyebrow center">'+esc(s.el)+' \u00b7 '+esc(s.mo)+' \u00b7 ruled by '+esc(s.ruler)+'</p>'+
     '<h2 class="dsp h-md center" style="color:var(--ink)">'+s.g+' '+esc(s.n)+'</h2>'+orn+
-    '<div class="center">'+zodiacMedallion(s.n, 190)+'</div>'+
+    '<div class="center">'+zodiacArt(s.n, 190)+'</div>'+
     '<p class="lead center" style="margin-top:14px">'+esc(s.line)+'</p>'+
     '<div class="stat"><span>Significator</span><b>'+esc(MAJORS[s.n].c)+'</b></div>'+
     '<p class="terms">Star pattern drawn schematically, in the manner of a star atlas rather than survey astrometry.</p>');
@@ -391,21 +409,23 @@ function renderHomeEssays(){
 }
 function renderOracle(){
   const el = $("#oracle-cards"); el.className = "stack";
-  el.innerHTML = ["Mind","Body","Soul"].map(g =>
-    '<div class="grouprow"><p class="eyebrow center">'+g+'</p><div class="grid-3">'+
+  el.innerHTML = dimProgressStrip() + ["Mind","Body","Soul"].map(g =>
+    '<div class="grouprow">'+dimHeader(g)+'<div class="grid-3">'+
     TESTS.filter(t => t.group === g).map(t => {
       const done = t.done();
       return card(t.sigil, t.name, t.meta, t.desc, done ? "Complete · "+esc(t.status()) : null,
-                  t.view, done ? "Take it again" : "Begin", t.reg, t.lore);
+                  t.view, done ? "Take it again" : "Begin", t.reg, t.lore, t.group, t.id);
     }).join("")+'</div></div>').join("");
+  el.innerHTML += loreDisclosure();
   const anyDone = TESTS.some(t => t.done());
   $("#oracle-profile").hidden = !anyDone;
   $("#oracle-profile").onclick = () => go("results");
 }
-function card(sig,title,meta,desc,status,target,cta,reg,lore){
+function card(sig,title,meta,desc,status,target,cta,reg,lore,dim,tid){
   return '<div class="frame" style="text-align:center">'+
+    (dim ? '<div class="dimtop">'+dimBadge(dim)+'</div>' : "")+
     (reg ? '<div style="margin-bottom:6px">'+tag(reg)+'</div>' : "")+
-    '<svg viewBox="0 0 200 200" style="width:64px;height:64px;color:var(--gold)" aria-hidden="true"><use href="#'+sig+'"/></svg>'+
+    (tid ? testArt(tid, sig) : '<svg viewBox="0 0 200 200" style="width:64px;height:64px;color:var(--gold)" aria-hidden="true"><use href="#'+sig+'"/></svg>')+
     '<h2 class="dsp h-md" style="color:var(--ink);margin-top:10px">'+esc(title)+'</h2>'+
     (lore ? '<p style="font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim);margin:6px 0 0">'+esc(lore)+'</p>' : "")+
     '<p class="eyebrow" style="margin:10px 0 14px">'+esc(meta)+'</p>'+
@@ -455,3 +475,4 @@ $("#join-go").onclick = () => {
   if (!/.+@.+\..+/.test(v)) return toast("That email does not look complete — check it and try again.");
   $("#join-email").value = ""; toast("You are on the list. One message when the circle opens.");
 };
+

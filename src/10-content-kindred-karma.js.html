@@ -1,4 +1,3 @@
-
 /* ============================================================
    PSYCHEIQ — KINDRED FIGURES, STRENGTHS/WEAKNESSES, KARMA
    200 shared figures (8 buckets × 25) + 100 unique per test.
@@ -86,7 +85,11 @@ const BUCKET_OF = {
   lineage:{pleiadian:"healer", sirian:"guardian", arcturian:"seeker", lyran:"visionary",
            andromedan:"rebel", orion:"trickster", draconian:"sovereign", terran:"builder"},
   role:  {warrior:"sovereign", singer:"trickster", builder:"builder", waterman:"seeker"},
-  bodydim:{energy:"seeker", stress:"guardian", habits:"builder", attune:"healer"}
+  bodydim:{energy:"seeker", stress:"guardian", habits:"builder", attune:"healer"},
+  door:{"1":"builder","2":"healer","3":"sovereign","4":"visionary","5":"seeker",
+        "6":"guardian","7":"trickster","8":"sovereign","9":"healer"},
+  door:{"1":"builder","2":"healer","3":"sovereign","4":"visionary","5":"seeker",
+        "6":"guardian","7":"trickster","8":"sovereign","9":"healer"}
 };
 
 /* draw 2 from the test's own 100 + 1 from the mapped shared bucket, no repeats */
@@ -264,3 +267,4 @@ function karmaBlock(){
              '<button class="btn js-onetime">Unlock one test · $3.99</button></div>' : "")+
   '</div>';
 }
+

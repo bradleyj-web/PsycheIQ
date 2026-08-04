@@ -1,0 +1,332 @@
+/* ============================================================
+   PSYCHEIQ — ACCESS CONTROL, NUMEROLOGY, LOCATION DATABASE
+   ============================================================ */
+
+/* ---------------- founders / promo codes ----------------
+   IMPORTANT: these are checked in the browser, so anyone who opens
+   devtools can read them straight out of the bundle. That is an
+   acceptable trade for handing a code to friends and family; it is
+   NOT a way to run a paid discount. For anything public, use a Stripe
+   promotion code instead — create-checkout already sends
+   allow_promotion_codes:true, so a 100%-off coupon works with no code
+   change and is validated server-side.
+
+   Redemption is stored per device. Signing in on a second device does
+   not carry it across, because the entitlements table has no client
+   insert policy (by design — the browser must never be able to grant
+   itself access). Redeem the code again on each device.
+   -------------------------------------------------------- */
+const PROMO_CODES = {
+  "PSYCHEIQ":{tier:"lifetime", label:"Founders access"}
+};
+function applyPromo(raw){
+  const code = String(raw || "").trim().toUpperCase();
+  if (!code) return {ok:false, msg:"Enter a code first."};
+  const hit = PROMO_CODES[code];
+  if (!hit) return {ok:false, msg:"That code isn't recognised — check the spelling and try again."};
+  State.pro = true;
+  State.lifetime = hit.tier === "lifetime";
+  State.trialEndsAt = null;
+  document.body.classList.add("is-pro");
+  TESTIDS.forEach(id => State.unlocked.add(id));
+  persistProfiles();
+  Store.set("pq:entitlement", {lifetime:State.lifetime, code:code});
+  refreshFoundersPanel();
+  return {ok:true, msg:hit.label+" unlocked. Every assessment, every profile, no ads — permanently."};
+}
+async function loadEntitlement(){
+  const e = await Store.get("pq:entitlement");
+  if (e && e.lifetime){
+    State.pro = true; State.lifetime = true;
+    TESTIDS.forEach(id => State.unlocked.add(id));
+    document.body.classList.add("is-pro");
+  }
+  refreshFoundersPanel();
+}
+function promoField(idSuffix){
+  const s = idSuffix || "";
+  return '<div class="promo">'+
+    '<label class="field" style="margin:0"><span>Founders code</span>'+
+      '<input id="promo'+s+'" placeholder="Enter code" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>'+
+    '<button class="btn" id="promo-go'+s+'">Redeem</button>'+
+  '</div>';
+}
+function wirePromo(idSuffix){
+  const s = idSuffix || "";
+  const btn = $("#promo-go"+s); if (!btn) return;
+  const input = $("#promo"+s);
+  const run = () => {
+    const r = applyPromo(input ? input.value : "");
+    toast(r.msg);
+    if (r.ok){ closeModal(); rerender(); }
+  };
+  btn.onclick = run;
+  if (input) input.onkeydown = e => { if (e.key === "Enter"){ e.preventDefault(); run(); } };
+}
+
+/* The pricing page carries a permanent founders box in static markup,
+   so it is wired once at boot rather than per-render. */
+function refreshFoundersPanel(){
+  const note = $("#promo-state-tiers");
+  if (!note) return;
+  const box = $("#promo-tiers"), btn = $("#promo-go-tiers");
+  if (State.lifetime){
+    note.textContent = "Founders access is active on this device. Nothing to pay, nothing to cancel.";
+    if (box){ box.value = ""; box.disabled = true; box.placeholder = "Redeemed"; }
+    if (btn){ btn.disabled = true; btn.textContent = "Redeemed"; }
+  } else {
+    note.textContent = "Codes are redeemed per device — enter it again on your phone or another browser.";
+    if (box){ box.disabled = false; box.placeholder = "Enter your code"; }
+    if (btn){ btn.disabled = false; btn.textContent = "Redeem"; }
+  }
+}
+function wireFoundersPanel(){ wirePromo("-tiers"); refreshFoundersPanel(); }
+
+/* ---------------- free-tier tarot: one pull per hour ---------------- */
+const TAROT_COOLDOWN_MS = 60*60*1000;
+let TarotGate = {last:0};
+async function loadTarotGate(){
+  const g = await Store.get("pq:tarotgate");
+  if (g && g.last) TarotGate.last = g.last;
+}
+function tarotReady(){
+  if (State.pro) return {ok:true};
+  const since = Date.now() - (TarotGate.last || 0);
+  if (since >= TAROT_COOLDOWN_MS) return {ok:true};
+  const left = TAROT_COOLDOWN_MS - since;
+  const mins = Math.ceil(left/60000);
+  return {ok:false, mins, msg:mins > 1 ? mins+" minutes" : "under a minute"};
+}
+function markTarotPull(){
+  if (State.pro) return;
+  TarotGate.last = Date.now();
+  Store.set("pq:tarotgate", {last:TarotGate.last});
+}
+function tarotGateScreen(gate){
+  return '<div class="frame geo" style="max-width:620px;margin:0 auto;text-align:center">'+
+    '<p class="eyebrow">The deck is resting</p>'+
+    '<h2 class="dsp h-md" style="color:var(--ink)">One Pull Per Hour</h2>'+
+    '<div class="orn"><i>◆</i></div>'+
+    '<p style="font-size:14.5px">The free tier draws once an hour — the pause is part of it, and a card you sat with for an hour reads differently than the fifth one in five minutes.</p>'+
+    '<p class="lead" style="margin:14px 0">Next pull in <b style="color:var(--gold-hi)">'+esc(gate.msg)+'</b>.</p>'+
+    '<div class="btn-row"><button class="btn btn--gold js-trial">Unlimited pulls · start trial</button>'+
+    '<button class="btn" data-go="oracle">Take a test instead</button></div></div>';
+}
+
+/* ---------------- Android / free-tier ad gates ---------------- */
+/* Interstitial shown before a test starts, before results, and before a pull.
+   Web build shows a placeholder; the Capacitor build mounts AdMob here. */
+function adGate(context, then){
+  if (State.pro) return then();
+  const label = context === "test" ? "Before your assessment"
+              : context === "result" ? "Before your results"
+              : "Before your pull";
+  const m = modal(
+    '<p class="eyebrow center">Advertisement · '+esc(label)+'</p>'+
+    '<div style="border:1px dashed rgba(227,190,109,.3);min-height:220px;display:grid;place-items:center;text-align:center;padding:20px;margin:14px 0">'+
+      '<div><p class="mono" style="letter-spacing:.2em;font-size:11px;color:var(--ink-3);margin:0 0 8px">INTERSTITIAL · 300×250</p>'+
+      '<p style="font-size:13px;margin:0;color:var(--ink-3)">AdMob interstitial mounts here on the Android build.</p></div></div>'+
+    '<button class="btn btn--wide" id="ad-continue">Continue</button>'+
+    '<button class="btn btn--gold btn--wide js-trial" style="margin-top:10px">Remove ads · 3-day trial</button>', {sticky:true});
+  const go = () => { closeModal(); then(); };
+  $("#ad-continue").onclick = go;
+  m.querySelector(".modal__x").onclick = go;
+}
+
+/* ============================================================
+   NUMEROLOGY
+   ============================================================ */
+const NUM_MEANING = {
+  1:{n:"The Initiator", l:"Independence, drive, and the willingness to go first. You're built to start things, and you struggle in roles where someone else sets the pace."},
+  2:{n:"The Diplomat", l:"Partnership, sensitivity, and timing. You read rooms accurately and do your best work beside someone rather than in front of them."},
+  3:{n:"The Communicator", l:"Expression, creativity, and social electricity. Ideas arrive quickly; the discipline is finishing them rather than talking them out."},
+  4:{n:"The Builder", l:"Structure, patience, and follow-through. You make things that hold, and you can mistake rigidity for reliability."},
+  5:{n:"The Explorer", l:"Freedom, change, and appetite for experience. Routine drains you faster than difficulty does."},
+  6:{n:"The Caretaker", l:"Responsibility, service, and harmony. You carry other people's weight easily and set your own down last."},
+  7:{n:"The Seeker", l:"Analysis, solitude, and depth. You need time alone to think, and you distrust answers that arrived too easily."},
+  8:{n:"The Sovereign", l:"Authority, ambition, and material mastery. Power and its consequences are your recurring subject."},
+  9:{n:"The Humanitarian", l:"Compassion, breadth, and completion. You think in wholes and are drawn to work larger than your own interests."},
+  11:{n:"The Illuminator", l:"Master number. Heightened intuition and nervous sensitivity — the 2's attunement running at a voltage that can either inspire or overwhelm."},
+  22:{n:"The Master Builder", l:"Master number. The 4's structure at visionary scale — capable of building something that outlasts you, and prone to being crushed by the size of the ambition."},
+  33:{n:"The Master Teacher", l:"Master number. The 6's care turned outward into teaching and healing at scale, with a real risk of self-erasure."}
+};
+/* Personal Year is a cycle, not a trait — it needs its own language */
+const PY_MEANING = {
+  1:{n:"Year of Beginning", l:"A year for starting. Plant things now even if they look small; this year sets the tone for the eight that follow."},
+  2:{n:"Year of Patience", l:"Slower, more relational. Progress arrives through cooperation and waiting rather than force."},
+  3:{n:"Year of Expression", l:"Creative and social. Output, visibility and communication come easily; discipline is the scarce resource."},
+  4:{n:"Year of Foundation", l:"Unglamorous building. The work you do this year won't feel exciting and will matter for a decade."},
+  5:{n:"Year of Change", l:"Disruption, travel, unexpected turns. Hold plans loosely; the year will rearrange them anyway."},
+  6:{n:"Year of Responsibility", l:"Home, family, obligation. Others need something from you, and the year asks you to give it without disappearing."},
+  7:{n:"Year of Withdrawal", l:"Inward and analytical. A year for study, solitude and reassessment rather than external push."},
+  8:{n:"Year of Harvest", l:"Material and professional return. What you built in years 1–7 becomes visible and payable now."},
+  9:{n:"Year of Completion", l:"Endings and release. Clear out what's finished; starting something new now is usually starting it twice."}
+};
+const LETTER_VAL = {A:1,J:1,S:1,B:2,K:2,T:2,C:3,L:3,U:3,D:4,M:4,V:4,E:5,N:5,W:5,F:6,O:6,X:6,G:7,P:7,Y:7,H:8,Q:8,Z:8,I:9,R:9};
+const VOWELS = "AEIOU";
+
+function reduceNum(n, keepMaster){
+  while (n > 9){
+    if (keepMaster && (n === 11 || n === 22 || n === 33)) return n;
+    n = String(n).split("").reduce((a,d) => a + (+d), 0);
+  }
+  return n;
+}
+function lifePath(dateStr){
+  if (!dateStr) return null;
+  const [y,m,d] = dateStr.split("-").map(Number);
+  const mm = reduceNum(m, true), dd = reduceNum(d, true), yy = reduceNum(y, true);
+  return reduceNum(mm + dd + yy, true);
+}
+function attitudeNumber(dateStr){
+  if (!dateStr) return null;
+  const [, m, d] = dateStr.split("-").map(Number);
+  return reduceNum(reduceNum(m, true) + reduceNum(d, true), true);
+}
+function personalYear(dateStr, year){
+  if (!dateStr) return null;
+  const [, m, d] = dateStr.split("-").map(Number);
+  const y = year || new Date().getFullYear();
+  return reduceNum(reduceNum(m, false) + reduceNum(d, false) + reduceNum(y, false), false);
+}
+function nameNumber(name, filter){
+  const letters = String(name || "").toUpperCase().replace(/[^A-Z]/g, "").split("");
+  const use = letters.filter(ch => filter === "all" ? true
+    : filter === "vowel" ? VOWELS.includes(ch) : !VOWELS.includes(ch));
+  if (!use.length) return null;
+  return reduceNum(use.reduce((a,ch) => a + (LETTER_VAL[ch] || 0), 0), true);
+}
+function numerologyFor(dateStr, name){
+  const out = {lifePath:lifePath(dateStr)};
+  if (dateStr){
+    out.birthday = reduceNum(Number(dateStr.split("-")[2]), true);
+    out.attitude = attitudeNumber(dateStr);
+    out.personalYear = personalYear(dateStr);
+    out.year = new Date().getFullYear();
+  }
+  if (name && name.trim()){
+    out.expression = nameNumber(name, "all");
+    out.soulUrge = nameNumber(name, "vowel");
+    out.personality = nameNumber(name, "consonant");
+  }
+  return out;
+}
+function numerologyBlock(num){
+  if (!num || !num.lifePath) return "";
+  const row = (label, n, note) => {
+    if (!n) return "";
+    const m = NUM_MEANING[n];
+    return '<div class="numrow"><div class="numrow__n">'+n+'</div>'+
+      '<div><p class="eyebrow" style="margin:0 0 3px">'+esc(label)+'</p>'+
+      '<b style="font-family:Cinzel,serif;color:var(--gold-hi);font-size:15px">'+esc(m.n)+'</b>'+
+      '<p style="font-size:13.5px;margin:5px 0 0">'+esc(m.l)+'</p>'+
+      (note ? '<p class="terms" style="margin-top:4px">'+esc(note)+'</p>' : "")+'</div></div>';
+  };
+  return '<div style="margin-top:18px">'+
+    '<p class="eyebrow center">Numerology '+tag("Y")+'</p>'+
+    '<div class="ground" style="margin-bottom:12px">'+
+      '<p style="margin:0;font-size:13.2px"><b style="color:var(--gold-hi)">Calculated, not answered.</b> These numbers come only from your '+
+      'full name and birth date — arithmetic, no questions. Your birth <em>time</em> and <em>place</em> are not used here; '+
+      'they feed the birth chart above (Sun, Moon, Rising), which is a different system entirely. '+
+      'Pythagorean method; a symbolic vocabulary rather than a measurement.</p></div>'+
+    row("Life Path", num.lifePath, "From your full birth date. The through-line.")+
+    row("Birthday", num.birthday, "The day itself — a specific talent you were handed.")+
+    row("Attitude", num.attitude, "Birth month and day. The face you present before anyone knows you.")+
+    (num.personalYear ? '<div class="numrow"><div class="numrow__n">'+num.personalYear+'</div>'+
+      '<div><p class="eyebrow" style="margin:0 0 3px">Personal Year · '+num.year+'</p>'+
+      '<b style="font-family:Cinzel,serif;color:var(--gold-hi);font-size:15px">'+esc(PY_MEANING[num.personalYear].n)+'</b>'+
+      '<p style="font-size:13.5px;margin:5px 0 0">'+esc(PY_MEANING[num.personalYear].l)+'</p>'+
+      '<p class="terms" style="margin-top:4px">Where you are in the nine-year cycle right now. This one changes every year.</p></div></div>' : "")+
+    row("Expression", num.expression, "From all letters of your full name.")+
+    row("Soul Urge", num.soulUrge, "From the vowels — what you actually want.")+
+    row("Personality", num.personality, "From the consonants — what others meet first.")+
+    (!num.expression ? '<p class="terms center" style="margin-top:10px">Life Path, Birthday, Attitude and Personal Year come from your birth date alone — '+
+      'the same data the birth chart uses. Adding your full name at birth unlocks three more: Expression, Soul Urge and Personality.</p>' : "")+
+  '</div>';
+}
+/* how the numbers land against the rest of the profile */
+function numerologySynthesis(num){
+  if (!num || !num.lifePath) return "";
+  const lp = NUM_MEANING[num.lifePath];
+  const bits = [];
+  if (State.pneuma) bits.push("your "+PLAIN_ARCH[State.pneuma.key].replace("The ","").toLowerCase()+" personality profile");
+  if (State.anima && State.anima.chart) bits.push("a "+signOf(State.anima.chart.sun).n+" Sun");
+  if (State.typology) bits.push("a "+State.typology.code+" thinking style");
+  if (!bits.length) return "";
+  return '<div class="ground" style="margin-top:14px">'+tag("Y")+
+    '<p style="margin:8px 0 0;font-size:13.8px">Life Path '+num.lifePath+' — '+esc(lp.n)+
+    ' — read alongside '+esc(bits.join(" and "))+'. Where these agree, you get reinforcement; where they disagree, that friction is usually the more interesting reading. Numerology is a symbolic layer over results measured differently, and it should be held that way.</p></div>';
+}
+
+/* ============================================================
+   LOCATION DATABASE — 2+ cities per U.S. state, plus international
+   [name, latitude, longitude, standard UTC offset]
+   Offsets are standard time; add 1 for a summer birth in a DST state.
+   ============================================================ */
+const US_CITIES = [
+["Birmingham, AL",33.52,-86.80,-6],["Mobile, AL",30.69,-88.04,-6],
+["Anchorage, AK",61.22,-149.90,-9],["Fairbanks, AK",64.84,-147.72,-9],
+["Phoenix, AZ",33.45,-112.07,-7],["Tucson, AZ",32.22,-110.97,-7],
+["Little Rock, AR",34.75,-92.29,-6],["Fayetteville, AR",36.06,-94.16,-6],
+["Los Angeles, CA",34.05,-118.24,-8],["Sacramento, CA",38.58,-121.49,-8],
+["Denver, CO",39.74,-104.99,-7],["Grand Junction, CO",39.06,-108.55,-7],
+["Hartford, CT",41.76,-72.67,-5],["Bridgeport, CT",41.18,-73.19,-5],
+["Wilmington, DE",39.74,-75.55,-5],["Dover, DE",39.16,-75.52,-5],
+["Washington, DC",38.91,-77.04,-5],
+["Miami, FL",25.76,-80.19,-5],["Jacksonville, FL",30.33,-81.66,-5],
+["Atlanta, GA",33.75,-84.39,-5],["Savannah, GA",32.08,-81.09,-5],
+["Honolulu, HI",21.31,-157.86,-10],["Hilo, HI",19.71,-155.08,-10],
+["Boise, ID",43.62,-116.20,-7],["Idaho Falls, ID",43.49,-112.03,-7],
+["Chicago, IL",41.88,-87.63,-6],["Springfield, IL",39.80,-89.64,-6],
+["Indianapolis, IN",39.77,-86.16,-5],["Fort Wayne, IN",41.08,-85.14,-5],
+["Des Moines, IA",41.59,-93.62,-6],["Cedar Rapids, IA",41.98,-91.67,-6],
+["Wichita, KS",37.69,-97.34,-6],["Kansas City, KS",39.11,-94.63,-6],
+["Louisville, KY",38.25,-85.76,-5],["Lexington, KY",38.04,-84.50,-5],
+["New Orleans, LA",29.95,-90.07,-6],["Shreveport, LA",32.53,-93.75,-6],
+["Portland, ME",43.66,-70.26,-5],["Bangor, ME",44.80,-68.77,-5],
+["Baltimore, MD",39.29,-76.61,-5],["Frederick, MD",39.41,-77.41,-5],
+["Boston, MA",42.36,-71.06,-5],["Springfield, MA",42.10,-72.59,-5],
+["Detroit, MI",42.33,-83.05,-5],["Grand Rapids, MI",42.96,-85.67,-5],
+["Minneapolis, MN",44.98,-93.27,-6],["Duluth, MN",46.79,-92.10,-6],
+["Jackson, MS",32.30,-90.18,-6],["Gulfport, MS",30.37,-89.09,-6],
+["St. Louis, MO",38.63,-90.20,-6],["Springfield, MO",37.21,-93.29,-6],
+["Billings, MT",45.78,-108.50,-7],["Missoula, MT",46.87,-113.99,-7],
+["Omaha, NE",41.26,-95.93,-6],["Scottsbluff, NE",41.87,-103.66,-7],
+["Las Vegas, NV",36.17,-115.14,-8],["Reno, NV",39.53,-119.81,-8],
+["Manchester, NH",42.99,-71.46,-5],["Concord, NH",43.21,-71.54,-5],
+["Newark, NJ",40.74,-74.17,-5],["Atlantic City, NJ",39.36,-74.42,-5],
+["Albuquerque, NM",35.08,-106.65,-7],["Las Cruces, NM",32.31,-106.78,-7],
+["New York, NY",40.71,-74.01,-5],["Buffalo, NY",42.89,-78.88,-5],
+["Charlotte, NC",35.23,-80.84,-5],["Raleigh, NC",35.78,-78.64,-5],
+["Fargo, ND",46.88,-96.79,-6],["Bismarck, ND",46.81,-100.78,-6],
+["Columbus, OH",39.96,-83.00,-5],["Cleveland, OH",41.50,-81.69,-5],
+["Oklahoma City, OK",35.47,-97.52,-6],["Tulsa, OK",36.15,-95.99,-6],
+["Portland, OR",45.52,-122.68,-8],["Bend, OR",44.06,-121.32,-8],
+["Philadelphia, PA",39.95,-75.17,-5],["Pittsburgh, PA",40.44,-80.00,-5],
+["Providence, RI",41.82,-71.41,-5],["Newport, RI",41.49,-71.31,-5],
+["Charleston, SC",32.78,-79.93,-5],["Greenville, SC",34.85,-82.39,-5],
+["Sioux Falls, SD",43.55,-96.73,-6],["Rapid City, SD",44.08,-103.23,-7],
+["Nashville, TN",36.16,-86.78,-6],["Knoxville, TN",35.96,-83.92,-5],
+["Houston, TX",29.76,-95.37,-6],["El Paso, TX",31.76,-106.49,-7],
+["Salt Lake City, UT",40.76,-111.89,-7],["St. George, UT",37.10,-113.58,-7],
+["Burlington, VT",44.48,-73.21,-5],["Montpelier, VT",44.26,-72.58,-5],
+["Virginia Beach, VA",36.85,-75.98,-5],["Richmond, VA",37.54,-77.44,-5],
+["Seattle, WA",47.61,-122.33,-8],["Spokane, WA",47.66,-117.43,-8],
+["Charleston, WV",38.35,-81.63,-5],["Morgantown, WV",39.63,-79.96,-5],
+["Milwaukee, WI",43.04,-87.91,-6],["Madison, WI",43.07,-89.40,-6],
+["Cheyenne, WY",41.14,-104.82,-7],["Casper, WY",42.87,-106.31,-7]
+];
+const INTL_CITIES = [
+["London, UK",51.51,-0.13,0],["Dublin, IE",53.35,-6.26,0],["Paris, FR",48.86,2.35,1],
+["Berlin, DE",52.52,13.40,1],["Madrid, ES",40.42,-3.70,1],["Rome, IT",41.90,12.50,1],
+["Istanbul, TR",41.01,28.98,3],["Moscow, RU",55.76,37.62,3],["Dubai, AE",25.20,55.27,4],
+["Mumbai, IN",19.08,72.88,5.5],["Delhi, IN",28.61,77.21,5.5],["Bangkok, TH",13.76,100.50,7],
+["Singapore, SG",1.35,103.82,8],["Manila, PH",14.60,120.98,8],["Hong Kong, HK",22.32,114.17,8],
+["Tokyo, JP",35.68,139.69,9],["Seoul, KR",37.57,126.98,9],["Sydney, AU",-33.87,151.21,10],
+["Auckland, NZ",-36.85,174.76,12],["Toronto, CA",43.65,-79.38,-5],["Vancouver, CA",49.28,-123.12,-8],
+["Mexico City, MX",19.43,-99.13,-6],["Bogotá, CO",4.71,-74.07,-5],["Lima, PE",-12.05,-77.04,-5],
+["São Paulo, BR",-23.55,-46.63,-3],["Buenos Aires, AR",-34.60,-58.38,-3],["Lagos, NG",6.52,3.38,1],
+["Nairobi, KE",-1.29,36.82,3],["Cairo, EG",30.04,31.24,2],["Johannesburg, ZA",-26.20,28.05,2]
+];
+const ALL_CITIES = US_CITIES.concat(INTL_CITIES);
+

@@ -1,0 +1,499 @@
+/* ============================================================
+   PSYCHEIQ — THE FOOL'S JOURNEY
+   ------------------------------------------------------------
+   22 short check-ins, one per Major Arcana, taken in order.
+   Two to three minutes each. Subscriber feature.
+   Finish all 22 and the Tower falls: the season ends and a new
+   one begins with a different set of check-ins on the same
+   cards. Every answer keeps feeding the main profile.
+   ============================================================ */
+const JOURNEY = [
+ {c:0,  t:"Beginnings",   l:"Openness to what you haven't done before",
+  q:["I say yes to things before I know how they'll work out.",
+     "Starting something badly is better than not starting.",
+     "I'm comfortable being visibly new at something.",
+     "Unfamiliar situations energise me more than they worry me.",
+     "I'd rather have a false start than a long hesitation.",
+     "I trust I'll work it out once I'm moving."],
+  r:["You hesitate at the edge. That's not cowardice — it's a real assessment of risk. But the cost of the long pause is that you keep arriving after the opening has closed.",
+     "You start when the ground looks solid enough. Reasonable, and occasionally too reasonable — some doors only open for people who move before they're certain.",
+     "You leap. It works often enough that you keep doing it, and the times it doesn't are usually the ones you didn't check the drop first."]},
+ {c:1,  t:"Your Resources", l:"What you already have and aren't using",
+  q:["I know exactly what I'm good at.",
+     "I use my strongest skills most days.",
+     "I ask for help from people who could actually give it.",
+     "I have contacts, tools or money sitting idle.",
+     "When I need something, I know where to find it.",
+     "I'd describe myself as resourceful under pressure."],
+  r:["You may be solving problems from scratch that you already have the pieces for. The inventory is the first job — write down what you actually have access to.",
+     "You use most of what you've got, some of the time. The gap is usually a contact or a skill you've forgotten counts as yours.",
+     "You know your inventory and you use it. Watch for the opposite failure: reaching for the tool you have rather than the one the job needs."]},
+ {c:2,  t:"What You Haven't Said", l:"The thing you already know",
+  q:["There's something true I've been avoiding saying out loud.",
+     "My first instinct about people usually turns out right.",
+     "I notice what's unspoken in a room.",
+     "I sometimes know the answer before I can justify it.",
+     "I hold things back to keep the peace.",
+     "There's a decision I've already made privately."],
+  r:["You may be more decided than you're letting on, including to yourself. The unspoken thing has a way of running the show from underneath.",
+     "You register what's beneath the surface and choose your moments. Reasonable — check that 'not yet' hasn't quietly become 'never'.",
+     "You read the room accurately and keep your own counsel. The risk is that the people around you are working from less information than you are."]},
+ {c:3,  t:"Care",         l:"Giving it, receiving it, and the gap between",
+  q:["I look after other people well.",
+     "I let other people look after me.",
+     "I rest before I'm depleted rather than after.",
+     "The care I give is roughly matched by what I get back.",
+     "I can ask for something without justifying it first.",
+     "I'd describe my basic self-maintenance as reliable."],
+  r:["You're likely running a deficit — giving out more than comes in, and calling the exhaustion normal. The imbalance eventually shows up as resentment, not tiredness.",
+     "You mostly hold the balance. The place it slips is usually receiving; giving is the easier half for you.",
+     "Care flows both ways for you, which is rarer than it sounds. Protect it — this is the thing that quietly makes everything else sustainable."]},
+ {c:4,  t:"Structure",    l:"Discipline, authority and holding a line",
+  q:["My week has a shape I actually keep to.",
+     "I finish things without external deadlines.",
+     "I'm comfortable telling people no.",
+     "I set the terms rather than accepting whatever's offered.",
+     "My commitments survive a chaotic week.",
+     "I'd say I'm in charge of my own schedule."],
+  r:["Structure is thin right now, and that's costing you more than it feels like. One fixed point in the week does more than a whole system you won't keep.",
+     "You have working structure with soft edges. That's usually correct — just notice which edge keeps getting pushed and by whom.",
+     "You run a tight frame. The watch-point is rigidity: check the structure is still serving the life rather than the other way round."]},
+ {c:5,  t:"What You Were Taught", l:"Inherited rules, kept or discarded",
+  q:["I can name the rules I grew up with.",
+     "I've deliberately kept some of what I was taught.",
+     "I've deliberately dropped some of it.",
+     "I know why I believe what I believe.",
+     "My values are mine rather than inherited unexamined.",
+     "I can disagree with people I respect."],
+  r:["A lot may be running on autopilot from before you had a say. Not wrong — just unexamined, which means you can't tell which parts still fit.",
+     "You've sorted through some of the inheritance. The unsorted parts are usually the ones that feel too obvious to question.",
+     "You've done the audit and know what you kept and why. That's the work most people skip entirely."]},
+ {c:6,  t:"Choosing",     l:"How your values show up in decisions",
+  q:["My big decisions reflect what I actually value.",
+     "I can name my top three values without thinking.",
+     "I've turned down something good because it wasn't right.",
+     "I don't agonise over decisions once made.",
+     "My choices are mine rather than other people's expectations.",
+     "When two goods conflict, I know how I break the tie."],
+  r:["Decisions may be getting made by circumstance or other people's expectations. Naming three values you'd defend is the smallest useful step here.",
+     "You choose deliberately most of the time. The drift usually happens on the medium-sized decisions nobody's watching.",
+     "Your choices track your values closely. Watch for rigidity — a value held past its usefulness becomes a rule you're serving."]},
+ {c:7,  t:"Momentum",     l:"Drive, direction, and whether they match",
+  q:["I'm moving forward on something that matters.",
+     "My effort is pointed somewhere specific.",
+     "I keep going when it stops being interesting.",
+     "I could name what I'm working toward in one sentence.",
+     "My pace is sustainable rather than a sprint.",
+     "I finish more than I abandon."],
+  r:["Either the drive or the direction is missing right now. Work out which — they need completely different fixes.",
+     "You're moving with reasonable aim. The usual leak is speed without a check on whether the destination is still right.",
+     "Drive and direction are aligned, which is when people get the most done. Guard the pace; this is the state that burns people out."]},
+ {c:8,  t:"Resilience",   l:"Holding steady without force",
+  q:["I stay steady when things go wrong.",
+     "I can be firm without being harsh.",
+     "I recover from setbacks within days rather than weeks.",
+     "I don't need to win every disagreement.",
+     "Pressure makes me more careful rather than more reactive.",
+     "I can sit with a problem I can't immediately fix."],
+  r:["Pressure is landing hard at the moment. That's information about load, not about you — the question is what's on you that shouldn't be.",
+     "You handle most pressure without losing shape. The exceptions are worth noticing; they usually share a theme.",
+     "You hold steady and don't need force to do it. That steadiness makes you the person others regulate against, which is its own quiet cost."]},
+ {c:9,  t:"Reflection",   l:"Solitude, honesty and the long look",
+  q:["I spend time alone deliberately.",
+     "I know why I've been doing what I've been doing.",
+     "I'm honest with myself about my part in things.",
+     "I make time to think without an agenda.",
+     "I've changed my mind about something important recently.",
+     "I can tell the difference between reflecting and ruminating."],
+  r:["There may not be enough quiet to hear yourself. Not a character flaw — usually a scheduling one, and it compounds.",
+     "You reflect enough to stay honest with yourself. Check it's producing change rather than just insight.",
+     "You look inward regularly and clearly. The trap at this level is rumination wearing reflection's clothes — insight that never becomes action."]},
+ {c:10, t:"What You Don't Control", l:"Chance, timing and the turn",
+  q:["I can accept outcomes I didn't cause.",
+     "I distinguish bad luck from bad judgement.",
+     "I adapt quickly when circumstances change.",
+     "I don't take random events personally.",
+     "I build plans that survive things going wrong.",
+     "I know what's mine to control and what isn't."],
+  r:["You may be carrying responsibility for things that were never yours. That weight is heavy and it isn't accurate.",
+     "You mostly separate what you caused from what happened to you. The blur usually appears when the stakes are high.",
+     "You hold the line between agency and circumstance well. Watch the opposite error: writing off as luck something you actually influenced."]},
+ {c:11, t:"Fairness",     l:"Accountability, in both directions",
+  q:["I own my mistakes without being asked twice.",
+     "I hold others to account when it matters.",
+     "I judge situations on merit rather than loyalty.",
+     "I've apologised properly for something recently.",
+     "I expect fair treatment and say so when I don't get it.",
+     "I can be wrong without it threatening my sense of self."],
+  r:["Accountability may be running one-way — either you're absorbing blame that isn't yours or deflecting what is. Both distort the same joint.",
+     "You handle accountability reasonably in both directions. The harder half is usually holding others to it.",
+     "You own your part and expect the same. That combination is rare and it makes you unusually safe to work with."]},
+ {c:12, t:"A Different Angle", l:"Suspension, and seeing it another way",
+  q:["I can genuinely hold a view I disagree with.",
+     "I've been stuck on something and stopped pushing.",
+     "I can wait when waiting is the right move.",
+     "I've solved something by stepping away from it.",
+     "I don't need to resolve every open question now.",
+     "I can see my situation from someone else's position."],
+  r:["You may be pushing at something that needs a different approach rather than more force. The stuck feeling is usually the signal to invert, not to push.",
+     "You can step back when pushing stops working, though it's rarely your first instinct. It's usually the right one.",
+     "You're comfortable suspending and reframing. The risk is suspension becoming avoidance — check the pause has a purpose."]},
+ {c:13, t:"Endings",      l:"What needs to be let go",
+  q:["I end things cleanly rather than letting them fade.",
+     "There's something I'm holding onto past its time.",
+     "I can grieve something and still move on from it.",
+     "I've deliberately closed a chapter recently.",
+     "I don't restart things purely from sunk cost.",
+     "I'd know if something in my life was already over."],
+  r:["Something is likely running past its ending and costing more than continuing feels like. The prolonging is usually more painful than the ending would be.",
+     "You end things when you have to, sometimes later than ideal. The delay usually costs more than the ending does.",
+     "You close chapters deliberately. That capability makes room; make sure you're not ending things to avoid the harder work of repairing them."]},
+ {c:14, t:"Balance",      l:"Proportion, moderation and blending",
+  q:["My life has reasonable proportions across areas.",
+     "I moderate rather than swinging between extremes.",
+     "I can combine two things that seem opposed.",
+     "I adjust rather than overhaul when something's off.",
+     "I don't fix problems by going to the other extreme.",
+     "My recovery matches my output."],
+  r:["Things are likely running lopsided. The fix is rarely a dramatic overhaul — it's usually one proportion adjusted and held.",
+     "You keep rough balance with periodic corrections. That's how it actually works for most people.",
+     "You blend and moderate well. The failure mode here is averaging things that should have been chosen between."]},
+ {c:15, t:"What Binds You", l:"Patterns you keep choosing",
+  q:["There's a pattern I repeat and can name.",
+     "I know what I get out of a habit that costs me.",
+     "I could stop something if I actually decided to.",
+     "I've broken a limiting pattern before.",
+     "I'm honest about what I'm avoiding.",
+     "I'd say I'm free in the choices that matter most."],
+  r:["Something has more hold than you'd like, and the first honest step is naming what it gives you. Nothing persists without paying somehow.",
+     "You see your patterns and mostly work with them. The one you can't quite name is usually the live one.",
+     "You know your bindings and have loosened some. The chains being visible is most of the work — the rest is refusing the payoff."]},
+ {c:16, t:"Disruption",   l:"Sudden change and what it revealed",
+  q:["Something significant has changed for me recently.",
+     "I can function while things are unstable.",
+     "I've learned something from a collapse.",
+     "I rebuild rather than restore after a shock.",
+     "I don't defend structures that have already failed.",
+     "Upheaval clarifies more than it destroys for me."],
+  r:["Either things are stable or the disruption hasn't landed yet. Worth asking what you're currently defending that's already unsound.",
+     "You handle upheaval without losing yourself. The instinct to restore rather than rebuild is worth watching.",
+     "You use disruption rather than just surviving it. That's a genuine capability — and don't manufacture it to feel alive."]},
+ {c:17, t:"Hope",         l:"Vision, repair and the long horizon",
+  q:["I can picture a future I actually want.",
+     "I believe things can improve from here.",
+     "I'm working toward something beyond this month.",
+     "I've recovered from something that once seemed final.",
+     "I let myself want things openly.",
+     "I have a sense of direction for the next few years."],
+  r:["The horizon may be short right now. That's usually depletion rather than realism — hope is a capacity that comes back with rest.",
+     "You hold a workable sense of the future without over-promising. That's the sustainable version.",
+     "You see forward clearly and let yourself want things. Keep it tied to something concrete this month or it stays a mood."]},
+ {c:18, t:"Uncertainty",  l:"Fear, projection and half-light",
+  q:["I can act without full information.",
+     "I distinguish what I know from what I'm imagining.",
+     "I don't fill silence with worst-case assumptions.",
+     "I check my read of people rather than assuming.",
+     "I'm comfortable with ambiguity.",
+     "I recognise when fear is doing my thinking."],
+  r:["Your mind may be filling gaps with fear right now. Separating the known from the imagined, on paper, does more than reassurance does.",
+     "You mostly tell knowledge from projection. The blur appears where you care most, which is exactly where it costs.",
+     "You handle ambiguity clearly and check your assumptions. Rare — most people resolve uncertainty by inventing certainty."]},
+ {c:19, t:"What's Good",  l:"Joy, plainly, without qualification",
+  q:["I enjoy good things without waiting for the catch.",
+     "I can take a compliment without deflecting.",
+     "There's something in my life that's simply good.",
+     "I let myself be pleased with what I've done.",
+     "I don't undercut good news with a caveat.",
+     "I have moments of uncomplicated contentment."],
+  r:["Good things may be getting examined rather than enjoyed. Letting one thing be simply good, undissected, is harder than it sounds and worth practising.",
+     "You enjoy the good with occasional hedging. The hedge is usually protective and usually unnecessary.",
+     "You take the good at face value. That's a real capacity and it makes you easy to be around."]},
+ {c:20, t:"Honest Reckoning", l:"Evaluating where you actually are",
+  q:["I can assess myself without flattery or cruelty.",
+     "I know whether this year went well.",
+     "I act on my own conclusions.",
+     "I face things I'd rather not know about myself.",
+     "I've made a real change based on honest review.",
+     "My self-assessment matches what others would say."],
+  r:["The honest look may be overdue, which is normal — reckoning is unpleasant and easy to defer. It's also where most change actually starts.",
+     "You assess yourself reasonably honestly. The gap is usually between the verdict and acting on it.",
+     "You see yourself clearly and act on what you find. That's the engine of every other change on this list."]},
+ {c:21, t:"Wholeness",    l:"Integration, and closing the circuit",
+  q:["The different parts of my life fit together.",
+     "I'm roughly the same person in every setting.",
+     "I've completed something meaningful recently.",
+     "My values, work and relationships point the same way.",
+     "I feel like the author of my life rather than a passenger.",
+     "I could describe who I am without contradicting myself."],
+  r:["The parts are pulling in different directions right now. Integration is slow work and it starts with naming the contradiction rather than resolving it.",
+     "Most of it fits, with some seams. That's the honest state for most people most of the time.",
+     "Things cohere for you. That's what the whole journey is for — and the circle turns again from here, at a different depth."]}
+];
+
+/* --- season state --- */
+function newJourney(){ return {season:1, chapter:0, done:[], scores:{}, sigils:0, badges:[], last:null, streak:0, best:0, deck:"midnight", decks:["midnight"]}; }
+function J(){
+  const p = activeP();
+  if (!p.journey) p.journey = newJourney();
+  return p.journey;
+}
+const journeyUnlocked = () => State.pro;
+
+/* --- currency + cosmetics --- */
+const DECKS = {
+  midnight:{n:"Midnight Gold",  cost:0,   gold:"#E3BE6D", hi:"#F9E7B4", bg1:"#151E4A", bg2:"#080C22", l:"The house deck. Leaf gold on vault navy."},
+  verdant:{ n:"Verdant Grove",  cost:150, gold:"#7FD0A0", hi:"#CFF3DE", bg1:"#0E2A22", bg2:"#04120D", l:"Green and silver. Growth, root and season."},
+  crimson:{ n:"Crimson Rite",   cost:150, gold:"#E08A7A", hi:"#FFD7C9", bg1:"#3A1418", bg2:"#160406", l:"Ember and ash. Heat, appetite, consequence."},
+  bone:{    n:"Bone & Ash",     cost:250, gold:"#D6D2C4", hi:"#FFFDF5", bg1:"#232323", bg2:"#0B0B0B", l:"Monochrome. Stripped of colour, nothing to hide behind."},
+  celestial:{n:"Celestial Blue",cost:250, gold:"#8FB6F0", hi:"#DCE9FF", bg1:"#101C3E", bg2:"#050A18", l:"Star-blue and silver. Distance, sky and cold clarity."},
+  royal:{   n:"Royal Violet",   cost:400, gold:"#B98FE0", hi:"#EBD9FF", bg1:"#241640", bg2:"#0C0618", l:"Violet and pale gold. Reserved for finished journeys."}
+};
+const BADGES = {
+  first:   {n:"First Step",        l:"Completed your first chapter",            icon:"✦"},
+  seven:   {n:"Seven Gates",       l:"Seven chapters in a single season",       icon:"✧"},
+  half:    {n:"Halfway",           l:"Eleven chapters — past the midpoint",     icon:"◈"},
+  world:   {n:"The World",         l:"Completed all 22 chapters of a season",   icon:"◉"},
+  season2: {n:"The Wheel Turns",   l:"Began a second season",                   icon:"⟳"},
+  streak7: {n:"Seven Days",        l:"A seven-day check-in streak",             icon:"☀"},
+  streak30:{n:"Thirty Days",       l:"A thirty-day check-in streak",            icon:"☾"},
+  collector:{n:"Collector",        l:"Owned four or more decks",                icon:"❋"},
+  honest:  {n:"Unflinching",       l:"Finished a chapter with every answer at the extremes", icon:"⚡"}
+};
+function awardBadge(k){
+  const j = J();
+  if (j.badges.includes(k)) return false;
+  j.badges.push(k);
+  return true;
+}
+
+/* --- taking a chapter --- */
+let JRun = null;
+function chapterOf(n){ return JOURNEY[n % 22]; }
+function startChapter(){
+  const j = J();
+  if (j.chapter >= 22) return renderSeasonEnd();
+  JRun = {i:0, ans:[], ch:chapterOf(j.chapter)};
+  renderChapter();
+}
+function renderChapter(){
+  const j = J(), ch = JRun.ch, n = ch.q.length, pct = Math.round(JRun.i/n*100);
+  $("#view-journey").innerHTML =
+    '<div class="frame geo" style="max-width:720px;margin:0 auto">'+
+      '<div class="testbar"><button class="btn btn--ghost" data-go="journey">← Back</button>'+
+        '<span class="pill">Chapter '+(j.chapter+1)+' of 22 · Season '+j.season+'</span></div>'+
+      '<p class="eyebrow center">'+esc(ARCANA[ch.c].r)+' · '+esc(ARCANA[ch.c].n)+'</p>'+
+      '<h2 class="dsp h-md center" style="color:var(--ink)">'+esc(ch.t)+'</h2>'+
+      '<div class="qmeta" style="margin-top:14px"><span>'+(JRun.i+1)+' of '+n+'</span><span>'+pct+'%</span></div>'+
+      '<div class="meter"><i style="width:'+pct+'%"></i></div>'+
+      '<p class="q-text">'+esc(ch.q[JRun.i])+'</p>'+
+      '<p class="q-sub">How true is this of you right now?</p>'+
+      '<div class="opts">'+LIKERT.map((t,i) =>
+        '<button class="opt" data-jq="'+(i+1)+'"><span class="key">'+(i+1)+'</span><span>'+t+'</span></button>').join("")+
+      '</div></div>';
+  $$("[data-jq]").forEach(b => b.onclick = () => {
+    b.classList.add("sel");
+    JRun.ans[JRun.i] = +b.dataset.jq;
+    setTimeout(() => { JRun.i++; JRun.i >= n ? finishChapter() : renderChapter(); }, 160);
+  });
+}
+function finishChapter(){
+  const j = J(), ch = JRun.ch;
+  const raw = JRun.ans.reduce((a,b) => a+b, 0);
+  const score = Math.round((raw - ch.q.length) / (ch.q.length*4) * 100);
+  const band = score >= 67 ? 2 : score >= 34 ? 1 : 0;
+
+  j.scores[ch.c] = {score, band, at:Date.now(), season:j.season};
+  if (!j.done.includes(ch.c)) j.done.push(ch.c);
+  j.chapter++;
+
+  /* streak: consecutive days with a chapter */
+  const today = new Date().toISOString().slice(0,10);
+  const yest = new Date(Date.now()-864e5).toISOString().slice(0,10);
+  if (j.last === yest) j.streak++;
+  else if (j.last !== today) j.streak = 1;
+  j.last = today;
+  j.best = Math.max(j.best||0, j.streak);
+
+  /* sigils: 10 a chapter, +5 on a streak of three or more */
+  let earned = 10 + (j.streak >= 3 ? 5 : 0);
+  j.sigils += earned;
+
+  const newBadges = [];
+  if (j.done.length >= 1 && awardBadge("first")) newBadges.push("first");
+  if (j.chapter >= 7 && awardBadge("seven")) newBadges.push("seven");
+  if (j.chapter >= 11 && awardBadge("half")) newBadges.push("half");
+  if (j.chapter >= 22 && awardBadge("world")) newBadges.push("world");
+  if (j.streak >= 7 && awardBadge("streak7")) newBadges.push("streak7");
+  if (j.streak >= 30 && awardBadge("streak30")) newBadges.push("streak30");
+  if (JRun.ans.every(v => v === 1 || v === 5) && awardBadge("honest")) newBadges.push("honest");
+  if (j.decks.length >= 4 && awardBadge("collector")) newBadges.push("collector");
+
+  persistProfiles();
+  renderChapterResult(ch, score, band, earned, newBadges);
+}
+function renderChapterResult(ch, score, band, earned, newBadges){
+  const j = J();
+  const complete = j.chapter >= 22;
+  $("#view-journey").innerHTML =
+    '<div class="frame geo" style="max-width:720px;margin:0 auto;text-align:center">'+
+      '<p class="eyebrow">'+esc(ARCANA[ch.c].r)+' · '+esc(ARCANA[ch.c].n)+' · complete</p>'+
+      '<div class="revealcard" style="width:min(150px,42vw)">'+imgOr(tarotImgPath(ch.c),
+        '<svg viewBox="0 0 100 100" class="revealcard__art" aria-hidden="true">'+arcanaArt(ch.c)+'</svg>',
+        "imgslot--reveal", ARCANA[ch.c].n)+'</div>'+
+      '<h2 class="dsp h-md gilt" style="margin-top:14px">'+esc(ch.t)+'</h2>'+
+      '<p class="lead" style="max-width:560px;margin:12px auto 0">'+esc(ch.r[band])+'</p>'+
+      '<div class="obfacts" style="max-width:420px;margin:20px auto 0">'+
+        '<div><b>'+score+'</b><span>this chapter</span></div>'+
+        '<div><b>+'+earned+'</b><span>sigils</span></div>'+
+        '<div><b>'+j.streak+'</b><span>day streak</span></div>'+
+      '</div>'+
+      (newBadges.length ? '<div style="margin-top:18px"><p class="eyebrow">Earned</p>'+
+        newBadges.map(k => '<span class="badgechip">'+BADGES[k].icon+' '+esc(BADGES[k].n)+'</span>').join("")+'</div>' : "")+
+      '<div class="btn-row" style="margin-top:22px">'+
+        (complete ? '<button class="btn btn--gold" id="j-tower">The Tower falls…</button>'
+                  : '<button class="btn btn--gold" data-go="journey">Continue the journey</button>')+
+        '<button class="btn" data-go="blueprint">See my Blueprint</button></div>'+
+    '</div>';
+  const tw = $("#j-tower"); if (tw) tw.onclick = renderSeasonEnd;
+  setTimeout(() => { burstCentre({count:40, spread:250}); }, 200);
+}
+
+/* --- the season turns --- */
+function renderSeasonEnd(){
+  const j = J();
+  $("#view-journey").innerHTML =
+    '<div class="frame geo" style="max-width:680px;margin:0 auto;text-align:center">'+
+      '<div class="revealcard" style="width:min(160px,44vw)">'+imgOr(tarotImgPath(16),
+        '<svg viewBox="0 0 100 100" class="revealcard__art" aria-hidden="true">'+arcanaArt(16)+'</svg>',
+        "imgslot--reveal", "The Tower")+'</div>'+
+      '<p class="eyebrow" style="margin-top:16px">Season '+j.season+' complete</p>'+
+      '<h1 class="dsp h-lg gilt">The Tower Falls</h1>'+
+      '<p class="lead" style="max-width:540px;margin:14px auto 0">You walked all twenty-two. What you built gets taken apart now — not to erase it, but because the same ground reads differently the second time round.</p>'+
+      '<div class="obfacts" style="max-width:420px;margin:22px auto 0">'+
+        '<div><b>22</b><span>chapters walked</span></div>'+
+        '<div><b>'+j.badges.length+'</b><span>badges earned</span></div>'+
+        '<div><b>'+j.sigils+'</b><span>sigils held</span></div>'+
+      '</div>'+
+      '<p style="font-size:14.5px;max-width:520px;margin:18px auto 0">Season '+(j.season+1)+' walks the same twenty-two cards with a different set of check-ins. Your answers from this season stay on record, so you can see what moved.</p>'+
+      '<div class="btn-row" style="margin-top:22px">'+
+        '<button class="btn btn--gold" id="j-new">Begin season '+(j.season+1)+'</button>'+
+        '<button class="btn" data-go="blueprint">Review this season first</button></div></div>';
+  $("#j-new").onclick = () => {
+    j.season++; j.chapter = 0; j.done = [];
+    awardBadge("season2");
+    persistProfiles();
+    burstCurtain();
+    renderJourney();
+  };
+  setTimeout(() => burstCurtain(), 150);
+}
+
+/* --- the journey map --- */
+function renderJourney(){
+  const V = $("#view-journey");
+  if (!journeyUnlocked()){
+    V.innerHTML =
+      '<p class="eyebrow center">Members</p>'+
+      '<div class="gilt-wrap"><h1 class="dsp h-lg gilt center">The Fool\u2019s Journey</h1></div>'+
+      '<div class="orn"><i>◆</i></div>'+
+      '<div class="frame geo" style="max-width:660px;margin:0 auto;text-align:center">'+
+        '<p class="lead">Twenty-two short check-ins, two to three minutes each, taken one at a time in the order of the Major Arcana. Each one adds to your profile.</p>'+
+        '<p style="font-size:14.5px;margin-top:12px">Finish all twenty-two and the Tower falls \u2014 the season ends and a new one begins on the same cards with different questions, so you can see what actually changed.</p>'+
+        '<div class="obfacts" style="max-width:420px;margin:20px auto">'+
+          '<div><b>22</b><span>chapters</span></div><div><b>2–3</b><span>minutes each</span></div>'+
+          '<div><b>∞</b><span>seasons</span></div></div>'+
+        '<p style="font-size:14px">Earn sigils and badges as you go, and spend sigils on new card decks.</p>'+
+        '<div class="btn-row" style="margin-top:18px"><button class="btn btn--gold js-trial">Start the journey</button>'+
+        '<button class="btn" data-go="tiers">See pricing</button></div></div>';
+    return;
+  }
+  const j = J();
+  const nextCh = j.chapter < 22 ? chapterOf(j.chapter) : null;
+  V.innerHTML =
+    '<p class="eyebrow center">Season '+j.season+'</p>'+
+    '<div class="gilt-wrap"><h1 class="dsp h-lg gilt center">The Fool\u2019s Journey</h1></div>'+
+    '<div class="orn"><i>◆</i></div>'+
+    '<div class="frame geo" style="text-align:center">'+
+      '<div class="obfacts" style="max-width:520px;margin:0 auto">'+
+        '<div><b>'+j.chapter+' / 22</b><span>chapters</span></div>'+
+        '<div><b>'+j.streak+'</b><span>day streak</span></div>'+
+        '<div><b>'+j.sigils+'</b><span>sigils</span></div>'+
+      '</div>'+
+      (nextCh
+        ? '<div style="margin-top:20px"><p class="eyebrow">Next chapter</p>'+
+          '<h2 class="dsp h-md gilt">'+esc(nextCh.t)+'</h2>'+
+          '<p style="font-size:13px;color:var(--ink-3);margin-top:4px">'+esc(ARCANA[nextCh.c].r)+' · '+esc(ARCANA[nextCh.c].n)+' · about 2 minutes</p>'+
+          '<button class="btn btn--gold" id="j-start" style="margin-top:14px">Begin chapter '+(j.chapter+1)+'</button></div>'
+        : '<div style="margin-top:20px"><h2 class="dsp h-md gilt">All 22 walked</h2>'+
+          '<button class="btn btn--gold" id="j-tower2" style="margin-top:12px">The Tower falls…</button></div>')+
+    '</div>'+
+    '<div class="frame" style="margin-top:20px"><p class="eyebrow center">The path</p>'+
+      '<div class="jmap">'+JOURNEY.map((ch,i) => {
+        const done = i < j.chapter, cur = i === j.chapter;
+        const sc = j.scores[ch.c];
+        return '<div class="jnode'+(done ? " done" : "")+(cur ? " cur" : "")+'" title="'+esc(ARCANA[ch.c].n)+'">'+
+          '<span class="jnode__c">'+esc(ARCANA[ch.c].r)+'</span>'+
+          '<span class="jnode__t">'+esc(ch.t)+'</span>'+
+          (sc ? '<span class="jnode__s">'+sc.score+'</span>' : "")+'</div>';
+      }).join("")+'</div></div>'+
+    badgeShelf()+
+    deckShop();
+  const st = $("#j-start"); if (st) st.onclick = startChapter;
+  const t2 = $("#j-tower2"); if (t2) t2.onclick = renderSeasonEnd;
+  wireDeckShop();
+}
+function badgeShelf(){
+  const j = J();
+  return '<div class="frame" style="margin-top:20px"><p class="eyebrow center">Badges · '+j.badges.length+' of '+Object.keys(BADGES).length+'</p>'+
+    '<div class="badgegrid">'+Object.keys(BADGES).map(k => {
+      const b = BADGES[k], has = j.badges.includes(k);
+      return '<div class="badge'+(has ? " on" : "")+'"><span class="badge__i">'+b.icon+'</span>'+
+        '<b>'+esc(b.n)+'</b><span>'+esc(b.l)+'</span></div>';
+    }).join("")+'</div></div>';
+}
+function deckShop(){
+  const j = J();
+  return '<div class="frame" style="margin-top:20px"><p class="eyebrow center">Card decks · '+j.sigils+' sigils</p>'+
+    '<p class="terms center">Earn 10 sigils a chapter, plus 5 more on a streak of three or more.</p>'+
+    '<div class="deckgridshop">'+Object.keys(DECKS).map(k => {
+      const d = DECKS[k], owned = j.decks.includes(k), active = j.deck === k;
+      return '<div class="deckcardshop'+(owned ? " owned" : "")+(active ? " active" : "")+'" '+
+        'style="--dg:'+d.gold+';--dh:'+d.hi+';--db1:'+d.bg1+';--db2:'+d.bg2+'">'+
+        '<div class="deckswatch"><svg viewBox="0 0 100 150" aria-hidden="true">'+
+          '<rect x="3" y="3" width="94" height="144" rx="4" fill="none" stroke="'+d.gold+'" stroke-width="1.6"/>'+
+          '<circle cx="50" cy="75" r="20" fill="none" stroke="'+d.gold+'" stroke-width="1" opacity=".7"/>'+
+          '<path d="M50 47l5 17 17 5-17 5-5 17-5-17-17-5 17-5z" fill="'+d.hi+'" opacity=".7"/></svg></div>'+
+        '<b>'+esc(d.n)+'</b><span>'+esc(d.l)+'</span>'+
+        (active ? '<span class="pill">In use</span>'
+         : owned ? '<button class="btn btn--ghost" data-deckuse="'+k+'">Use</button>'
+         : '<button class="btn'+(j.sigils >= d.cost ? " btn--gold" : "")+'" data-deckbuy="'+k+'"'+
+           (j.sigils >= d.cost ? "" : " disabled")+'>'+d.cost+' sigils</button>')+
+      '</div>';
+    }).join("")+'</div></div>';
+}
+function wireDeckShop(){
+  $$("[data-deckbuy]").forEach(b => b.onclick = () => {
+    const j = J(), k = b.dataset.deckbuy, d = DECKS[k];
+    if (j.sigils < d.cost) return toast("Not enough sigils yet.");
+    j.sigils -= d.cost; j.decks.push(k); j.deck = k;
+    if (j.decks.length >= 4) awardBadge("collector");
+    persistProfiles(); applyDeck(); renderJourney();
+    toast(d.n+" unlocked and equipped.");
+    burstCentre({count:30, spread:200});
+  });
+  $$("[data-deckuse]").forEach(b => b.onclick = () => {
+    J().deck = b.dataset.deckuse; persistProfiles(); applyDeck(); renderJourney();
+    toast(DECKS[J().deck].n+" equipped.");
+  });
+}
+/* recolours every card in the app to the equipped deck */
+function applyDeck(){
+  try {
+    const d = DECKS[J().deck] || DECKS.midnight;
+    const r = document.documentElement.style;
+    r.setProperty("--deck-gold", d.gold);
+    r.setProperty("--deck-hi", d.hi);
+    r.setProperty("--deck-bg1", d.bg1);
+    r.setProperty("--deck-bg2", d.bg2);
+  } catch(e){}
+}

@@ -1,0 +1,343 @@
+/* ============================================================
+   PSYCHEIQ — THE THREE DIMENSIONS
+   Mind / Body / Soul is the organising spine of the product.
+   Every assessment, card and panel is stamped with its dimension
+   so a user always knows which of the three they're standing in.
+   ============================================================ */
+const DIMS = {
+  Mind:{key:"mind", glyph:"🧠", line:"How you think, decide and solve problems",
+        blurb:"Personality, reasoning, thinking style and motivation."},
+  Body:{key:"body", glyph:"🧬", line:"Energy, stress, habits and instinct",
+        blurb:"How your physical experience shapes everything above it."},
+  Soul:{key:"soul", glyph:"✨", line:"Meaning, values, intuition and growth",
+        blurb:"Reflective tools for exploring identity and personal meaning."}
+};
+const dimOf = testId => (PLAIN[testId] || {}).dim || null;
+
+/* small stamp — used on cards, panels, headers */
+function dimBadge(dim, size){
+  const d = DIMS[dim]; if (!d) return "";
+  return '<span class="dimbadge dimbadge--'+d.key+(size === "lg" ? " dimbadge--lg" : "")+
+    '"><i>'+d.glyph+'</i>'+esc(dim)+'</span>';
+}
+function dimBadgeFor(testId, size){ return dimBadge(dimOf(testId), size); }
+
+/* full-width section header — used on the Oracle and the results page */
+function dimHeader(dim, note){
+  const d = DIMS[dim]; if (!d) return "";
+  return '<div class="dimhead dimhead--'+d.key+'">'+
+    '<span class="dimhead__g">'+d.glyph+'</span>'+
+    '<div class="dimhead__t"><h2 class="dsp">'+esc(dim)+'</h2>'+
+    '<p>'+esc(note || d.line)+'</p></div>'+
+    '<span class="dimhead__rule"></span></div>';
+}
+/* which dimensions the user has actually completed something in */
+function dimProgress(){
+  const out = {Mind:{done:0,total:0}, Body:{done:0,total:0}, Soul:{done:0,total:0}};
+  TESTS.forEach(t => {
+    if (!out[t.group]) return;
+    out[t.group].total++;
+    if (t.done()) out[t.group].done++;
+  });
+  return out;
+}
+function dimProgressStrip(){
+  const p = dimProgress();
+  return '<div class="dimstrip">'+["Mind","Body","Soul"].map(dim => {
+    const d = DIMS[dim], v = p[dim], pct = v.total ? Math.round(v.done/v.total*100) : 0;
+    return '<div class="dimstrip__c dimstrip__c--'+d.key+(v.done ? " on" : "")+'">'+
+      '<span class="dimstrip__g">'+d.glyph+'</span>'+
+      '<b>'+esc(dim)+'</b>'+
+      '<span class="dimstrip__v">'+v.done+' / '+v.total+'</span>'+
+      '<div class="dimstrip__bar"><i style="width:'+pct+'%"></i></div></div>';
+  }).join("")+'</div>';
+}
+
+/* ============================================================
+   PSYCHEIQ — LIGHT ENGINE
+   Twinkling stars, drifting aurora, and colour-burst particles
+   fired on every reveal. All of it checks prefers-reduced-motion
+   before doing anything.
+   ============================================================ */
+const REDUCED = () => {
+  try { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  catch(e){ return false; }
+};
+
+/* --- palette for the dust: gold-led, with colour behind it --- */
+const SPARK_COLORS = ["#F9E7B4","#E3BE6D","#FFF6DC","#8FA9F0","#79CBA8","#E48FC4","#7FD8E8"];
+const SPARK_GOLD   = ["#F9E7B4","#E3BE6D","#FFF6DC","#C79A4A"];
+
+/* --- the ambient star layer --- */
+function buildStarfield(){
+  if (REDUCED()) return;
+  try {
+    const wrap = document.createElement("div");
+    wrap.className = "stars";
+    for (let i = 0; i < 90; i++){
+      const s = document.createElement("i");
+      const bright = i % 8 === 0;
+      s.className = "star" + (bright ? " star--bright" : "");
+      const size = bright ? 2.2 + Math.random()*1.8 : 0.9 + Math.random()*1.4;
+      s.style.cssText =
+        "left:"+(Math.random()*100).toFixed(2)+"%;"+
+        "top:"+(Math.random()*100).toFixed(2)+"%;"+
+        "width:"+size.toFixed(1)+"px;height:"+size.toFixed(1)+"px;"+
+        "--td:"+(2.4 + Math.random()*5).toFixed(1)+"s;"+
+        "--o1:"+(0.15 + Math.random()*0.35).toFixed(2)+";"+
+        "animation-delay:-"+(Math.random()*6).toFixed(1)+"s";
+      wrap.appendChild(s);
+    }
+    document.body.appendChild(wrap);
+
+    const aur = document.createElement("div");
+    aur.className = "aurora";
+    document.body.appendChild(aur);
+  } catch(e){}
+}
+
+/* --- magic dust --------------------------------------------------
+   burstAt(x, y)      fire from a screen point
+   burstFrom(sel)     fire from the centre of an element
+   Particles are removed from the DOM when the animation ends.    --- */
+function burstAt(x, y, opts){
+  if (REDUCED()) return;
+  opts = opts || {};
+  const count   = opts.count || 30;
+  const spread  = opts.spread || 190;
+  const palette = opts.palette || SPARK_COLORS;
+  const life    = opts.life || 1150;
+  try {
+    const layer = document.createElement("div");
+    layer.className = "burst";
+    for (let i = 0; i < count; i++){
+      const p = document.createElement("i");
+      p.className = "spark";
+      const ang  = (Math.PI*2) * (i/count) + (Math.random()-0.5)*0.6;
+      const dist = spread * (0.35 + Math.random()*0.85);
+      const size = 3 + Math.random()*6;
+      const dur  = life * (0.65 + Math.random()*0.6);
+      p.style.cssText =
+        "left:"+x+"px;top:"+y+"px;"+
+        "--s:"+size.toFixed(1)+"px;"+
+        "--c:"+palette[Math.floor(Math.random()*palette.length)]+";"+
+        "--tx:"+(Math.cos(ang)*dist).toFixed(1)+"px;"+
+        "--ty:"+(Math.sin(ang)*dist - 30).toFixed(1)+"px;"+
+        "--sc:"+(0.2 + Math.random()*0.6).toFixed(2)+";"+
+        "--d:"+dur.toFixed(0)+"ms;"+
+        "animation-delay:"+(Math.random()*140).toFixed(0)+"ms";
+      layer.appendChild(p);
+    }
+    document.body.appendChild(layer);
+    setTimeout(() => { try { layer.remove(); } catch(e){} }, life*1.6 + 300);
+  } catch(e){}
+}
+function burstFrom(sel, opts){
+  if (REDUCED()) return;
+  try {
+    const el = typeof sel === "string" ? $(sel) : sel;
+    if (!el || typeof el.getBoundingClientRect !== "function") return burstCentre(opts);
+    const r = el.getBoundingClientRect();
+    if (!r || !isFinite(r.left) || (!r.width && !r.height)) return burstCentre(opts);
+    burstAt(r.left + r.width/2, r.top + r.height/2, opts);
+  } catch(e){}
+}
+function burstCentre(opts){
+  try { burstAt(window.innerWidth/2, window.innerHeight*0.38, opts); } catch(e){}
+}
+/* a wide curtain of dust across the top of a revealed page */
+function burstCurtain(opts){
+  if (REDUCED()) return;
+  try {
+    const w = window.innerWidth || 800;
+    for (let i = 0; i < 5; i++){
+      setTimeout(() => burstAt(w*(0.12 + i*0.19), (window.innerHeight||600)*0.26,
+        Object.assign({count:16, spread:150}, opts||{})), i*90);
+    }
+  } catch(e){}
+}
+
+/* --- ripple of light from a tapped element --- */
+function flareFrom(sel){
+  if (REDUCED()) return;
+  try {
+    const el = typeof sel === "string" ? $(sel) : sel;
+    if (!el || typeof el.getBoundingClientRect !== "function") return;
+    const r = el.getBoundingClientRect();
+    const f = document.createElement("div");
+    f.className = "flare";
+    f.style.cssText = "left:"+(r.left + r.width/2)+"px;top:"+(r.top + r.height/2)+"px";
+    document.body.appendChild(f);
+    setTimeout(() => { try { f.remove(); } catch(e){} }, 900);
+  } catch(e){}
+}
+
+/* ============================================================
+   PSYCHEIQ — TAROT SYNTHESIS & AGGREGATION
+   ------------------------------------------------------------
+   Ties the deck into the rest of the profile in both directions:
+     · a pull is read against the birth chart, numerology and
+       whatever assessments the user has completed
+     · every pull is recorded and rolls up into the Soul Blueprint
+   ============================================================ */
+
+/* --- the tarot birth card: standard reduction of the birth date --- */
+function birthCardIndex(dateStr){
+  if (!dateStr) return null;
+  const [y,m,d] = dateStr.split("-").map(Number);
+  let n = m + d + y;
+  while (n > 22) n = String(n).split("").reduce((a,c) => a + (+c), 0);
+  return n === 22 ? 0 : n;          // 22 folds back to The Fool
+}
+
+/* --- cross-read a pull against everything else on file --- */
+function tarotSynthesis(cardIdx, cat, cast){
+  const lines = [];
+  const card = ARCANA[cardIdx];
+  const a = State.anima;
+  const num = a && a.numerology;
+
+  /* 1 — the birth card */
+  if (a && a.chart && a.chart.birth && a.chart.birth.date){
+    const bc = birthCardIndex(a.chart.birth.date);
+    if (bc !== null){
+      if (bc === cardIdx){
+        lines.push(["Your birth card, drawn",
+          "You drew "+card.n+" — which is also your birth card, derived from your birth date. Of twenty-two possible cards this is the one that was already yours. Read whatever it says twice."]);
+      } else {
+        lines.push(["Against your birth card",
+          "Your birth card is "+ARCANA[bc].n+" ("+ARCANA[bc].k+"). Today you drew "+card.n+". The birth card is the standing pattern; the draw is the weather moving across it."]);
+      }
+    }
+  }
+
+  /* 2 — the significator from the Sun sign */
+  if (a && a.major){
+    const sig = a.major.c;
+    if (sig.indexOf(card.n) !== -1){
+      lines.push(["Your significator, drawn",
+        "This card is also your significator — the one attributed to your Sun sign. When your own card comes up in a reading, the subject is usually you rather than the situation."]);
+    } else if (a.sunSign){
+      lines.push(["Sun-sign significator",
+        "Your "+a.sunSign+" Sun carries "+sig+" as its significator. "+card.n+" is speaking to that standing position, not replacing it."]);
+    }
+  }
+
+  /* 3 — numerology resonance */
+  if (num && num.lifePath){
+    const cardNum = cardIdx === 0 ? 22 : cardIdx;
+    let reduced = cardNum; while (reduced > 9) reduced = String(reduced).split("").reduce((x,c) => x + (+c), 0);
+    if (reduced === num.lifePath){
+      lines.push(["Life Path resonance",
+        "This card reduces to "+reduced+", the same as your Life Path. The card is describing the road you were already on rather than a detour off it."]);
+    } else {
+      lines.push(["Against your Life Path",
+        "Your Life Path is "+num.lifePath+" — "+NUM_MEANING[num.lifePath].n+". This card reduces to "+reduced+
+        ", a different number, which usually means it's pointing at something outside your default mode."]);
+    }
+  }
+
+  /* 4 — the cast against the personal year */
+  if (cast && num && num.personalYear){
+    if (cast.stage.n === num.personalYear || (cast.stage.n === 10 && num.personalYear === 1)){
+      lines.push(["Cycle alignment",
+        "The dice put you at stage "+cast.stage.n+" ("+cast.stage.t+") and your Personal Year for "+num.year+" is "+num.personalYear+
+        " — "+PY_MEANING[num.personalYear].n+". The two agree, which is worth noticing."]);
+    } else {
+      lines.push(["Stage against your year",
+        "The cast says "+cast.stage.t.toLowerCase()+"; your Personal Year "+num.personalYear+" says "+
+        PY_MEANING[num.personalYear].n.toLowerCase()+". Where the immediate stage and the yearly cycle disagree, the disagreement is the reading."]);
+    }
+  }
+
+  /* 5 — against the assessments */
+  if (State.pneuma){
+    lines.push(["Against your personality",
+      "You lead with "+TRAITS[State.pneuma.order[0]].label+" ("+PLAIN_ARCH[State.pneuma.key]+"). Ask what "+card.n+
+      " asks of that specifically — a card lands differently on someone who "+TRAITS[State.pneuma.order[0]].short+" than on anyone else."]);
+  }
+  if (State.doors){
+    lines.push(["Against what drives you",
+      "Your core motivation is "+State.doors.type.core.toLowerCase()+". "+card.n+
+      " read through that lens is less about the event and more about what the event threatens or promises underneath."]);
+  }
+  if (!lines.length) return "";
+
+  const open = shareUnlocked();
+  const shown = open ? lines : lines.slice(0,1);
+  return '<div class="frame geo" style="max-width:720px;margin:20px auto 0">'+
+    '<p class="eyebrow center">Synthesis '+tag("Y")+'</p>'+
+    '<h3 class="dsp h-md center" style="color:var(--ink)">This Pull, Against Your Profile</h3>'+
+    '<div class="orn"><i>◆</i></div>'+
+    shown.map(([h,b]) =>
+      '<div class="castrow"><div class="castrow__n">✧</div><div>'+
+      '<p class="eyebrow" style="margin:0 0 3px">'+esc(h)+'</p>'+
+      '<p style="font-size:14.2px;margin:0">'+esc(b)+'</p></div></div>').join("")+
+    (!open && lines.length > 1
+      ? '<p class="terms center" style="margin-top:12px">'+(lines.length-1)+' more cross-readings — against your birth card, numerology and assessments — in the full profile.</p>'+
+        '<div class="btn-row" style="margin-top:8px"><button class="btn btn--gold js-trial">Open the full synthesis</button></div>'
+      : "")+
+    (!a ? '<p class="terms center" style="margin-top:10px">Add your birth details in Your Birth Sky and this reading gains your birth card, significator and numerology.</p>'+
+          '<div class="btn-row" style="margin-top:8px"><button class="btn" data-go="anima-intro">Add birth details</button></div>' : "")+
+  '</div>';
+}
+
+/* --- pull history ------------------------------------------- */
+let TarotLog = [];
+async function loadTarotLog(){
+  const l = await Store.get("pq:tarotlog");
+  if (Array.isArray(l)) TarotLog = l;
+}
+function recordPull(cardIdx, cat, cast){
+  const entry = {t:Date.now(), c:cardIdx, cat:cat,
+    s:cast ? cast.stage.n : null, r:cast ? cast.rank.k : null};
+  TarotLog.unshift(entry);
+  if (TarotLog.length > 200) TarotLog = TarotLog.slice(0,200);
+  Store.set("pq:tarotlog", TarotLog);
+}
+function tarotStats(){
+  if (!TarotLog.length) return null;
+  const byCard = {}, byCat = {};
+  TarotLog.forEach(e => { byCard[e.c] = (byCard[e.c]||0)+1; byCat[e.cat] = (byCat[e.cat]||0)+1; });
+  const topCard = Object.keys(byCard).sort((a,b) => byCard[b]-byCard[a])[0];
+  const topCat  = Object.keys(byCat).sort((a,b) => byCat[b]-byCat[a])[0];
+  const week = TarotLog.filter(e => Date.now()-e.t < 7*864e5).length;
+  return {total:TarotLog.length, week,
+    topCard:+topCard, topCardN:byCard[topCard],
+    topCat:topCat, topCatN:byCat[topCat],
+    unique:Object.keys(byCard).length};
+}
+/* rolls the deck up into the Soul Blueprint */
+function tarotBlueprintBlock(){
+  const s = tarotStats();
+  if (!s) return '<div class="bpcell"><span class="bpcell__d">'+dimBadge("Soul")+'</span>'+
+    '<b>The Deck</b><span class="bpcell__v">no pulls yet</span></div>';
+  return '<div class="bpcell on"><span class="bpcell__d">'+dimBadge("Soul")+'</span>'+
+    '<b>The Deck</b><span class="bpcell__v">'+s.total+' pull'+(s.total===1?"":"s")+' · '+esc(ARCANA[s.topCard].n)+'</span></div>';
+}
+function tarotSummaryPanel(){
+  const s = tarotStats();
+  if (!s) return "";
+  const cat = TAROT_CATS[s.topCat];
+  return '<div class="frame" style="margin-top:20px">'+
+    '<p class="eyebrow">'+dimBadge("Soul")+' The Deck · your pattern</p>'+
+    '<div class="grid-3" style="margin-top:12px">'+
+      '<div class="stat"><span>Total pulls</span><b>'+s.total+'</b></div>'+
+      '<div class="stat"><span>This week</span><b>'+s.week+'</b></div>'+
+      '<div class="stat"><span>Cards seen</span><b>'+s.unique+' / 22</b></div>'+
+    '</div>'+
+    '<div class="grid-2" style="margin-top:10px">'+
+      '<div class="stat"><span>Most drawn</span><b>'+esc(ARCANA[s.topCard].n)+' ×'+s.topCardN+'</b></div>'+
+      '<div class="stat"><span>Most asked</span><b>'+esc(cat ? cat.n : s.topCat)+' ×'+s.topCatN+'</b></div>'+
+    '</div>'+
+    (s.topCardN >= 3
+      ? '<div class="ground" style="margin-top:12px"><p style="margin:0;font-size:13.6px">'+
+        esc(ARCANA[s.topCard].n+" has come up "+s.topCardN+" times. A card that keeps returning across different questions is usually pointing at the thing underneath all of them: "+ARCANA[s.topCard].k+".")+
+        '</p></div>'
+      : "")+
+    (s.topCatN >= 3
+      ? '<p class="terms">You ask about '+esc((cat ? cat.n : s.topCat).toLowerCase())+' more than anything else. What you keep bringing to the deck is itself information.</p>'
+      : "")+
+  '</div>';
+}
+

@@ -1,4 +1,3 @@
-
 /* ============================================================
    THE AKASHIC DRAW — v2
    3 modules · 4 questions each · 8 choices per question
@@ -83,12 +82,389 @@ const PL_ART = {
    m1:'<path d="M50 18l8 16 18 2-13 12 4 18-17-9-17 9 4-18-13-12 18-2z" '+S+'/>',
    m2:'<path d="M12 74h76M30 74V40l20-16 20 16v34" '+S+'/><path d="M30 40h40" '+SD+'/><path d="M44 74V58h12v16" '+SD+'/>'}}
 };
-function plTile(mod, key, which){
-  return '<img src="images/past/'+mod+'-'+key+'-'+which+'.jpg" class="pl-art" alt="" aria-hidden="true" loading="lazy" onerror="this.outerHTML=\''+PL_ART[mod][key][which].replace(/'/g,"\\'")+'\'" data-art>';
-}
-function plTileSVG(mod, key, which){
-  return '<svg viewBox="0 0 100 92" class="pl-art" aria-hidden="true">'+PL_ART[mod][key][which]+'</svg>';
-}
+
+/* ============================================================
+   PAST LIVES — SCENE ART v2
+   Layered illustrations: sky, distance, structure, detail,
+   foreground, figures. Drawn on a 0 0 100 92 viewBox.
+   ============================================================ */
+const A_BG   = 'fill="none" stroke="#E3BE6D" stroke-width=".55" opacity=".38" stroke-linecap="round"';
+const A_MID  = 'fill="none" stroke="#E3BE6D" stroke-width=".9" opacity=".62" stroke-linecap="round" stroke-linejoin="round"';
+const A_MAIN = 'fill="none" stroke="#E3BE6D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';
+const A_FORE = 'fill="none" stroke="#F9E7B4" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"';
+const A_FILL = 'fill="#E3BE6D" opacity=".75"';
+const A_WASH = 'fill="#E3BE6D" opacity=".13"';
+const A_SOFT = 'fill="#F9E7B4" opacity=".5"';
+
+const PL_ART_SCENES = {
+ m1:{ /* ---------- TIME PERIOD · architecture ---------- */
+  greek:{
+   /* temple facade on a hill, sun behind, cypresses, figures on the steps */
+   s1:'<circle cx="72" cy="22" r="9" '+A_WASH+'/><circle cx="72" cy="22" r="9" '+A_BG+'/>'+
+      '<path d="M2 60c8-5 16-6 24-3M84 56c6-2 11-2 14 0" '+A_BG+'/>'+
+      '<path d="M6 66h88M10 70h80M14 74h72" '+A_MID+'/>'+
+      '<path d="M14 66V34M24 66V34M34 66V34M44 66V34M54 66V34M64 66V34M74 66V34M84 66V34" '+A_MAIN+'/>'+
+      '<path d="M16 62V38M26 62V38M36 62V38M46 62V38M56 62V38M66 62V38M76 62V38M86 62V38" '+A_BG+'/>'+
+      '<path d="M11 34h76M13 30h72" '+A_MAIN+'/>'+
+      '<path d="M13 30L49 12l36 18z" '+A_MAIN+'/>'+
+      '<path d="M28 27h4M38 25h4M48 22h4M58 25h4M68 27h4" '+A_BG+'/>'+
+      '<path d="M49 18l5 6h-10z" '+A_FILL+'/>'+
+      '<path d="M6 78c14-3 26-3 40 0s28 3 42 0" '+A_MID+'/>'+
+      '<path d="M92 78V52c0-6 3-9 3-14 0 5 3 8 3 14v26" '+A_MAIN+'/>'+
+      '<path d="M4 78V56c0-5 2-8 2-12 0 4 2 7 2 12v22" '+A_MAIN+'/>'+
+      '<path d="M56 78v-8a3 3 0 0 1 6 0v8M58 70v8" '+A_FORE+'/>'+
+      '<circle cx="59" cy="65" r="2.2" '+A_FORE+'/>'+
+      '<path d="M40 78v-7a3 3 0 0 1 5 0v7" '+A_FORE+'/><circle cx="42.5" cy="66" r="2" '+A_FORE+'/>'+
+      '<path d="M0 84h100" '+A_MID+'/>',
+   /* stoa colonnade, receding, sea beyond, amphora and seated figure */
+   s2:'<path d="M0 44h44" '+A_BG+'/><path d="M0 47c8-2 16-2 24 0s14 2 20 0" '+A_BG+'/>'+
+      '<path d="M8 20h84v6H8z" '+A_MAIN+'/>'+
+      '<path d="M12 26V78M28 26V74M42 26V70M54 26V67M64 26V64" '+A_MAIN+'/>'+
+      '<path d="M14 26v52M30 26v48M44 26v44" '+A_BG+'/>'+
+      '<path d="M10 26h6M26 26h6M40 26h5M52 26h5M62 26h5" '+A_MID+'/>'+
+      '<path d="M8 78h60l-6-8H14z" '+A_MID+'/>'+
+      '<path d="M74 30c-6 8-8 16-8 22 0 8 4 12 8 12s8-4 8-12c0-6-2-14-8-22z" '+A_MAIN+'/>'+
+      '<path d="M74 30v34" '+A_BG+'/><path d="M68 44c4 2 8 2 12 0" '+A_BG+'/>'+
+      '<path d="M78 78v-8c0-3 5-3 5 0v8" '+A_FORE+'/><circle cx="80.5" cy="66" r="2.4" '+A_FORE+'/>'+
+      '<path d="M88 76c2-6 6-8 10-6" '+A_MID+'/>'+
+      '<path d="M0 84h100" '+A_MID+'/><path d="M0 88c12-3 22-3 34 0s24 3 36 0 20-2 30 0" '+A_BG+'/>'},
+  egypt:{
+   /* two pyramids, sun disc, palms, felucca on the river */
+   s1:'<circle cx="50" cy="16" r="10" '+A_WASH+'/><circle cx="50" cy="16" r="10" '+A_MID+'/>'+
+      '<path d="M50 4v-3M50 31v3M35 16h-3M68 16h3M39 6l-2-2M61 6l2-2" '+A_BG+'/>'+
+      '<path d="M12 62L42 20l30 42z" '+A_MAIN+'/>'+
+      '<path d="M42 20v42" '+A_BG+'/><path d="M22 50h40" '+A_BG+'/>'+
+      '<path d="M60 62L78 34l18 28z" '+A_MID+'/><path d="M78 34v28" '+A_BG+'/>'+
+      '<path d="M0 62h100" '+A_MAIN+'/>'+
+      '<path d="M4 62c6-4 12-4 18 0" '+A_BG+'/>'+
+      '<path d="M10 62V44M10 44c-4-3-8-2-9 2 3-1 6 0 9 2M10 44c4-3 8-2 9 2-3-1-6 0-9 2M10 48c-4-2-7-1-8 3 3-1 5 0 8 2" '+A_MAIN+'/>'+
+      '<path d="M92 62V48M92 48c-3-3-6-2-7 1 2-1 5 0 7 2M92 48c3-3 6-2 7 1-2-1-5 0-7 2" '+A_MID+'/>'+
+      '<path d="M0 70h100" '+A_MID+'/>'+
+      '<path d="M22 82h44l-6 6H28z" '+A_MAIN+'/>'+
+      '<path d="M44 82V56M44 60l16 8-16 8" '+A_FORE+'/>'+
+      '<path d="M0 76c12-3 22-3 34 0s24 3 36 0 20-2 30 0" '+A_BG+'/>'+
+      '<path d="M4 90c14-3 26-3 40 0s28 3 42 0" '+A_BG+'/>',
+   /* hypostyle hall, lotus columns, relief band, shaft of light */
+   s2:'<path d="M6 14h88v8H6z" '+A_MAIN+'/><path d="M8 22h84" '+A_MID+'/>'+
+      '<path d="M14 22v56M34 22v56M66 22v56M86 22v56" '+A_MAIN+'/>'+
+      '<path d="M10 30c2-6 6-8 10-8s8 2 10 8zM62 30c2-6 6-8 10-8s8 2 10 8z" '+A_MAIN+'/>'+
+      '<path d="M14 40h6M14 50h6M14 60h6M66 40h6M66 50h6M66 60h6" '+A_BG+'/>'+
+      '<path d="M34 30c2-5 5-7 8-7s6 2 8 7zM82 30c2-5 5-7 8-7" '+A_MID+'/>'+
+      '<path d="M42 78V34h18v44z" '+A_MID+'/>'+
+      '<path d="M44 34l14 44M46 34l14 44" fill="none" stroke="#F9E7B4" stroke-width=".7" opacity=".35"/>'+
+      '<path d="M40 26h22v6H40z" '+A_BG+'/>'+
+      '<path d="M24 44h4v6h-4zM24 56h4v6h-4zM76 44h4v6h-4z" '+A_BG+'/>'+
+      '<path d="M50 78v-9c0-3 5-3 5 0v9" '+A_FORE+'/><circle cx="52.5" cy="65" r="2.4" '+A_FORE+'/>'+
+      '<path d="M0 78h100" '+A_MAIN+'/><path d="M0 84h100M0 88h100" '+A_BG+'/>'},
+  tartar:{
+   /* onion domes in snow, birches, distant wall */
+   s1:'<path d="M0 30c10-4 18-4 26 0M74 26c10-4 18-4 26 0" '+A_BG+'/>'+
+      '<path d="M30 76V44c0-10 8-14 8-24 0-6-8-6-8-14" '+A_MAIN+'/>'+
+      '<path d="M30 20c-8 8 0 8 0 16 0-8 8-8 0-16z" '+A_FILL+'/>'+
+      '<path d="M62 76V40c0-12 10-16 10-26 0-6-10-6-10-16" '+A_MAIN+'/>'+
+      '<path d="M62 -2c-10 10 0 10 0 18 0-8 10-8 0-18z" '+A_FILL+'/>'+
+      '<path d="M22 76V50c0-8 6-11 6-18M46 76V46c0-9 8-12 8-20" '+A_MID+'/>'+
+      '<path d="M18 76h60" '+A_MAIN+'/>'+
+      '<path d="M26 62h6v14h-6zM40 60h6v16h-6zM58 58h6v18h-6z" '+A_MID+'/>'+
+      '<path d="M28 62a3 3 0 0 1 3-3M42 60a3 3 0 0 1 3-3M60 58a3 3 0 0 1 3-3" '+A_BG+'/>'+
+      '<path d="M6 84V38M12 84V42M92 84V36M86 84V44" '+A_MAIN+'/>'+
+      '<path d="M4 52h4M10 56h4M90 50h4M84 58h4M4 64h4M90 64h4" '+A_BG+'/>'+
+      '<path d="M0 84c14-4 26-4 40 0s28 4 42 0 12-2 18 0" '+A_MID+'/>'+
+      '<path d="M0 90h100" '+A_BG+'/>'+
+      '<circle cx="16" cy="18" r="1" '+A_SOFT+'/><circle cx="80" cy="12" r="1.2" '+A_SOFT+'/><circle cx="52" cy="8" r=".9" '+A_SOFT+'/>',
+   /* ornate hall facade, frost, lamp, sledge */
+   s2:'<path d="M14 80V30h72v50z" '+A_MAIN+'/>'+
+      '<path d="M14 30L50 10l36 20z" '+A_MAIN+'/>'+
+      '<path d="M50 10V4M46 6h8" '+A_MID+'/>'+
+      '<path d="M22 40h10v18H22zM40 40h10v18H40zM58 40h10v18H58zM76 40h6v18h-6z" '+A_MID+'/>'+
+      '<path d="M22 40a5 5 0 0 1 10 0M40 40a5 5 0 0 1 10 0M58 40a5 5 0 0 1 10 0" '+A_BG+'/>'+
+      '<path d="M27 40v18M45 40v18M63 40v18" '+A_BG+'/>'+
+      '<path d="M42 80V64h16v16z" '+A_MID+'/><path d="M42 64a8 8 0 0 1 16 0" '+A_MID+'/>'+
+      '<path d="M18 26h64" '+A_BG+'/><path d="M20 34h60" '+A_BG+'/>'+
+      '<path d="M6 80V52M2 52h8M6 52a4 4 0 0 1 0-8 4 4 0 0 1 0 8z" '+A_FORE+'/>'+
+      '<path d="M88 80l4-10h6l-4 10z" '+A_MID+'/>'+
+      '<path d="M0 80h100" '+A_MAIN+'/>'+
+      '<path d="M0 86c12-3 22-3 34 0s24 3 36 0 20-2 30 0" '+A_BG+'/>'},
+  deco:{
+   /* stepped skyline at night, elevated rail, streetlights, car */
+   s1:'<circle cx="80" cy="14" r="7" '+A_WASH+'/><circle cx="80" cy="14" r="7" '+A_BG+'/>'+
+      '<path d="M8 76V38h14v38M26 76V26h16v50M46 76V44h12v32M62 76V20h14v56M80 76V46h12v30" '+A_MAIN+'/>'+
+      '<path d="M28 26l6-8 6 8M64 20l5-10 5 10" '+A_MAIN+'/>'+
+      '<path d="M69 10V4M34 18v-5" '+A_MID+'/>'+
+      '<path d="M12 44h6M12 52h6M12 60h6M30 32h8M30 40h8M30 48h8M30 56h8M50 50h4M50 58h4M66 26h6M66 34h6M66 42h6M66 50h6M84 52h4M84 60h4" '+A_BG+'/>'+
+      '<path d="M0 66h100" '+A_MID+'/>'+
+      '<path d="M4 66v10M22 66v10M44 66v10M66 66v10M88 66v10" '+A_BG+'/>'+
+      '<path d="M0 62h100" '+A_MAIN+'/>'+
+      '<path d="M14 76V60M10 60h8M14 60a3 3 0 0 1 0-6 3 3 0 0 1 0 6z" '+A_FORE+'/>'+
+      '<path d="M56 84h20l4-6H60z" '+A_FORE+'/>'+
+      '<circle cx="62" cy="86" r="2.6" '+A_FORE+'/><circle cx="74" cy="86" r="2.6" '+A_FORE+'/>'+
+      '<path d="M64 78l2-4h8l2 4" '+A_MID+'/>'+
+      '<path d="M0 90h100" '+A_MID+'/>'+
+      '<path d="M86 20a8 8 0 0 1 0 12M90 18a12 12 0 0 1 0 16" '+A_BG+'/>',
+   /* speakeasy door on a wet street, awning, figure in a fedora */
+   s2:'<path d="M8 78V22h84v56z" '+A_MAIN+'/>'+
+      '<path d="M8 22h84l-4-8H12z" '+A_MID+'/>'+
+      '<path d="M14 14v-6h72v6" '+A_BG+'/>'+
+      '<path d="M16 30h28v22H16z" '+A_MID+'/><path d="M16 41h28M30 30v22" '+A_BG+'/>'+
+      '<path d="M56 78V34h20v44z" '+A_MAIN+'/>'+
+      '<path d="M60 42h12v6H60z" '+A_FORE+'/>'+
+      '<path d="M62 44h8" fill="none" stroke="#F9E7B4" stroke-width="1" opacity=".5"/>'+
+      '<circle cx="73" cy="58" r="1.4" '+A_FILL+'/>'+
+      '<path d="M20 60h6M20 66h10" '+A_BG+'/>'+
+      '<path d="M38 88V70c0-4 8-4 8 0v18" '+A_FORE+'/>'+
+      '<circle cx="42" cy="64" r="3" '+A_FORE+'/>'+
+      '<path d="M36 62h12M38 60h8v-2h-8z" '+A_FORE+'/>'+
+      '<path d="M0 78h100" '+A_MAIN+'/>'+
+      '<path d="M4 84h14M24 86h10M62 84h12M80 88h14" '+A_BG+'/>'+
+      '<path d="M52 80c0 4-2 6-2 6M88 30v-8" '+A_BG+'/>'},
+ },
+ m2:{ /* ---------- IDENTITY · role ---------- */
+  warrior:{
+   /* crested helm, shield and spears, banners, distant ranks */
+   s1:'<path d="M0 62h100" '+A_BG+'/>'+
+      '<path d="M6 62V50M12 62V52M18 62V48M24 62V52M78 62V50M84 62V52M90 62V48" '+A_BG+'/>'+
+      '<path d="M50 20c-13 0-21 8-21 20v12c0 13 9 22 21 28 12-6 21-15 21-28V40c0-12-8-20-21-20z" '+A_MAIN+'/>'+
+      '<path d="M50 20c-4-8 0-14 0-14s4 6 0 14z" '+A_FILL+'/>'+
+      '<path d="M50 6c-6 4-8 10-8 14M50 6c6 4 8 10 8 14" '+A_MID+'/>'+
+      '<path d="M36 42h28M50 42v26" '+A_MID+'/>'+
+      '<path d="M38 48h8M54 48h8" '+A_FORE+'/>'+
+      '<path d="M42 62c4 4 12 4 16 0" '+A_BG+'/>'+
+      '<path d="M14 84V28M86 84V28" '+A_MAIN+'/>'+
+      '<path d="M14 30h14v10H14zM72 30h14v10H72z" '+A_MID+'/>'+
+      '<path d="M14 34h14M72 34h14" '+A_BG+'/>'+
+      '<path d="M20 84l-4-6M80 84l4-6" '+A_BG+'/>'+
+      '<path d="M0 84h100" '+A_MID+'/>',
+   /* mounted commander, raised sword, field and banners */
+   s2:'<path d="M0 58c10-3 20-4 30-2M70 56c10-3 20-3 30-1" '+A_BG+'/>'+
+      '<path d="M22 78c0-14 8-22 22-22h16c12 0 18 8 18 20" '+A_MAIN+'/>'+
+      '<path d="M76 58l10-8 4 4-8 8" '+A_MAIN+'/>'+
+      '<path d="M86 50c2-4 6-4 8-2" '+A_MID+'/>'+
+      '<path d="M26 78v10M40 78v10M62 78v10M76 78v10" '+A_MAIN+'/>'+
+      '<path d="M22 68c-6 2-10 6-12 12" '+A_MID+'/>'+
+      '<path d="M50 56V44c0-4 5-4 5 0v12" '+A_FORE+'/>'+
+      '<circle cx="52" cy="38" r="4" '+A_FORE+'/>'+
+      '<path d="M56 44l14-24M66 24l8-4M68 28l6-6" '+A_FORE+'/>'+
+      '<path d="M40 62h20v10H40z" '+A_MID+'/><path d="M50 62v10" '+A_BG+'/>'+
+      '<path d="M8 88h84" '+A_MID+'/>'+
+      '<path d="M12 88V44M12 46h10v8H12z" '+A_MID+'/>'},
+  singer:{
+   /* stage: mic, spotlight cone, curtain, audience heads, notes */
+   s1:'<path d="M28 8l-16 44h76L72 8z" '+A_WASH+'/>'+
+      '<path d="M0 6h100v6H0z" '+A_MID+'/>'+
+      '<path d="M6 12v22c0 4 4 4 4 0V12M18 12v18c0 4 4 4 4 0V12M78 12v18c0 4 4 4 4 0V12M90 12v22c0 4 4 4 4 0V12" '+A_MID+'/>'+
+      '<path d="M50 22a7 7 0 0 1 7 7v10a7 7 0 0 1-14 0V29a7 7 0 0 1 7-7z" '+A_MAIN+'/>'+
+      '<path d="M44 28h12M44 33h12M44 38h12" '+A_BG+'/>'+
+      '<path d="M38 40a12 12 0 0 0 24 0M50 52v16M42 68h16" '+A_MAIN+'/>'+
+      '<path d="M0 74h100" '+A_MAIN+'/>'+
+      '<circle cx="14" cy="84" r="5" '+A_MID+'/><circle cx="30" cy="86" r="5" '+A_MID+'/>'+
+      '<circle cx="50" cy="85" r="5" '+A_MID+'/><circle cx="70" cy="86" r="5" '+A_MID+'/>'+
+      '<circle cx="86" cy="84" r="5" '+A_MID+'/>'+
+      '<path d="M20 30v-8l6-2v8" '+A_FORE+'/><circle cx="18" cy="30" r="2.4" '+A_FORE+'/><circle cx="24" cy="28" r="2.4" '+A_FORE+'/>'+
+      '<path d="M76 24v-8" '+A_FORE+'/><circle cx="74" cy="24" r="2.4" '+A_FORE+'/>',
+   /* performer, gramophone, feathered headband, cocktail */
+   s2:'<path d="M50 84V52c0-8 6-14 6-14h-12c0 0 6 6 6 14z" '+A_MAIN+'/>'+
+      '<path d="M44 84h12M42 88h16" '+A_MID+'/>'+
+      '<circle cx="50" cy="30" r="7" '+A_MAIN+'/>'+
+      '<path d="M43 26h14M46 20c-2-6 8-6 6 0" '+A_MAIN+'/>'+
+      '<path d="M52 18c2-8 8-10 10-8-4 2-6 6-6 10" '+A_FORE+'/>'+
+      '<path d="M44 40l-10 8M56 40l10 8" '+A_MID+'/>'+
+      '<path d="M44 54h12M45 62h10" '+A_BG+'/>'+
+      '<path d="M14 84V64h12v20z" '+A_MID+'/>'+
+      '<path d="M20 64V50c0-2 2-2 2 0" '+A_MID+'/>'+
+      '<path d="M22 50c8-6 14-2 14 4-6 4-12 2-14-4z" '+A_MAIN+'/>'+
+      '<path d="M80 84V72M74 72h12M74 60h12l-6 12z" '+A_FORE+'/>'+
+      '<circle cx="80" cy="56" r="2" '+A_FILL+'/>'+
+      '<path d="M0 88h100" '+A_MID+'/>'},
+  builder:{
+   /* drafting: compass, square, plan lines, arch under construction */
+   s1:'<path d="M6 76h88V16H6z" '+A_BG+'/>'+
+      '<path d="M14 68h72M14 60h72M14 52h50" '+A_BG+'/>'+
+      '<path d="M24 68V34h44v34" '+A_MAIN+'/>'+
+      '<path d="M24 34a22 22 0 0 1 44 0" '+A_MAIN+'/>'+
+      '<path d="M42 34h8v34h-8z" '+A_MID+'/>'+
+      '<path d="M46 26l4 8h-8z" '+A_FILL+'/>'+
+      '<path d="M30 44h10M52 44h10M30 54h10M52 54h10" '+A_BG+'/>'+
+      '<path d="M50 6L28 50M50 6l22 44" '+A_FORE+'/>'+
+      '<circle cx="50" cy="6" r="3" '+A_FORE+'/>'+
+      '<path d="M34 40h32" '+A_FORE+'/>'+
+      '<path d="M74 76V44h4v32z" '+A_MID+'/><path d="M74 50h4M74 58h4M74 66h4" '+A_BG+'/>'+
+      '<path d="M78 44h10" '+A_MID+'/>'+
+      '<path d="M0 76h100" '+A_MAIN+'/>',
+   /* mason cutting a block, scaffold, crane, keystone arch */
+   s2:'<path d="M60 78V38h30v40z" '+A_MID+'/>'+
+      '<path d="M60 48h30M60 58h30M60 68h30M70 38v40M80 38v40" '+A_BG+'/>'+
+      '<path d="M56 78V30h6v48" '+A_MID+'/>'+
+      '<path d="M56 34h-8M56 46h-8M56 58h-8M48 30v34" '+A_MID+'/>'+
+      '<path d="M48 30V12h40" '+A_MAIN+'/>'+
+      '<path d="M84 12v14M80 26h8l-4 6z" '+A_FORE+'/>'+
+      '<path d="M14 78V60h26v18z" '+A_MAIN+'/>'+
+      '<path d="M14 68h26M27 60v18" '+A_BG+'/>'+
+      '<path d="M20 56V44c0-4 6-4 6 0v12" '+A_FORE+'/>'+
+      '<circle cx="23" cy="38" r="3.4" '+A_FORE+'/>'+
+      '<path d="M26 48l10-4M34 42l6 2-2 4-6-2z" '+A_FORE+'/>'+
+      '<path d="M0 78h100" '+A_MAIN+'/><path d="M0 84h100" '+A_BG+'/>'},
+  waterman:{
+   /* fishing boat, sail, net, gulls, low sun */
+   s1:'<circle cx="76" cy="24" r="8" '+A_WASH+'/><circle cx="76" cy="24" r="8" '+A_BG+'/>'+
+      '<path d="M10 18c3-3 6-3 8 0M16 18c3-3 6-3 8 0" '+A_MID+'/>'+
+      '<path d="M30 12c2-2 5-2 7 0M36 12c2-2 5-2 7 0" '+A_BG+'/>'+
+      '<path d="M18 64h64l-8 14H26z" '+A_MAIN+'/>'+
+      '<path d="M22 70h56" '+A_BG+'/>'+
+      '<path d="M50 64V16" '+A_MAIN+'/>'+
+      '<path d="M50 22l20 12-20 10z" '+A_MAIN+'/>'+
+      '<path d="M50 26l-16 8 16 6z" '+A_MID+'/>'+
+      '<path d="M50 16h6" '+A_BG+'/>'+
+      '<path d="M78 66c6 4 10 10 12 16" '+A_MID+'/>'+
+      '<path d="M80 70l-4 4M84 74l-4 4M88 78l-4 4" '+A_BG+'/>'+
+      '<path d="M0 78c12-4 22-4 34 0s24 4 36 0 20-3 30 0" '+A_MID+'/>'+
+      '<path d="M0 86c12-4 22-4 34 0s24 4 36 0 20-3 30 0" '+A_BG+'/>'+
+      '<path d="M0 92c12-4 22-4 34 0" '+A_BG+'/>',
+   /* figure casting from the bank, reeds, ripples, fish */
+   s2:'<path d="M0 40c14-3 26-4 40-2M64 36c12-3 24-3 36-1" '+A_BG+'/>'+
+      '<path d="M0 54h100" '+A_MID+'/>'+
+      '<path d="M18 54V30M22 54V26M26 54V32M14 54V34" '+A_MAIN+'/>'+
+      '<path d="M18 30c-3-4-6-4-8-2M22 26c3-4 6-4 8-2" '+A_MID+'/>'+
+      '<path d="M40 54V38c0-5 8-5 8 0v16" '+A_FORE+'/>'+
+      '<circle cx="44" cy="32" r="3.6" '+A_FORE+'/>'+
+      '<path d="M48 40l8-4" '+A_FORE+'/>'+
+      '<path d="M56 36l26 22" '+A_MAIN+'/>'+
+      '<path d="M82 58v8" '+A_BG+'/>'+
+      '<path d="M0 62c14-4 26-4 40 0s28 4 42 0 12-3 18-1" '+A_MID+'/>'+
+      '<path d="M0 72c14-4 26-4 40 0s28 4 42 0" '+A_BG+'/>'+
+      '<path d="M62 78c6-4 14-4 18 0-4 4-12 4-18 0z" '+A_MAIN+'/>'+
+      '<path d="M80 78l6-4v8z" '+A_MAIN+'/><circle cx="68" cy="77" r="1" '+A_FILL+'/>'+
+      '<path d="M20 84c8-3 16-3 24 0" '+A_BG+'/>'},
+ },
+ m3:{ /* ---------- GEOGRAPHY · landscape ---------- */
+  lakes:{
+   /* freshwater shore, skyline, freighter, lighthouse, gulls */
+   s1:'<path d="M12 14c3-3 6-3 8 0M18 14c3-3 6-3 8 0" '+A_BG+'/>'+
+      '<path d="M0 56h100" '+A_MID+'/>'+
+      '<path d="M28 56V34h6v22M36 56V26h8v30M46 56V38h6v18M54 56V22h8v34M64 56V40h6v16M72 56V32h6v24" '+A_MAIN+'/>'+
+      '<path d="M30 40h2M38 32h4M38 40h4M56 28h4M56 36h4M56 44h4M74 38h2M74 46h2" '+A_BG+'/>'+
+      '<path d="M58 22l4-6 4 6" '+A_MID+'/>'+
+      '<path d="M6 56V30h8v26z" '+A_MAIN+'/>'+
+      '<path d="M6 30l4-6 4 6M8 34h4" '+A_FORE+'/>'+
+      '<path d="M2 56h16" '+A_MID+'/>'+
+      '<path d="M84 62h14v6H84z" '+A_MID+'/><path d="M86 62V56h3v6" '+A_MID+'/>'+
+      '<path d="M0 66c14-5 26-5 40 0s28 5 42 0 12-3 18-1" '+A_MAIN+'/>'+
+      '<path d="M0 76c14-5 26-5 40 0s28 5 42 0 12-3 18-1" '+A_MID+'/>'+
+      '<path d="M0 86c14-5 26-5 40 0s28 5 42 0" '+A_BG+'/>',
+   /* prairie edge: grain elevator, rail line, water tower, big sky */
+   s2:'<path d="M0 22c16-4 30-5 46-3M58 18c14-3 28-3 42-1" '+A_BG+'/>'+
+      '<path d="M20 70V34h20v36z" '+A_MAIN+'/>'+
+      '<path d="M20 34h20l-4-8H24z" '+A_MID+'/>'+
+      '<path d="M26 34v36M33 34v36" '+A_BG+'/>'+
+      '<path d="M40 70V44h8v26z" '+A_MID+'/>'+
+      '<path d="M70 70V50M78 70V50M70 50h8M68 44h12l-2 6H70z" '+A_MAIN+'/>'+
+      '<path d="M72 70l-2 6M76 70l2 6" '+A_BG+'/>'+
+      '<path d="M0 70h100" '+A_MAIN+'/>'+
+      '<path d="M0 76h100M0 80h100" '+A_MID+'/>'+
+      '<path d="M4 74v8M14 74v8M24 74v8M34 74v8M44 74v8M54 74v8M64 74v8M74 74v8M84 74v8M94 74v8" '+A_BG+'/>'+
+      '<path d="M0 88c14-2 26-2 40 0s28 2 42 0" '+A_BG+'/>'+
+      '<path d="M50 70V56h10v14z" '+A_MID+'/><path d="M50 56l5-4 5 4" '+A_MID+'/>'+
+      '<path d="M53 62h4v8h-4z" '+A_BG+'/>'+
+      '<path d="M88 70V60c0-3 2-5 2-8 0 3 2 5 2 8v10" '+A_MAIN+'/>'+
+      '<path d="M6 70V62M6 62c-3-2-6-1-6 2 2-1 4 0 6 2" '+A_MID+'/>'+
+      '<path d="M0 14c10-3 20-3 30-1" '+A_BG+'/>'},
+  medit:{
+   /* cliffs over a bay, white village, cypress, boats */
+   s1:'<circle cx="20" cy="16" r="7" '+A_WASH+'/><circle cx="20" cy="16" r="7" '+A_BG+'/>'+
+      '<path d="M0 44l16-14 12 10 10-8 14 12" '+A_MID+'/>'+
+      '<path d="M52 44l14-16 16 14 18-8" '+A_MAIN+'/>'+
+      '<path d="M0 54h100" '+A_MAIN+'/>'+
+      '<path d="M56 54V42h8v12zM66 54V38h10v16zM78 54V44h8v10z" '+A_MID+'/>'+
+      '<path d="M58 46h4M68 42h6M80 48h4" '+A_BG+'/>'+
+      '<path d="M66 38l5-5 5 5" '+A_MID+'/>'+
+      '<path d="M14 54V40c0-6 3-9 3-14 0 5 3 8 3 14v14" '+A_MAIN+'/>'+
+      '<path d="M30 54V44c0-4 2-6 2-9 0 3 2 5 2 9v10" '+A_MID+'/>'+
+      '<path d="M0 62c14-4 26-4 40 0s28 4 42 0 12-3 18-1" '+A_MID+'/>'+
+      '<path d="M24 70h20l-4 6H28z" '+A_FORE+'/><path d="M34 70V58l8 8z" '+A_FORE+'/>'+
+      '<path d="M62 74h14l-3 5H65z" '+A_MID+'/><path d="M69 74v-8l6 6z" '+A_MID+'/>'+
+      '<path d="M0 84c14-4 26-4 40 0s28 4 42 0" '+A_BG+'/>',
+   /* rocky headland, ruined columns, pines, islands */
+   s2:'<path d="M0 34c12-3 22-3 32-1M70 30c10-2 20-2 30 0" '+A_BG+'/>'+
+      '<path d="M0 48h100" '+A_MID+'/>'+
+      '<path d="M62 48c4-4 10-4 14 0M80 48c3-3 8-3 11 0" '+A_BG+'/>'+
+      '<path d="M12 62V26M26 62V22M40 62V30" '+A_MAIN+'/>'+
+      '<path d="M14 62V28M28 62V24" '+A_BG+'/>'+
+      '<path d="M8 26h8M22 22h8M36 30h8" '+A_MID+'/>'+
+      '<path d="M6 62h44" '+A_MAIN+'/>'+
+      '<path d="M70 62V44c0-8 4-12 4-18 0 6 4 10 4 18v18" '+A_MAIN+'/>'+
+      '<path d="M64 50c4 2 8 2 12 0M66 56c4 2 8 2 12 0" '+A_BG+'/>'+
+      '<path d="M0 62h100" '+A_MAIN+'/>'+
+      '<path d="M0 72c14-4 26-4 40 0s28 4 42 0 12-3 18-1" '+A_MID+'/>'+
+      '<path d="M0 82c14-4 26-4 40 0s28 4 42 0" '+A_BG+'/>'},
+  nile:{
+   /* the green ribbon: river, feluccas, palms, desert edge, pyramid */
+   s1:'<circle cx="24" cy="18" r="8" '+A_WASH+'/><circle cx="24" cy="18" r="8" '+A_BG+'/>'+
+      '<path d="M62 44L76 24l14 20z" '+A_BG+'/>'+
+      '<path d="M0 44h100" '+A_MID+'/>'+
+      '<path d="M0 50c14-3 26-3 40 0s28 3 42 0 12-2 18 0" '+A_MID+'/>'+
+      '<path d="M12 50V32M12 32c-5-4-10-3-11 2 4-1 8 0 11 3M12 32c5-4 10-3 11 2-4-1-8 0-11 3M12 38c-4-3-8-2-9 2 3-1 6 0 9 2" '+A_MAIN+'/>'+
+      '<path d="M32 50V36M32 36c-4-3-8-2-9 2 3-1 6 0 9 2M32 36c4-3 8-2 9 2-3-1-6 0-9 2" '+A_MID+'/>'+
+      '<path d="M88 50V34M88 34c-4-3-7-2-8 1 3-1 5 0 8 2M88 34c4-3 7-2 8 1-3-1-5 0-8 2" '+A_MID+'/>'+
+      '<path d="M0 58h100" '+A_BG+'/>'+
+      '<path d="M26 76h40l-6 10H32z" '+A_MAIN+'/>'+
+      '<path d="M46 76V48M46 52l16 10-16 8z" '+A_FORE+'/>'+
+      '<path d="M76 80h16l-3 6H79z" '+A_MID+'/><path d="M84 80V64l8 10z" '+A_MID+'/>'+
+      '<path d="M0 68c14-3 26-3 40 0s28 3 42 0 12-2 18 0" '+A_MID+'/>'+
+      '<path d="M0 90c14-3 26-3 40 0s28 3 42 0" '+A_BG+'/>',
+   /* fields against the desert line, ibis, palms, distant dunes */
+   s2:'<path d="M0 30c16-6 30-8 46-6M56 24c14-4 30-4 44-2" '+A_MID+'/>'+
+      '<path d="M0 38c18-6 34-8 52-6s32 4 48 2" '+A_BG+'/>'+
+      '<path d="M0 46h100" '+A_MID+'/>'+
+      '<path d="M0 52h100M0 60h100M0 68h100" '+A_BG+'/>'+
+      '<path d="M8 46v6M20 46v6M32 46v6M44 46v6M56 46v6M68 46v6M80 46v6M92 46v6" '+A_BG+'/>'+
+      '<path d="M14 68V50M14 50c-4-3-8-2-9 2 3-1 6 0 9 2M14 50c4-3 8-2 9 2-3-1-6 0-9 2" '+A_MAIN+'/>'+
+      '<path d="M84 70V52M84 52c-4-3-7-2-8 1 3-1 5 0 8 2M84 52c4-3 7-2 8 1-3-1-5 0-8 2" '+A_MAIN+'/>'+
+      '<path d="M44 84c0-6 4-10 10-10s8 2 10 4" '+A_FORE+'/>'+
+      '<path d="M64 78l6-2-4 4" '+A_FORE+'/>'+
+      '<path d="M48 84v6M56 84v6" '+A_FORE+'/>'+
+      '<path d="M0 78h100" '+A_MID+'/>'+
+      '<path d="M0 88c14-2 26-2 40 0s28 2 42 0" '+A_BG+'/>'},
+  eurasia:{
+   /* birch forest in snow, low sun, tracks, distant izba */
+   s1:'<circle cx="70" cy="26" r="7" '+A_WASH+'/><circle cx="70" cy="26" r="7" '+A_BG+'/>'+
+      '<path d="M8 72V20M20 72V16M32 72V24M44 72V18M56 72V26M68 72V22M80 72V18M92 72V24" '+A_MAIN+'/>'+
+      '<path d="M6 32h4M18 28h4M30 38h4M42 30h4M54 40h4M66 34h4M78 30h4M90 38h4" '+A_BG+'/>'+
+      '<path d="M6 46h4M18 44h4M30 52h4M42 46h4M54 54h4M66 48h4M78 44h4M90 52h4" '+A_BG+'/>'+
+      '<path d="M14 72V34M26 72V38M38 72V32M50 72V40M62 72V36M74 72V34M86 72V40" '+A_BG+'/>'+
+      '<path d="M36 66V58h12v8z" '+A_MID+'/><path d="M36 58l6-5 6 5" '+A_MID+'/>'+
+      '<path d="M40 62h4v4h-4z" '+A_BG+'/>'+
+      '<path d="M0 72h100" '+A_MAIN+'/>'+
+      '<path d="M0 80c16-3 30-3 46 0s34 3 54 0" '+A_MID+'/>'+
+      '<path d="M20 86c14-4 28-4 42 0" '+A_BG+'/>'+
+      '<path d="M24 88l8-6M34 90l8-6" '+A_BG+'/>',
+   /* open steppe, grass, riders on the horizon, huge sky */
+   s2:'<path d="M0 18c18-5 34-6 52-4M60 14c14-3 28-3 40-1" '+A_BG+'/>'+
+      '<path d="M0 28c20-6 38-7 58-4s28 3 42 1" '+A_BG+'/>'+
+      '<path d="M0 48h100" '+A_MAIN+'/>'+
+      '<path d="M56 48c0-4 3-6 5-6s5 2 5 6M60 42v-4M70 48c0-3 2-5 4-5s4 2 4 5M74 43v-3" '+A_MID+'/>'+
+      '<path d="M0 56c16-4 30-4 46 0s34 4 54 0" '+A_MID+'/>'+
+      '<path d="M6 70c2-8 4-12 4-12s2 4 4 12M18 74c2-9 4-13 4-13s2 4 4 13M32 70c2-8 4-12 4-12s2 4 4 12M48 76c2-9 4-14 4-14s2 5 4 14M64 72c2-8 4-12 4-12s2 4 4 12M80 76c2-9 4-13 4-13s2 4 4 13M92 70c2-8 4-12 4-12" '+A_MAIN+'/>'+
+      '<path d="M12 82c3-10 5-15 5-15M40 84c3-10 5-15 5-15M72 84c3-10 5-15 5-15" '+A_FORE+'/>'+
+      '<path d="M0 88c16-3 30-3 46 0s34 3 54 0" '+A_BG+'/>'+
+      '<path d="M24 48c0-3 2-5 4-5s4 2 4 5M28 43v-3" '+A_MID+'/>'+
+      '<path d="M38 48c0-2 2-4 3-4s3 2 3 4" '+A_BG+'/>'+
+      '<path d="M0 38c14-3 26-3 40-1" '+A_BG+'/>'+
+      '<path d="M86 62c2-6 3-9 3-9s1 3 3 9" '+A_MAIN+'/>'+
+      '<path d="M26 66c2-7 3-10 3-10s1 3 3 10" '+A_MAIN+'/>'+
+      '<circle cx="18" cy="12" r="1" '+A_SOFT+'/><circle cx="62" cy="8" r="1.1" '+A_SOFT+'/>'},
+ }
+};
+
+/* merge the detailed scenes over the base art, keeping the m1/m2 motifs intact */
+Object.keys(PL_ART_SCENES).forEach(mod => {
+  Object.keys(PL_ART_SCENES[mod]).forEach(k => {
+    if (PL_ART[mod] && PL_ART[mod][k]){
+      PL_ART[mod][k].s1 = PL_ART_SCENES[mod][k].s1;
+      PL_ART[mod][k].s2 = PL_ART_SCENES[mod][k].s2;
+    }
+  });
+});
+
+/* plTile() moved to the illustration layer (part21) — image with SVG fallback */
 
 /* --- module definitions --- */
 const PL_MODULES = [
@@ -162,7 +538,12 @@ const PL_TEXT = {
 const PL_QS = (() => {
   const qs = [];
   PL_MODULES.forEach((m, mi) => {
-    const arts = [["s1","s2"], ["m1","m2"]];
+    /* Both image passes draw from the two scene slots that actually exist
+       per key (s1/s2). The second pass reverses the order so the question
+       shows a different scene first. Previously this was ["m1","m2"], which
+       built paths like images/past/m1-greek-m1.jpg — files that never
+       existed, so exactly half the past-life tiles 404'd. */
+    const arts = [["s1","s2"], ["s2","s1"]];
     [0,1].forEach(pass => {
       // image question
       qs.push({mod:m.id, mi, type:"image", art:arts[pass],
@@ -405,3 +786,4 @@ function renderPastSummary(){
         '<button class="btn" data-go="readings">Book the five-card past-lives reading</button></div></div>';
   $("#pl-again").onclick = renderPastIntro;
 }
+
