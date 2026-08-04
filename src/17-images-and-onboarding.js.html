@@ -127,6 +127,22 @@ function signalRange(){
 }
 
 /* --- the dashboard --- */
+function bpCell(id){
+  const t = TESTS.find(x => x.id === id) || {};
+  const have = !!State[id];
+  return '<button class="bpcell'+(have ? " on" : "")+'" data-go="'+(t.view||id)+'" style="cursor:pointer;text-align:left;font:inherit;color:inherit">'+
+    '<span class="bpcell__d">'+dimBadge(t.group)+'</span>'+
+    '<b>'+esc(t.name || id)+'</b>'+
+    '<span class="bpcell__v">'+(have ? esc(String(t.status())) : "not taken")+'</span></button>';
+}
+function bpSection(title, sub, ids, extra){
+  return '<div class="frame" style="margin-top:20px">'+
+    '<p class="eyebrow center">'+esc(title)+'</p>'+
+    '<p class="terms center" style="margin:6px 0 0">'+esc(sub)+'</p>'+
+    '<div class="bpgrid" style="margin-top:12px">'+
+      ids.map(bpCell).join("")+(extra || "")+
+    '</div></div>';
+}
 function renderBlueprint(){
   const done = TESTIDS.filter(id => State[id]).length;
   const ts = (typeof tarotStats === "function") ? tarotStats() : null;
@@ -157,9 +173,13 @@ function renderBlueprint(){
       '<p class="eyebrow">Composite</p>'+
       '<h2 class="dsp" style="font-size:clamp(3rem,12vw,5rem);line-height:1" class="gilt">'+
         '<span class="gilt">'+(s ? s.score : "—")+'</span></h2>'+
-      '<p class="eyebrow" style="margin-top:6px">'+(s ? esc(s.tier.name)+' band · '+done+' of '+TESTIDS.length+' assessments' : 'no assessments yet')+'</p>'+
-      (g ? '<p style="font-size:13.5px;color:var(--ink-3);margin-top:8px">'+esc(g.stage)+' stage · '+esc(g.level)+' · theme: '+esc(g.theme)+'</p>' : "")+
+      '<p class="eyebrow" style="margin-top:6px">'+(s ? esc(s.tier.name)+' band · '+assessmentsDone()+' of '+ASSESSMENT_IDS.length+' assessments' : 'no assessments yet')+(readingsDone() ? ' · '+readingsDone()+' reading'+(readingsDone()===1?'':'s') : '')+'</p>'+
+      /* g.level is an object ({n,g,l}) — printing it directly rendered
+         "[object Object]" here until this was caught. */
+      (g ? '<p style="font-size:13.5px;color:var(--ink-3);margin-top:8px">'+esc(g.stage)+' stage · '+
+           g.level.g+' '+esc(g.level.n)+' · theme: '+esc(g.theme)+'</p>' : "")+
       dimProgressStrip()+
+      '<div style="margin-top:16px">'+xpBar({wide:true})+'</div>'+
     '</div>'+
     keyMetrics()+
     blueprintInteractions()+
@@ -170,18 +190,12 @@ function renderBlueprint(){
       numerologyBlock(State.anima.numerology)+numerologySynthesis(State.anima.numerology)+'</div>' : "")+
     (typeof tarotSummaryPanel === "function" ? tarotSummaryPanel() : "")+
     trialsSummaryPanel()+
-    '<div class="frame" style="margin-top:20px"><p class="eyebrow center">Assessments</p>'+
-      '<div class="bpgrid" style="margin-top:12px">'+
-      TESTIDS.map(id => {
-        const t = TESTS.find(x => x.id === id) || {};
-        const have = !!State[id];
-        return '<button class="bpcell'+(have ? " on" : "")+'" data-go="'+(t.view||id)+'" style="cursor:pointer;text-align:left;font:inherit;color:inherit">'+
-          '<span class="bpcell__d">'+dimBadge(t.group)+'</span>'+
-          '<b>'+esc(t.name || id)+'</b>'+
-          '<span class="bpcell__v">'+(have ? esc(String(t.status())) : "not taken")+'</span></button>';
-      }).join("")+
-      (typeof tarotBlueprintBlock === "function" ? tarotBlueprintBlock() : "")+
-      '</div></div>'+
+    /* Everything the user has done stays on the dashboard — the two classes
+       are simply labelled, so it is obvious which results are tracked for
+       change and which are kept as they are. */
+    bpSection("Assessments", "Measured and re-measured. These feed your score and the Journey.", ASSESSMENT_IDS, "")+
+    bpSection("Readings", "Kept as they are. Not scored, and they do not change on a retake.", READING_IDS,
+      (typeof tarotBlueprintBlock === "function" ? tarotBlueprintBlock() : ""))+
     '<div class="btn-row" style="margin-top:24px">'+
       '<button class="btn btn--gold" data-go="results">Full results &amp; cards</button>'+
       '<button class="btn" data-go="oracle">Take another assessment</button></div>';

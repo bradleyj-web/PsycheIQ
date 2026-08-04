@@ -14,16 +14,20 @@ function activeP(){
   return State.profiles[State.active];
 }
 const maxProfiles = () => State.pro ? 2 : 1;
-const slotLimit   = () => State.pro ? TESTIDS.length : FREE_SLOTS;
-const slotsUsed   = () => activeP().slots.length;
+const slotLimit   = () => State.pro ? ASSESSMENT_IDS.length : FREE_SLOTS;
+/* Only assessments consume slots. The readings are not what the paywall is
+   protecting, and spending one of three free slots on a birth chart that can
+   never come back different is a bad trade to offer someone. */
+const slotsUsed   = () => activeP().slots.filter(id => !isReading(id)).length;
 const slotsLeft   = () => Math.max(0, slotLimit() - slotsUsed());
 
 function canTake(id){
   const p = activeP();
   if (State.pro) return true;
+  if (isReading(id)) return true;             // readings are always open
   if (p.slots.includes(id)) return true;      // already one of theirs — retaking is free
   if (State.unlocked.has(id)) return true;    // bought outright for $3.99
-  return p.slots.length < FREE_SLOTS;
+  return slotsUsed() < FREE_SLOTS;
 }
 function syncFromProfile(){
   const p = activeP();
@@ -31,9 +35,11 @@ function syncFromProfile(){
 }
 function saveResult(id, data){
   const p = activeP();
+  const first = !p.results[id];
   p.results[id] = data;
   if (!p.slots.includes(id)) p.slots.push(id);
   State[id] = data;
+  pqTrack("assessment_complete", {id, kind: isReading(id) ? "reading" : "assessment", first});
   persistProfiles();
 }
 function clearResult(id){
@@ -108,7 +114,15 @@ function afterTest(id){
     go("results");
     /* extra celebration on a freshly completed assessment */
     setTimeout(() => burstCentre({count:44, spread:280, life:1400}), 120);
-    setTimeout(() => conversionFunnel(id), 1400);
+    /* XP is silent here — the milestone or paywall modal is the moment,
+       and a "+100 XP" toast underneath it is just noise. */
+    awardXP("assessment", {quiet:true});
+    setTimeout(() => {
+      /* A milestone beat takes precedence over the paywall so the user
+         never gets two modals stacked on one result. */
+      if (progressFunnel(id)) return;
+      conversionFunnel(id);
+    }, 1400);
   });
 }
 function conversionFunnel(id){
@@ -121,7 +135,7 @@ function conversionFunnel(id){
     if (State.funnelSeen) return;
     State.funnelSeen = true;
     modal('<p class="eyebrow center">Unlocked</p><h2 class="dsp h-md center" style="color:var(--ink)">'+esc(t.name)+' Is Open in Full</h2>'+orn+
-      '<p style="font-size:14.5px">Adept opens the other five instruments at the same depth, adds cross-test analytics, a second profile, and removes the ads — for the price of thirteen single unlocks a year.</p>'+
+      '<p style="font-size:14.5px">Adept opens the other seven assessments at the same depth, adds cross-test analytics, a second profile, the twenty-two week Journey, and removes the ads.</p>'+
       '<button class="btn btn--gold btn--wide js-trial">Start the 3-day trial</button>'+
       '<button class="btn btn--wide" id="fx-no" style="margin-top:10px">Keep reading</button>');
     $("#fx-no").onclick = closeModal;

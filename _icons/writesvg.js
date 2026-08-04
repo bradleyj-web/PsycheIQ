@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="PsycheIQ">
+const fs = require("fs");
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="PsycheIQ">
   <title>PsycheIQ</title>
   <!-- Maskable-safe: the mark sits inside the central 80% so a platform can
        crop to a circle or squircle without clipping it. -->
@@ -18,3 +19,6 @@
     <path d="M142 54q13-17 2-32q-15 11-12 27" stroke-width="4" opacity=".85"/>
   </g>
 </svg>
+`;
+fs.writeFileSync("C:/Users/plzdo/Downloads/psycheiq-repo/assets/icon.svg", svg, "utf8");
+console.log("wrote icon.svg, " + Buffer.byteLength(svg) + " bytes");

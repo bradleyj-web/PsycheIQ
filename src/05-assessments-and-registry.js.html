@@ -196,8 +196,12 @@ function psycheScore(){
   if (State.soulq)  parts.push({k:"Soul",      v:State.soulq.index, s:"Soul IQ"});
   if (!parts.length) return null;
   const score = Math.round(parts.reduce((a,p) => a+p.v, 0)/parts.length);
-  const complete = ["logos","pneuma","soulq","typology","anima","past"].filter(k => State[k]).length;
-  return {score, parts, complete, of:6, tier:tierFor(score)};
+  /* Assessments only. This list used to include anima and past — a composite
+     score partly derived from a birth chart and a tarot draw is not one you
+     can defend, and neither can move, so neither belongs in a progress
+     number. It also silently omitted doors and body, which do belong. */
+  const complete = ASSESSMENT_IDS.filter(k => State[k]).length;
+  return {score, parts, complete, of:ASSESSMENT_IDS.length, tier:tierFor(score)};
 }
 function scoreBlock(){
   const s = psycheScore(); if (!s) return "";
@@ -372,30 +376,53 @@ function isTestUnlocked(id){ return State.pro || State.unlocked.has(id); }
 function shareUnlocked(){ return State.pro || State.unlocked.size > 0; }
 
 /* ---------------- instrument registry ---------------- */
+/* Two classes of instrument, and the difference is not cosmetic.
+
+   ASSESSMENTS measure something that can actually move. They feed the
+   composite score, they consume free-tier slots, and they are what the
+   Fool's Journey re-runs to show change over a season.
+
+   READINGS do not. Your Birth Sky is computed from birth data and cannot
+   change; the Past Life Story is a single draw. Re-running either to chart
+   "growth" would be measuring noise and presenting it as transformation.
+   They stay on the dashboard in full — they are just kept out of the score
+   and out of the progress cadence.
+
+   This mirrors the ◇ Measured / ◈ Modeled / ✦ Mythic register already used
+   throughout the app: the readings are the mythic ones. */
 const TESTS = [
-  {id:"pneuma", group:"Mind", sigil:"sig-pneuma", name:"Personality Profile", lore:"The Pneuma Map", meta:"14 dilemmas · 6 min", reg:"T",
+  {id:"pneuma", kind:"assessment", group:"Mind", sigil:"sig-pneuma", name:"Personality Profile", lore:"The Pneuma Map", meta:"14 dilemmas · 6 min", reg:"T",
    desc:"Six traits, one dominant archetype, and the shadow material that comes with it.", view:"pneuma-intro",
    done:() => State.pneuma, status:() => State.pneuma && State.pneuma.archetype.name},
-  {id:"typology", group:"Mind", sigil:"sig-pneuma", name:"Thinking Style", lore:"The Sixteen Types", meta:"24 choices · 6 min", reg:"T",
+  {id:"typology", kind:"assessment", group:"Mind", sigil:"sig-pneuma", name:"Thinking Style", lore:"The Sixteen Types", meta:"24 choices · 6 min", reg:"T",
    desc:"A traditional four-axis typology, reported with the strength of each preference.", view:"typology",
    done:() => State.typology, status:() => State.typology && State.typology.code},
-  {id:"logos", group:"Mind", sigil:"sig-logos", name:"Mind IQ", lore:"The Logos Matrix", meta:"3 modules · 12 min", reg:"M",
+  {id:"logos", kind:"assessment", group:"Mind", sigil:"sig-logos", name:"Mind IQ", lore:"The Logos Matrix", meta:"3 modules · 12 min", reg:"M",
    desc:"Matrix reasoning, mental rotation and recall span — the classical core of a cognitive battery.", view:"logos-intro",
    done:() => State.logos, status:() => State.logos && State.logos.tier.name+" band"},
-  {id:"doors", group:"Mind", sigil:"sig-nous", name:"The Nine Doors", lore:"The Ennead Gate", meta:"27 statements · 7 min", reg:"T",
+  {id:"doors", kind:"assessment", group:"Mind", sigil:"sig-nous", name:"The Nine Doors", lore:"The Ennead Gate", meta:"27 statements · 7 min", reg:"T",
    desc:"Nine core motivations. What actually drives you underneath the behaviour, plus where you go under stress and in growth.", view:"doors",
    done:() => State.doors, status:() => State.doors && State.doors.type.n},
-  {id:"body", group:"Body", sigil:"sig-nous", name:"Body IQ", lore:"The Corpus Field", meta:"16 statements · 5 min", reg:"T",
+  {id:"body", kind:"assessment", group:"Body", sigil:"sig-nous", name:"Body IQ", lore:"The Corpus Field", meta:"16 statements · 5 min", reg:"T",
    desc:"Energy rhythm, stress response, habit strength and body awareness. Self-knowledge, not medical assessment.", view:"body",
    done:() => State.body, status:() => State.body && State.body.type.n},
-  {id:"soulq", group:"Soul", sigil:"sig-star", name:"Soul IQ", lore:"The Anima Sophia", meta:"16 statements · 5 min", reg:"T",
+  {id:"soulq", kind:"assessment", group:"Soul", sigil:"sig-star", name:"Soul IQ", lore:"The Anima Sophia", meta:"16 statements · 5 min", reg:"T",
    desc:"Existential reasoning, meaning production, transcendent awareness and state command.", view:"soulq",
    done:() => State.soulq, status:() => State.soulq && State.soulq.index+"/100"},
-  {id:"anima", group:"Soul", sigil:"sig-star", name:"Your Birth Sky", lore:"The Anima Field", meta:"Birth data + 10 · 5 min", reg:"Y",
+  {id:"anima", kind:"reading", group:"Soul", sigil:"sig-star", name:"Your Birth Sky", lore:"The Anima Field", meta:"Birth data + 10 · 5 min", reg:"Y",
    desc:"Your birth sky computed from real orbital series, then lineage, soul family and significator.", view:"anima-intro",
    done:() => State.anima, status:() => State.anima && State.anima.lineage.n+" lineage"},
-  {id:"past", group:"Soul", sigil:"sig-wing", name:"Past Life Story", lore:"The Akashic Draw", meta:"12 questions · 34s each", reg:"Y",
+  {id:"past", kind:"reading", group:"Soul", sigil:"sig-wing", name:"Past Life Story", lore:"The Akashic Draw", meta:"12 questions · 34s each", reg:"Y",
    desc:"Twelve questions, thirty-four seconds each, sixty-four possible lives.", view:"past",
    done:() => State.past, status:() => State.past && State.past.life.title}
 ];
+
+/* Derived once, used everywhere. TESTIDS (module 09) stays as "all eight"
+   for anything that genuinely means every instrument. */
+const ASSESSMENT_IDS  = TESTS.filter(t => t.kind === "assessment").map(t => t.id);
+const READING_IDS     = TESTS.filter(t => t.kind === "reading").map(t => t.id);
+const isReading       = id => READING_IDS.indexOf(id) !== -1;
+const assessmentsDone = () => ASSESSMENT_IDS.filter(id => State[id]).length;
+const readingsDone    = () => READING_IDS.filter(id => State[id]).length;
+
 

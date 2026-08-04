@@ -31,6 +31,7 @@ function applyPromo(raw){
   TESTIDS.forEach(id => State.unlocked.add(id));
   persistProfiles();
   Store.set("pq:entitlement", {lifetime:State.lifetime, code:code});
+  pqTrack("promo_redeemed", {code});
   refreshFoundersPanel();
   return {ok:true, msg:hit.label+" unlocked. Every assessment, every profile, no ads — permanently."};
 }
@@ -98,6 +99,9 @@ function tarotReady(){
   return {ok:false, mins, msg:mins > 1 ? mins+" minutes" : "under a minute"};
 }
 function markTarotPull(){
+  /* XP is awarded for every pull, members included — the cooldown below
+     is a free-tier limit, not a condition on earning. */
+  awardXP("reading", {silentToast:true});
   if (State.pro) return;
   TarotGate.last = Date.now();
   Store.set("pq:tarotgate", {last:TarotGate.last});

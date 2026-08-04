@@ -538,18 +538,22 @@ const PL_TEXT = {
 const PL_QS = (() => {
   const qs = [];
   PL_MODULES.forEach((m, mi) => {
-    /* Both image passes draw from the two scene slots that actually exist
-       per key (s1/s2). The second pass reverses the order so the question
-       shows a different scene first. Previously this was ["m1","m2"], which
-       built paths like images/past/m1-greek-m1.jpg — files that never
-       existed, so exactly half the past-life tiles 404'd. */
-    const arts = [["s1","s2"], ["s2","s1"]];
+    /* One scene slot per image question, not both.
+       Each key has exactly two scenes (s1/s2). The old code passed an array
+       and plChoices() rendered every key at BOTH slots, so a single question
+       already showed all eight pictures for the module — and then the second
+       image question showed the same eight again. (Before that it was
+       ["m1","m2"], which built paths like images/past/m1-greek-m1.jpg and
+       404'd outright.) Giving each pass one slot means four distinct tiles
+       per question and eight distinct tiles per module, with no repeats. */
+    const arts = ["s1", "s2"];
     [0,1].forEach(pass => {
       // image question
       qs.push({mod:m.id, mi, type:"image", art:arts[pass],
-        q: pass === 0 ? "Which of these have you stood in front of before?" : "Which mark do you recognise without being told what it is?"});
-      // text question
-      qs.push({mod:m.id, mi, type:"text", q:PL_TEXT[m.id][pass].q, o:PL_TEXT[m.id][pass].o});
+        q: pass === 0 ? "Which of these have you stood in front of before?"
+                      : "And which of these could you find your way around in the dark?"});
+      // text question — `pass` selects which written phrasing plChoices() uses
+      qs.push({mod:m.id, mi, type:"text", pass, q:PL_TEXT[m.id][pass].q, o:PL_TEXT[m.id][pass].o});
     });
   });
   return qs;
@@ -671,12 +675,27 @@ function startPastLives(){
 }
 function plChoices(q){
   const m = PL_MODULES[q.mi], out = [];
-  m.keys.forEach((k, ki) => {
-    [0,1].forEach(v => {
-      out.push({key:k, ki, v,
-        pts: FIB[(ki*2 + v + PLRun.i) % FIB.length],
-        html: q.type === "image" ? plTile(q.mod, k, q.art[v]) : esc(q.o[k][v])});
+  if (q.type === "image"){
+    /* one tile per key, at this question's scene slot — four options, all
+       different places, and the other slot is saved for the second pass */
+    m.keys.forEach((k, ki) => {
+      out.push({key:k, ki, v:0,
+        pts: FIB[(ki*2 + PLRun.i) % FIB.length],
+        html: plTile(q.mod, k, q.art)});
     });
+    return shuffle(out);
+  }
+  /* Text questions get one phrasing per key too, alternating by pass so both
+     written variants still appear across the run.
+     Eight options was too much to read inside a 34-second timer — people
+     stopped reading and clicked to beat the clock, which is the opposite of
+     the intuitive first-impression this test is trying to capture. Four
+     options is readable in the time given. */
+  const v = q.pass ? 1 : 0;
+  m.keys.forEach((k, ki) => {
+    out.push({key:k, ki, v,
+      pts: FIB[(ki*2 + v + PLRun.i) % FIB.length],
+      html: esc(q.o[k][v])});
   });
   return shuffle(out);
 }

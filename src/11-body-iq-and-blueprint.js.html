@@ -198,7 +198,9 @@ const LEVELS = [
   {n:"Sage",     g:"\uD83D\uDC41\uFE0F", l:"Mastering the pattern"}
 ];
 function growthStanding(){
-  const done = TESTIDS.filter(id => State[id]).length;
+  /* Assessments only — the role is meant to say how much of the measurable
+     picture you have completed, and a birth chart does not measure. */
+  const done = assessmentsDone();
   if (!done) return null;
   const s = psycheScore();
   const score = s ? s.score : 50;
@@ -219,7 +221,7 @@ function growthBlock(){
       '<div class="stat"><span>Role</span><b>'+g.level.g+' '+esc(g.level.n)+'</b></div>'+
     '</div>'+
     '<p style="font-size:14px;margin:12px 0 0">'+esc(g.level.l)+'.</p>'+
-    '<p class="terms">Stage reflects where you are in the current cycle; role reflects how much of the picture you\u2019ve completed ('+g.done+' of '+TESTIDS.length+' assessments).</p>'+
+    '<p class="terms">Stage reflects where you are in the current cycle; role reflects how much of the measurable picture you\u2019ve completed ('+g.done+' of '+ASSESSMENT_IDS.length+' assessments). Readings sit alongside this rather than inside it.</p>'+
   '</div>';
 }
 

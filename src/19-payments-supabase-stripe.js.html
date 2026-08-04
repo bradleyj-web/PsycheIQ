@@ -30,6 +30,50 @@ const PQPay = {
   session: null,
 };
 
+/* ---------------- funnel analytics ----------------
+   Fire-and-forget inserts into pq_events (see supabase/analytics.sql).
+   Rules: never throws, never blocks, no-op when no backend is configured,
+   and nothing here identifies a person — session_id is a random string
+   that dies with the browser session. */
+function pqSession(){
+  try {
+    let s = sessionStorage.getItem("pq:sid");
+    if (!s){ s = Math.random().toString(36).slice(2) + Date.now().toString(36); sessionStorage.setItem("pq:sid", s); }
+    return s;
+  } catch (_){ return "nostorage"; }
+}
+const PQTrackSeen = new Set();   // for once-per-session events
+function pqTrack(event, props, opts){
+  try {
+    const cfg = PQPay.cfg;
+    if (!cfg || !cfg.url || !cfg.anonKey) return;
+    const o = opts || {};
+    if (o.once){
+      const k = event + ":" + (o.once === true ? "" : o.once);
+      if (PQTrackSeen.has(k)) return;
+      PQTrackSeen.add(k);
+    }
+    fetch(cfg.url.replace(/\/$/, "") + "/rest/v1/pq_events", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: cfg.anonKey,
+        Authorization: "Bearer " + ((PQPay.session && PQPay.session.access_token) || cfg.anonKey),
+        Prefer: "return=minimal"
+      },
+      body: JSON.stringify({
+        session_id: pqSession(),
+        user_id: (PQPay.user && PQPay.user.id) || null,
+        event: String(event).slice(0, 64),
+        props: props || {},
+        path: location.pathname,
+        referrer: document.referrer ? document.referrer.slice(0, 200) : null
+      }),
+      keepalive: true
+    }).catch(() => {});
+  } catch (_){}
+}
+
 function pqInitSupabase(){
   if (PQPay.client) return PQPay.client;
   const cfg = PQPay.cfg;
@@ -181,6 +225,7 @@ async function pqStartCheckout(mode, testId, intent){
     cancelUrl: urls.cancelUrl
   });
   if (!data.url) throw new Error("Stripe did not return a checkout URL.");
+  pqTrack("checkout_start", {mode, testId: testId || null});
   location.href = data.url;
 }
 
@@ -201,6 +246,7 @@ async function pqHandleCheckoutReturn(){
   toast("Confirming your payment…");
   try {
     const res = await pqCall("checkout-status", {sessionId, testId});
+    pqTrack("checkout_success", {mode: res.mode || null, testId: testId || null});
     pqApplyAccess(res.access);
     await pqSyncEntitlements();
     cleanUrl();
@@ -332,6 +378,7 @@ function pqOpenAccount(){
 /* ---------------- boot ---------------- */
 
 async function pqBoot(){
+  pqTrack("visit", {}, {once:true});
   if (!pqInitSupabase()) return;          // no backend in this build — stay local
   await pqRefreshSession();
   PQPay.client.auth.onAuthStateChange(async (_evt, session) => {
