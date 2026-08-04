@@ -2138,8 +2138,12 @@ function psycheScore(){
   if (State.soulq)  parts.push({k:"Soul",      v:State.soulq.index, s:"Soul IQ"});
   if (!parts.length) return null;
   const score = Math.round(parts.reduce((a,p) => a+p.v, 0)/parts.length);
-  const complete = ["logos","pneuma","soulq","typology","anima","past"].filter(k => State[k]).length;
-  return {score, parts, complete, of:6, tier:tierFor(score)};
+  /* Assessments only. This list used to include anima and past — a composite
+     score partly derived from a birth chart and a tarot draw is not one you
+     can defend, and neither can move, so neither belongs in a progress
+     number. It also silently omitted doors and body, which do belong. */
+  const complete = ASSESSMENT_IDS.filter(k => State[k]).length;
+  return {score, parts, complete, of:ASSESSMENT_IDS.length, tier:tierFor(score)};
 }
 function scoreBlock(){
   const s = psycheScore(); if (!s) return "";
@@ -2314,32 +2318,55 @@ function isTestUnlocked(id){ return State.pro || State.unlocked.has(id); }
 function shareUnlocked(){ return State.pro || State.unlocked.size > 0; }
 
 /* ---------------- instrument registry ---------------- */
+/* Two classes of instrument, and the difference is not cosmetic.
+
+   ASSESSMENTS measure something that can actually move. They feed the
+   composite score, they consume free-tier slots, and they are what the
+   Fool's Journey re-runs to show change over a season.
+
+   READINGS do not. Your Birth Sky is computed from birth data and cannot
+   change; the Past Life Story is a single draw. Re-running either to chart
+   "growth" would be measuring noise and presenting it as transformation.
+   They stay on the dashboard in full — they are just kept out of the score
+   and out of the progress cadence.
+
+   This mirrors the ◇ Measured / ◈ Modeled / ✦ Mythic register already used
+   throughout the app: the readings are the mythic ones. */
 const TESTS = [
-  {id:"pneuma", group:"Mind", sigil:"sig-pneuma", name:"Personality Profile", lore:"The Pneuma Map", meta:"14 dilemmas · 6 min", reg:"T",
+  {id:"pneuma", kind:"assessment", group:"Mind", sigil:"sig-pneuma", name:"Personality Profile", lore:"The Pneuma Map", meta:"14 dilemmas · 6 min", reg:"T",
    desc:"Six traits, one dominant archetype, and the shadow material that comes with it.", view:"pneuma-intro",
    done:() => State.pneuma, status:() => State.pneuma && State.pneuma.archetype.name},
-  {id:"typology", group:"Mind", sigil:"sig-pneuma", name:"Thinking Style", lore:"The Sixteen Types", meta:"24 choices · 6 min", reg:"T",
+  {id:"typology", kind:"assessment", group:"Mind", sigil:"sig-pneuma", name:"Thinking Style", lore:"The Sixteen Types", meta:"24 choices · 6 min", reg:"T",
    desc:"A traditional four-axis typology, reported with the strength of each preference.", view:"typology",
    done:() => State.typology, status:() => State.typology && State.typology.code},
-  {id:"logos", group:"Mind", sigil:"sig-logos", name:"Mind IQ", lore:"The Logos Matrix", meta:"3 modules · 12 min", reg:"M",
+  {id:"logos", kind:"assessment", group:"Mind", sigil:"sig-logos", name:"Mind IQ", lore:"The Logos Matrix", meta:"3 modules · 12 min", reg:"M",
    desc:"Matrix reasoning, mental rotation and recall span — the classical core of a cognitive battery.", view:"logos-intro",
    done:() => State.logos, status:() => State.logos && State.logos.tier.name+" band"},
-  {id:"doors", group:"Mind", sigil:"sig-nous", name:"The Nine Doors", lore:"The Ennead Gate", meta:"27 statements · 7 min", reg:"T",
+  {id:"doors", kind:"assessment", group:"Mind", sigil:"sig-nous", name:"The Nine Doors", lore:"The Ennead Gate", meta:"27 statements · 7 min", reg:"T",
    desc:"Nine core motivations. What actually drives you underneath the behaviour, plus where you go under stress and in growth.", view:"doors",
    done:() => State.doors, status:() => State.doors && State.doors.type.n},
-  {id:"body", group:"Body", sigil:"sig-nous", name:"Body IQ", lore:"The Corpus Field", meta:"16 statements · 5 min", reg:"T",
+  {id:"body", kind:"assessment", group:"Body", sigil:"sig-nous", name:"Body IQ", lore:"The Corpus Field", meta:"16 statements · 5 min", reg:"T",
    desc:"Energy rhythm, stress response, habit strength and body awareness. Self-knowledge, not medical assessment.", view:"body",
    done:() => State.body, status:() => State.body && State.body.type.n},
-  {id:"soulq", group:"Soul", sigil:"sig-star", name:"Soul IQ", lore:"The Anima Sophia", meta:"16 statements · 5 min", reg:"T",
+  {id:"soulq", kind:"assessment", group:"Soul", sigil:"sig-star", name:"Soul IQ", lore:"The Anima Sophia", meta:"16 statements · 5 min", reg:"T",
    desc:"Existential reasoning, meaning production, transcendent awareness and state command.", view:"soulq",
    done:() => State.soulq, status:() => State.soulq && State.soulq.index+"/100"},
-  {id:"anima", group:"Soul", sigil:"sig-star", name:"Your Birth Sky", lore:"The Anima Field", meta:"Birth data + 10 · 5 min", reg:"Y",
+  {id:"anima", kind:"reading", group:"Soul", sigil:"sig-star", name:"Your Birth Sky", lore:"The Anima Field", meta:"Birth data + 10 · 5 min", reg:"Y",
    desc:"Your birth sky computed from real orbital series, then lineage, soul family and significator.", view:"anima-intro",
    done:() => State.anima, status:() => State.anima && State.anima.lineage.n+" lineage"},
-  {id:"past", group:"Soul", sigil:"sig-wing", name:"Past Life Story", lore:"The Akashic Draw", meta:"12 questions · 34s each", reg:"Y",
+  {id:"past", kind:"reading", group:"Soul", sigil:"sig-wing", name:"Past Life Story", lore:"The Akashic Draw", meta:"12 questions · 34s each", reg:"Y",
    desc:"Twelve questions, thirty-four seconds each, sixty-four possible lives.", view:"past",
    done:() => State.past, status:() => State.past && State.past.life.title}
 ];
+
+/* Derived once, used everywhere. TESTIDS (module 09) stays as "all eight"
+   for anything that genuinely means every instrument. */
+const ASSESSMENT_IDS  = TESTS.filter(t => t.kind === "assessment").map(t => t.id);
+const READING_IDS     = TESTS.filter(t => t.kind === "reading").map(t => t.id);
+const isReading       = id => READING_IDS.indexOf(id) !== -1;
+const assessmentsDone = () => ASSESSMENT_IDS.filter(id => State[id]).length;
+const readingsDone    = () => READING_IDS.filter(id => State[id]).length;
+
 
 /* ============================================================
    PSYCHEIQ — ART
@@ -3566,16 +3593,20 @@ function activeP(){
   return State.profiles[State.active];
 }
 const maxProfiles = () => State.pro ? 2 : 1;
-const slotLimit   = () => State.pro ? TESTIDS.length : FREE_SLOTS;
-const slotsUsed   = () => activeP().slots.length;
+const slotLimit   = () => State.pro ? ASSESSMENT_IDS.length : FREE_SLOTS;
+/* Only assessments consume slots. The readings are not what the paywall is
+   protecting, and spending one of three free slots on a birth chart that can
+   never come back different is a bad trade to offer someone. */
+const slotsUsed   = () => activeP().slots.filter(id => !isReading(id)).length;
 const slotsLeft   = () => Math.max(0, slotLimit() - slotsUsed());
 
 function canTake(id){
   const p = activeP();
   if (State.pro) return true;
+  if (isReading(id)) return true;             // readings are always open
   if (p.slots.includes(id)) return true;      // already one of theirs — retaking is free
   if (State.unlocked.has(id)) return true;    // bought outright for $3.99
-  return p.slots.length < FREE_SLOTS;
+  return slotsUsed() < FREE_SLOTS;
 }
 function syncFromProfile(){
   const p = activeP();
@@ -4258,7 +4289,9 @@ const LEVELS = [
   {n:"Sage",     g:"\uD83D\uDC41\uFE0F", l:"Mastering the pattern"}
 ];
 function growthStanding(){
-  const done = TESTIDS.filter(id => State[id]).length;
+  /* Assessments only — the role is meant to say how much of the measurable
+     picture you have completed, and a birth chart does not measure. */
+  const done = assessmentsDone();
   if (!done) return null;
   const s = psycheScore();
   const score = s ? s.score : 50;
@@ -4279,7 +4312,7 @@ function growthBlock(){
       '<div class="stat"><span>Role</span><b>'+g.level.g+' '+esc(g.level.n)+'</b></div>'+
     '</div>'+
     '<p style="font-size:14px;margin:12px 0 0">'+esc(g.level.l)+'.</p>'+
-    '<p class="terms">Stage reflects where you are in the current cycle; role reflects how much of the picture you\u2019ve completed ('+g.done+' of '+TESTIDS.length+' assessments).</p>'+
+    '<p class="terms">Stage reflects where you are in the current cycle; role reflects how much of the measurable picture you\u2019ve completed ('+g.done+' of '+ASSESSMENT_IDS.length+' assessments). Readings sit alongside this rather than inside it.</p>'+
   '</div>';
 }
 
@@ -6099,6 +6132,22 @@ function signalRange(){
 }
 
 /* --- the dashboard --- */
+function bpCell(id){
+  const t = TESTS.find(x => x.id === id) || {};
+  const have = !!State[id];
+  return '<button class="bpcell'+(have ? " on" : "")+'" data-go="'+(t.view||id)+'" style="cursor:pointer;text-align:left;font:inherit;color:inherit">'+
+    '<span class="bpcell__d">'+dimBadge(t.group)+'</span>'+
+    '<b>'+esc(t.name || id)+'</b>'+
+    '<span class="bpcell__v">'+(have ? esc(String(t.status())) : "not taken")+'</span></button>';
+}
+function bpSection(title, sub, ids, extra){
+  return '<div class="frame" style="margin-top:20px">'+
+    '<p class="eyebrow center">'+esc(title)+'</p>'+
+    '<p class="terms center" style="margin:6px 0 0">'+esc(sub)+'</p>'+
+    '<div class="bpgrid" style="margin-top:12px">'+
+      ids.map(bpCell).join("")+(extra || "")+
+    '</div></div>';
+}
 function renderBlueprint(){
   const done = TESTIDS.filter(id => State[id]).length;
   const ts = (typeof tarotStats === "function") ? tarotStats() : null;
@@ -6129,7 +6178,7 @@ function renderBlueprint(){
       '<p class="eyebrow">Composite</p>'+
       '<h2 class="dsp" style="font-size:clamp(3rem,12vw,5rem);line-height:1" class="gilt">'+
         '<span class="gilt">'+(s ? s.score : "—")+'</span></h2>'+
-      '<p class="eyebrow" style="margin-top:6px">'+(s ? esc(s.tier.name)+' band · '+done+' of '+TESTIDS.length+' assessments' : 'no assessments yet')+'</p>'+
+      '<p class="eyebrow" style="margin-top:6px">'+(s ? esc(s.tier.name)+' band · '+assessmentsDone()+' of '+ASSESSMENT_IDS.length+' assessments' : 'no assessments yet')+(readingsDone() ? ' · '+readingsDone()+' reading'+(readingsDone()===1?'':'s') : '')+'</p>'+
       /* g.level is an object ({n,g,l}) — printing it directly rendered
          "[object Object]" here until this was caught. */
       (g ? '<p style="font-size:13.5px;color:var(--ink-3);margin-top:8px">'+esc(g.stage)+' stage · '+
@@ -6146,18 +6195,12 @@ function renderBlueprint(){
       numerologyBlock(State.anima.numerology)+numerologySynthesis(State.anima.numerology)+'</div>' : "")+
     (typeof tarotSummaryPanel === "function" ? tarotSummaryPanel() : "")+
     trialsSummaryPanel()+
-    '<div class="frame" style="margin-top:20px"><p class="eyebrow center">Assessments</p>'+
-      '<div class="bpgrid" style="margin-top:12px">'+
-      TESTIDS.map(id => {
-        const t = TESTS.find(x => x.id === id) || {};
-        const have = !!State[id];
-        return '<button class="bpcell'+(have ? " on" : "")+'" data-go="'+(t.view||id)+'" style="cursor:pointer;text-align:left;font:inherit;color:inherit">'+
-          '<span class="bpcell__d">'+dimBadge(t.group)+'</span>'+
-          '<b>'+esc(t.name || id)+'</b>'+
-          '<span class="bpcell__v">'+(have ? esc(String(t.status())) : "not taken")+'</span></button>';
-      }).join("")+
-      (typeof tarotBlueprintBlock === "function" ? tarotBlueprintBlock() : "")+
-      '</div></div>'+
+    /* Everything the user has done stays on the dashboard — the two classes
+       are simply labelled, so it is obvious which results are tracked for
+       change and which are kept as they are. */
+    bpSection("Assessments", "Measured and re-measured. These feed your score and the Journey.", ASSESSMENT_IDS, "")+
+    bpSection("Readings", "Kept as they are. Not scored, and they do not change on a retake.", READING_IDS,
+      (typeof tarotBlueprintBlock === "function" ? tarotBlueprintBlock() : ""))+
     '<div class="btn-row" style="margin-top:24px">'+
       '<button class="btn btn--gold" data-go="results">Full results &amp; cards</button>'+
       '<button class="btn" data-go="oracle">Take another assessment</button></div>';

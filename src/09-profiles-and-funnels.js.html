@@ -14,16 +14,20 @@ function activeP(){
   return State.profiles[State.active];
 }
 const maxProfiles = () => State.pro ? 2 : 1;
-const slotLimit   = () => State.pro ? TESTIDS.length : FREE_SLOTS;
-const slotsUsed   = () => activeP().slots.length;
+const slotLimit   = () => State.pro ? ASSESSMENT_IDS.length : FREE_SLOTS;
+/* Only assessments consume slots. The readings are not what the paywall is
+   protecting, and spending one of three free slots on a birth chart that can
+   never come back different is a bad trade to offer someone. */
+const slotsUsed   = () => activeP().slots.filter(id => !isReading(id)).length;
 const slotsLeft   = () => Math.max(0, slotLimit() - slotsUsed());
 
 function canTake(id){
   const p = activeP();
   if (State.pro) return true;
+  if (isReading(id)) return true;             // readings are always open
   if (p.slots.includes(id)) return true;      // already one of theirs — retaking is free
   if (State.unlocked.has(id)) return true;    // bought outright for $3.99
-  return p.slots.length < FREE_SLOTS;
+  return slotsUsed() < FREE_SLOTS;
 }
 function syncFromProfile(){
   const p = activeP();
