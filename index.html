@@ -152,6 +152,21 @@ p{margin:0 0 1.05em}
   background:linear-gradient(90deg,var(--gold) 0%,var(--gold-line) 70%,transparent 100%)}
 .brand em{display:block;font:600 7.5px/1 Inter,sans-serif;letter-spacing:.3em;
   text-transform:uppercase;color:var(--gold-dim);font-style:normal;text-indent:.3em}
+/* ---------- progress bar (one spine: XP -> level -> sigils) ---------- */
+.xpbar{display:flex;align-items:center;gap:10px;min-width:186px}
+.xpbar--wide{width:100%}
+.xpbar__lv{font-size:17px;line-height:1;flex:none}
+.xpbar__body{flex:1;min-width:0}
+.xpbar__top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.xpbar__top b{font:600 10px/1.2 Inter,sans-serif;letter-spacing:.13em;text-transform:uppercase;color:var(--gold-hi);white-space:nowrap}
+.xpbar__num{font:500 9.5px/1.2 Inter,sans-serif;letter-spacing:.1em;color:var(--ink-3);white-space:nowrap}
+.xpbar__track{display:block;height:4px;margin-top:5px;background:rgba(227,190,109,.15);
+  border:1px solid var(--gold-line-soft);border-radius:2px;overflow:hidden}
+.xpbar__track i{display:block;height:100%;background:linear-gradient(90deg,var(--gold) 0%,var(--gold-hi) 100%);
+  transition:width .7s cubic-bezier(.2,.7,.3,1)}
+.xpbar__line{display:block;font:400 11.5px/1.4 Inter,sans-serif;color:var(--ink-3);margin-top:7px}
+@media (max-width:980px){ .masthead .xpbar{display:none} }
+
 .nav{display:flex;gap:6px;margin-left:auto;align-items:center;flex-wrap:wrap}
 .nav button{background:none;border:0;cursor:pointer;padding:9px 11px;
   font:600 10.5px/1 Inter,sans-serif;letter-spacing:.17em;text-transform:uppercase;color:var(--ink-2);
@@ -995,6 +1010,7 @@ select{width:100%;padding:12px 13px;background:rgba(0,0,0,.32);border:1px solid 
         <em>Mind · Body · Soul</em>
       </span>
     </button>
+    <div id="xp-slot" aria-live="polite"></div>
     <nav class="nav" aria-label="Main">
       <button class="desk" data-go="home">Home</button>
       <button class="desk" data-go="essays">Articles</button>
@@ -2606,7 +2622,11 @@ async function finishDaily(){
   Rec.longest = Math.max(Rec.longest, Rec.streak);
   Rec.last = day;
   Rec.best = Math.max(Rec.best, score);
+  const firstToday = !Rec.history[day];
   Rec.history[day] = Math.max(Rec.history[day] || 0, score);
+  /* only the first run of the day earns — re-running for practice is
+     encouraged, but it should not farm XP */
+  if (firstToday) awardXP("trial", {silentToast:true});
   await saveRec();
   await submitScore(score);
   renderTrials({justScored:{score, correct:DRun.correct, of:DRun.items.length, secs}});
@@ -3262,18 +3282,22 @@ const PL_TEXT = {
 const PL_QS = (() => {
   const qs = [];
   PL_MODULES.forEach((m, mi) => {
-    /* Both image passes draw from the two scene slots that actually exist
-       per key (s1/s2). The second pass reverses the order so the question
-       shows a different scene first. Previously this was ["m1","m2"], which
-       built paths like images/past/m1-greek-m1.jpg — files that never
-       existed, so exactly half the past-life tiles 404'd. */
-    const arts = [["s1","s2"], ["s2","s1"]];
+    /* One scene slot per image question, not both.
+       Each key has exactly two scenes (s1/s2). The old code passed an array
+       and plChoices() rendered every key at BOTH slots, so a single question
+       already showed all eight pictures for the module — and then the second
+       image question showed the same eight again. (Before that it was
+       ["m1","m2"], which built paths like images/past/m1-greek-m1.jpg and
+       404'd outright.) Giving each pass one slot means four distinct tiles
+       per question and eight distinct tiles per module, with no repeats. */
+    const arts = ["s1", "s2"];
     [0,1].forEach(pass => {
       // image question
       qs.push({mod:m.id, mi, type:"image", art:arts[pass],
-        q: pass === 0 ? "Which of these have you stood in front of before?" : "Which mark do you recognise without being told what it is?"});
-      // text question
-      qs.push({mod:m.id, mi, type:"text", q:PL_TEXT[m.id][pass].q, o:PL_TEXT[m.id][pass].o});
+        q: pass === 0 ? "Which of these have you stood in front of before?"
+                      : "And which of these could you find your way around in the dark?"});
+      // text question — `pass` selects which written phrasing plChoices() uses
+      qs.push({mod:m.id, mi, type:"text", pass, q:PL_TEXT[m.id][pass].q, o:PL_TEXT[m.id][pass].o});
     });
   });
   return qs;
@@ -3395,12 +3419,27 @@ function startPastLives(){
 }
 function plChoices(q){
   const m = PL_MODULES[q.mi], out = [];
-  m.keys.forEach((k, ki) => {
-    [0,1].forEach(v => {
-      out.push({key:k, ki, v,
-        pts: FIB[(ki*2 + v + PLRun.i) % FIB.length],
-        html: q.type === "image" ? plTile(q.mod, k, q.art[v]) : esc(q.o[k][v])});
+  if (q.type === "image"){
+    /* one tile per key, at this question's scene slot — four options, all
+       different places, and the other slot is saved for the second pass */
+    m.keys.forEach((k, ki) => {
+      out.push({key:k, ki, v:0,
+        pts: FIB[(ki*2 + PLRun.i) % FIB.length],
+        html: plTile(q.mod, k, q.art)});
     });
+    return shuffle(out);
+  }
+  /* Text questions get one phrasing per key too, alternating by pass so both
+     written variants still appear across the run.
+     Eight options was too much to read inside a 34-second timer — people
+     stopped reading and clicked to beat the clock, which is the opposite of
+     the intuitive first-impression this test is trying to capture. Four
+     options is readable in the time given. */
+  const v = q.pass ? 1 : 0;
+  m.keys.forEach((k, ki) => {
+    out.push({key:k, ki, v,
+      pts: FIB[(ki*2 + v + PLRun.i) % FIB.length],
+      html: esc(q.o[k][v])});
   });
   return shuffle(out);
 }
@@ -3621,7 +3660,15 @@ function afterTest(id){
     go("results");
     /* extra celebration on a freshly completed assessment */
     setTimeout(() => burstCentre({count:44, spread:280, life:1400}), 120);
-    setTimeout(() => conversionFunnel(id), 1400);
+    /* XP is silent here — the milestone or paywall modal is the moment,
+       and a "+100 XP" toast underneath it is just noise. */
+    awardXP("assessment", {quiet:true});
+    setTimeout(() => {
+      /* A milestone beat takes precedence over the paywall so the user
+         never gets two modals stacked on one result. */
+      if (progressFunnel(id)) return;
+      conversionFunnel(id);
+    }, 1400);
   });
 }
 function conversionFunnel(id){
@@ -3634,7 +3681,7 @@ function conversionFunnel(id){
     if (State.funnelSeen) return;
     State.funnelSeen = true;
     modal('<p class="eyebrow center">Unlocked</p><h2 class="dsp h-md center" style="color:var(--ink)">'+esc(t.name)+' Is Open in Full</h2>'+orn+
-      '<p style="font-size:14.5px">Adept opens the other five instruments at the same depth, adds cross-test analytics, a second profile, and removes the ads — for the price of thirteen single unlocks a year.</p>'+
+      '<p style="font-size:14.5px">Adept opens the other seven assessments at the same depth, adds cross-test analytics, a second profile, the twenty-two week Journey, and removes the ads.</p>'+
       '<button class="btn btn--gold btn--wide js-trial">Start the 3-day trial</button>'+
       '<button class="btn btn--wide" id="fx-no" style="margin-top:10px">Keep reading</button>');
     $("#fx-no").onclick = closeModal;
@@ -4721,6 +4768,9 @@ function tarotReady(){
   return {ok:false, mins, msg:mins > 1 ? mins+" minutes" : "under a minute"};
 }
 function markTarotPull(){
+  /* XP is awarded for every pull, members included — the cooldown below
+     is a free-tier limit, not a condition on earning. */
+  awardXP("reading", {silentToast:true});
   if (State.pro) return;
   TarotGate.last = Date.now();
   Store.set("pq:tarotgate", {last:TarotGate.last});
@@ -6080,8 +6130,12 @@ function renderBlueprint(){
       '<h2 class="dsp" style="font-size:clamp(3rem,12vw,5rem);line-height:1" class="gilt">'+
         '<span class="gilt">'+(s ? s.score : "—")+'</span></h2>'+
       '<p class="eyebrow" style="margin-top:6px">'+(s ? esc(s.tier.name)+' band · '+done+' of '+TESTIDS.length+' assessments' : 'no assessments yet')+'</p>'+
-      (g ? '<p style="font-size:13.5px;color:var(--ink-3);margin-top:8px">'+esc(g.stage)+' stage · '+esc(g.level)+' · theme: '+esc(g.theme)+'</p>' : "")+
+      /* g.level is an object ({n,g,l}) — printing it directly rendered
+         "[object Object]" here until this was caught. */
+      (g ? '<p style="font-size:13.5px;color:var(--ink-3);margin-top:8px">'+esc(g.stage)+' stage · '+
+           g.level.g+' '+esc(g.level.n)+' · theme: '+esc(g.theme)+'</p>' : "")+
       dimProgressStrip()+
+      '<div style="margin-top:16px">'+xpBar({wide:true})+'</div>'+
     '</div>'+
     keyMetrics()+
     blueprintInteractions()+
@@ -6712,6 +6766,10 @@ function finishChapter(){
   /* sigils: 10 a chapter, +5 on a streak of three or more */
   let earned = 10 + (j.streak >= 3 ? 5 : 0);
   j.sigils += earned;
+  /* the chapter result screen already reports the sigils, so XP stays quiet
+     here and only speaks up if it triggers a level */
+  awardXP("chapter", {quiet:true});
+  if (j.streak >= 3) awardXP("streak", {quiet:true});
 
   const newBadges = [];
   if (j.done.length >= 1 && awardBadge("first")) newBadges.push("first");
@@ -7246,6 +7304,278 @@ document.addEventListener("click", e => {
    window.supabase and window.PSYCHEIQ_SUPABASE are both present. */
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", pqBoot);
 else pqBoot();
+
+/* ============================================================
+   PSYCHEIQ — PROGRESS SPINE + MILESTONE FUNNELS
+   ------------------------------------------------------------
+   One progress system, not five. The app already computed an
+   "experience level" in growthStanding() and then barely showed
+   it; this makes that visible and gives it a continuous bar.
+
+   The chain is deliberately linear:
+
+       XP  ->  level  ->  sigils  ->  deck skins
+
+   XP is earned, levels are derived from XP, levelling pays out
+   sigils, and sigils are the only spendable currency (they already
+   buy deck skins in module 18). Badges stay as rare discrete
+   markers. Nothing else keeps score.
+
+   Growth *stage* (growthStanding().stage) is a different axis —
+   it is derived from the composite score, not from activity — so
+   it stays as flavour text and is not folded in here.
+
+   NOTE ON GATING: nothing a visitor might have arrived for is
+   locked behind a level. Levels unlock depth and cosmetics, never
+   doors. Someone who came from social media for a tarot pull gets
+   their tarot pull.
+   ============================================================ */
+
+/* what earns XP — all of these are things the app already tracks */
+const XP_RULES = {
+  assessment: 100,   // completing any of the eight
+  chapter:     50,   // a Fool's Journey chapter
+  trial:       20,   // the daily challenge
+  reading:     10,   // a deck reading
+  streak:       5    // each day a streak is held
+};
+
+/* Level curve: each level costs a little more than the last, so the bar
+   always moves early and never stalls completely later.
+   Base is deliberately NOT a multiple of the assessment award — at 100 the
+   first assessment landed exactly on a level boundary and the bar read
+   "0 / 160" right after earning 100 XP, which looks like nothing happened.
+   At 150 the first assessment fills two thirds of the bar. */
+const XP_STEP_BASE = 150, XP_STEP_GROWTH = 60;
+const xpNeededFor = lvl => XP_STEP_BASE + (lvl - 1) * XP_STEP_GROWTH;
+
+/* The four named roles from module 11 become bands over the numeric
+   level, so there is still only one ladder. */
+function xpTier(level){
+  const i = level >= 7 ? 3 : level >= 5 ? 2 : level >= 3 ? 1 : 0;
+  return LEVELS[i];
+}
+
+function xpLevelFor(xp){
+  let level = 1, rest = Math.max(0, xp | 0);
+  while (rest >= xpNeededFor(level) && level < 99){ rest -= xpNeededFor(level); level++; }
+  const need = xpNeededFor(level);
+  const tier = xpTier(level);
+  return {level, into: rest, need, pct: Math.round(rest / need * 100),
+          name: tier.n, glyph: tier.g, line: tier.l, total: xp | 0};
+}
+
+/* ---------------- state ---------------- */
+
+const XPState = {xp:0, level:1, seen:1};   // `seen` = highest level already celebrated
+
+async function loadXP(){
+  const x = await Store.get("pq:xp");
+  if (x){ XPState.xp = x.xp | 0; XPState.seen = x.seen || 1; }
+  syncXPBaseline();
+  XPState.level = xpLevelFor(XPState.xp).level;
+  paintXP();
+}
+function saveXP(){ return Store.set("pq:xp", {xp:XPState.xp, seen:XPState.seen}); }
+
+/* Anyone who already finished assessments before this shipped should not
+   open the app on level 1 with an empty bar. Floor their XP at what those
+   completions are worth, without ever subtracting. */
+function syncXPBaseline(){
+  const done = TESTIDS.filter(id => State[id]).length;
+  const floor = done * XP_RULES.assessment;
+  if (XPState.xp < floor){
+    XPState.xp = floor;
+    XPState.seen = Math.max(XPState.seen, xpLevelFor(floor).level);  // no retroactive level-up spam
+  }
+}
+
+/* ---------------- earning ---------------- */
+
+function awardXP(kind, opts){
+  const amount = XP_RULES[kind];
+  if (!amount) return null;
+  const o = opts || {};
+  const before = xpLevelFor(XPState.xp);
+  XPState.xp += amount;
+  const after = xpLevelFor(XPState.xp);
+  XPState.level = after.level;
+
+  const levelled = after.level > before.level && after.level > XPState.seen;
+  if (levelled){
+    XPState.seen = after.level;
+    /* Levelling is the only thing that mints sigils outside the Journey,
+       which is what keeps XP and sigils one chain rather than two
+       competing currencies. J() lives on the active profile, so
+       persistProfiles() is what writes it. */
+    const payout = 25;
+    try { J().sigils += payout; persistProfiles(); } catch (_){}
+    /* When something else already owns the screen (a milestone funnel or the
+       paywall), a level-up modal on top would be a second dialog — but going
+       silent means the user never learns they levelled. Toast instead. */
+    if (o.quiet) toast("Level " + after.level + " · " + after.name + " · +" + payout + " sigils");
+    else setTimeout(() => levelUpModal(after, payout), o.delay || 900);
+  } else if (!o.quiet && !o.silentToast){
+    toast("+" + amount + " XP");
+  }
+
+  saveXP();
+  paintXP();
+  return {amount, levelled, level: after.level};
+}
+
+function levelUpModal(lv, payout){
+  if (typeof burstCentre === "function") burstCentre({count:52, spread:300, life:1500});
+  modal(
+    '<p class="eyebrow center">Level '+lv.level+'</p>'+
+    '<h2 class="dsp h-md center" style="color:var(--ink)">'+lv.glyph+' '+esc(lv.name)+'</h2>'+orn+
+    '<p style="font-size:14.5px" class="center">'+esc(lv.line)+'.</p>'+
+    (payout ? '<div class="stat" style="margin-top:14px"><span>Sigils awarded</span><b>+'+payout+'</b></div>' : "")+
+    '<div class="stat" style="border:0"><span>Next level at</span><b>'+lv.need+' XP</b></div>'+
+    '<button class="btn btn--gold btn--wide" id="xp-ok" style="margin-top:16px">Continue</button>'
+  );
+  const b = $("#xp-ok"); if (b) b.onclick = closeModal;
+}
+
+/* ---------------- the bar ---------------- */
+
+/* Compact form for the masthead / blueprint header. */
+function xpBar(opts){
+  const o = opts || {};
+  const lv = xpLevelFor(XPState.xp);
+  return '<div class="xpbar'+(o.wide ? " xpbar--wide" : "")+'" role="group" aria-label="Progress">'+
+    '<span class="xpbar__lv" aria-hidden="true">'+lv.glyph+'</span>'+
+    '<span class="xpbar__body">'+
+      '<span class="xpbar__top">'+
+        '<b>Level '+lv.level+' · '+esc(lv.name)+'</b>'+
+        '<span class="xpbar__num">'+lv.into+' / '+lv.need+' XP</span>'+
+      '</span>'+
+      '<span class="xpbar__track"><i style="width:'+lv.pct+'%"></i></span>'+
+      (o.wide ? '<span class="xpbar__line">'+esc(lv.line)+'</span>' : "")+
+    '</span>'+
+  '</div>';
+}
+
+/* Repaints every mounted bar in place. Cheap enough to call on any change. */
+function paintXP(){
+  const lv = xpLevelFor(XPState.xp);
+  $$(".xpbar").forEach(el => {
+    const b = el.querySelector(".xpbar__top b");
+    const n = el.querySelector(".xpbar__num");
+    const i = el.querySelector(".xpbar__track i");
+    const g = el.querySelector(".xpbar__lv");
+    const l = el.querySelector(".xpbar__line");
+    if (b) b.textContent = "Level " + lv.level + " · " + lv.name;
+    if (n) n.textContent = lv.into + " / " + lv.need + " XP";
+    if (i) i.style.width = lv.pct + "%";
+    if (g) g.textContent = lv.glyph;
+    if (l) l.textContent = lv.line + ".";
+  });
+  const slot = $("#xp-slot");
+  if (slot && !slot.querySelector(".xpbar")) slot.innerHTML = xpBar();
+}
+
+/* ---------------- milestone funnels ----------------
+   Three beats, tied to earned moments rather than arbitrary counts:
+
+     1. first result      -> orient them, point at the next assessment
+     2. third result      -> the Blueprint becomes real (and free slots end)
+     3. Mind+Body+Soul    -> the Journey is the reason to subscribe
+
+   Each fires once ever, per profile. progressFunnel() returns true when
+   it has taken the screen, so afterTest() can skip the paywall modal
+   rather than stacking two dialogs on top of each other. */
+
+function funnelState(){
+  const p = activeP();
+  if (!p.funnels) p.funnels = {};
+  return p.funnels;
+}
+function funnelFired(k){ return !!funnelState()[k]; }
+function markFunnel(k){ funnelState()[k] = true; persistProfiles(); }
+
+function nextSuggested(){
+  /* prefer an untouched dimension, so the Blueprint fills out across
+     Mind/Body/Soul rather than three deep in one of them */
+  const p = dimProgress();
+  const thin = ["Mind","Body","Soul"]
+    .filter(d => p[d] && p[d].done === 0)
+    .sort((a,b) => (p[b].total - p[a].total));
+  const pool = TESTS.filter(t => !t.done());
+  if (!pool.length) return null;
+  if (thin.length){
+    const hit = pool.find(t => t.group === thin[0]);
+    if (hit) return hit;
+  }
+  return pool[0];
+}
+
+function progressFunnel(id){
+  const done = TESTIDS.filter(x => State[x]).length;
+  const p = dimProgress();
+  const dims = ["Mind","Body","Soul"].filter(d => p[d] && p[d].done > 0).length;
+
+  /* --- beat 3: a baseline in all three dimensions --- */
+  if (dims === 3 && !funnelFired("journey")){
+    markFunnel("journey");
+    const nxt = chapterOf(0);
+    modal(
+      '<p class="eyebrow center">Baseline complete</p>'+
+      '<h2 class="dsp h-md center" style="color:var(--ink)">You Have Measured All Three</h2>'+orn+
+      dimProgressStrip()+
+      '<p style="font-size:14.5px;margin-top:14px">Mind, body and soul all have a reading now. That is the whole point of a baseline — '+
+        'it is the <em>before</em> in a before-and-after.</p>'+
+      '<p style="font-size:14.5px">The Fool’s Journey is what comes next: twenty-two weeks, one discipline a week, '+
+        'and you retake these assessments as you go so the change is measured rather than assumed.</p>'+
+      '<div class="stat"><span>First chapter</span><b>'+esc(nxt ? nxt.n : "The Fool")+'</b></div>'+
+      '<div class="stat" style="border:0"><span>Length</span><b>22 weeks · then a new season</b></div>'+
+      '<div style="display:grid;gap:10px;margin-top:16px">'+
+        (journeyUnlocked()
+          ? '<button class="btn btn--gold btn--wide" id="fn-go">Begin the Journey</button>'
+          : '<button class="btn btn--gold btn--wide js-trial">Start the Journey · 3-day trial</button>')+
+        '<button class="btn btn--ghost btn--wide" id="fn-later">Keep exploring</button>'+
+      '</div>');
+    const g = $("#fn-go"); if (g) g.onclick = () => { closeModal(); go("journey"); };
+    const l = $("#fn-later"); if (l) l.onclick = closeModal;
+    return true;
+  }
+
+  /* --- beat 2: the Blueprint becomes worth looking at --- */
+  if (done >= 3 && !funnelFired("blueprint")){
+    markFunnel("blueprint");
+    modal(
+      '<p class="eyebrow center">Three assessments in</p>'+
+      '<h2 class="dsp h-md center" style="color:var(--ink)">They Talk to Each Other Now</h2>'+orn+
+      '<p style="font-size:14.5px">One result is a label. Three start to form a picture — where they agree, where they '+
+        'contradict, and what that tension usually means.</p>'+
+      '<p style="font-size:14.5px">That cross-reading lives in your Blueprint, and it grows every time you add a result.</p>'+
+      '<button class="btn btn--gold btn--wide" id="fn-bp">Open my Blueprint</button>'+
+      '<p class="terms">You can come back to it any time from the tab bar.</p>');
+    const b = $("#fn-bp"); if (b) b.onclick = () => { closeModal(); go("blueprint"); };
+    return true;
+  }
+
+  /* --- beat 1: orient them straight after the first result --- */
+  if (done === 1 && !funnelFired("first")){
+    markFunnel("first");
+    const nxt = nextSuggested();
+    modal(
+      '<p class="eyebrow center">First result saved</p>'+
+      '<h2 class="dsp h-md center" style="color:var(--ink)">That Is One of Three</h2>'+orn+
+      '<p style="font-size:14.5px">PsycheIQ measures across three dimensions. You have started one of them. '+
+        'Each assessment takes about six minutes, and they combine into a single blueprint as you go.</p>'+
+      dimProgressStrip()+
+      (nxt
+        ? '<button class="btn btn--gold btn--wide" id="fn-next" style="margin-top:16px">Next · '+esc(nxt.name)+'</button>'
+        : "")+
+      '<button class="btn btn--ghost btn--wide" id="fn-browse" style="margin-top:10px">Look around first</button>');
+    const n = $("#fn-next"); if (n) n.onclick = () => { closeModal(); go(nxt.view || "oracle"); };
+    const br = $("#fn-browse"); if (br) br.onclick = closeModal;
+    return true;
+  }
+
+  return false;
+}
 /* ============================================================
    THE PNEUMA PERSONALITY MAP
    ============================================================ */
@@ -8173,6 +8503,7 @@ function renderAnimaSummary(){
   loadRec();
   wireFoundersPanel();   // static box on the pricing page; wired once
   loadEntitlement();     // resolves async, then refreshes that box
+  loadXP();              // progress spine; paints the masthead bar
   loadTarotGate();
   loadTarotLog();
   loadProfiles().then(() => { renderOracle(); if (State.view === "results") renderResults(); });

@@ -97,7 +97,11 @@ async function finishDaily(){
   Rec.longest = Math.max(Rec.longest, Rec.streak);
   Rec.last = day;
   Rec.best = Math.max(Rec.best, score);
+  const firstToday = !Rec.history[day];
   Rec.history[day] = Math.max(Rec.history[day] || 0, score);
+  /* only the first run of the day earns — re-running for practice is
+     encouraged, but it should not farm XP */
+  if (firstToday) awardXP("trial", {silentToast:true});
   await saveRec();
   await submitScore(score);
   renderTrials({justScored:{score, correct:DRun.correct, of:DRun.items.length, secs}});

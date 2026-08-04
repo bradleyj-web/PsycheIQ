@@ -98,14 +98,36 @@ badScene.slice(0, 20).forEach(p => console.log("        bad scene: " + p));
    how the ["m1","m2"] regression survived. Walk the actual question set
    and confirm every tile it can render is a path that exists. */
 const qPaths = new Set();
+const perQuestion = [];
 PL_QS.filter(q => q.type === "image").forEach(q => {
+  const slots = Array.isArray(q.art) ? q.art : [q.art];
+  const forThis = [];
   Object.keys(PL_ART[q.mod]).forEach(key => {
-    q.art.forEach(slot => qPaths.add(plImgPath(q.mod, key, slot)));
+    slots.forEach(slot => { const p = plImgPath(q.mod, key, slot); qPaths.add(p); forThis.push(p); });
   });
+  perQuestion.push({ mod: q.mod, paths: forThis });
 });
 const qMissing = [...qPaths].filter(p => !onDisk.has(p));
 check("every tile the past-life quiz can render exists (" + qPaths.size + " paths, " + qMissing.length + " missing)", qMissing.length === 0);
 qMissing.slice(0, 20).forEach(p => console.log("        quiz wants: " + p));
+
+/* No scene may appear in two different image questions, and no question may
+   show the same scene twice. This is what actually broke the feel of the
+   test: every module's second image question was re-showing the first
+   question's pictures, so the run looked like it kept repeating itself. */
+const seenIn = new Map();
+let repeats = 0, withinDupes = 0;
+perQuestion.forEach((q, qi) => {
+  if (new Set(q.paths).size !== q.paths.length) withinDupes++;
+  q.paths.forEach(p => {
+    if (seenIn.has(p) && seenIn.get(p) !== qi) { repeats++; console.log("        repeated across questions: " + p); }
+    else seenIn.set(p, qi);
+  });
+});
+check("no scene repeats within a single image question (" + withinDupes + " questions affected)", withinDupes === 0);
+check("no scene repeats across image questions (" + repeats + " repeats)", repeats === 0);
+check("each image question offers 4 distinct tiles",
+  perQuestion.every(q => new Set(q.paths).size === 4));
 
 const dupes = manifest.length - new Set(manifest.map(x => x.path)).size;
 check("no duplicate slots in the manifest (" + dupes + " duplicated)", dupes === 0);

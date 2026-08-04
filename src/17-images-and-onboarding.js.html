@@ -158,8 +158,12 @@ function renderBlueprint(){
       '<h2 class="dsp" style="font-size:clamp(3rem,12vw,5rem);line-height:1" class="gilt">'+
         '<span class="gilt">'+(s ? s.score : "—")+'</span></h2>'+
       '<p class="eyebrow" style="margin-top:6px">'+(s ? esc(s.tier.name)+' band · '+done+' of '+TESTIDS.length+' assessments' : 'no assessments yet')+'</p>'+
-      (g ? '<p style="font-size:13.5px;color:var(--ink-3);margin-top:8px">'+esc(g.stage)+' stage · '+esc(g.level)+' · theme: '+esc(g.theme)+'</p>' : "")+
+      /* g.level is an object ({n,g,l}) — printing it directly rendered
+         "[object Object]" here until this was caught. */
+      (g ? '<p style="font-size:13.5px;color:var(--ink-3);margin-top:8px">'+esc(g.stage)+' stage · '+
+           g.level.g+' '+esc(g.level.n)+' · theme: '+esc(g.theme)+'</p>' : "")+
       dimProgressStrip()+
+      '<div style="margin-top:16px">'+xpBar({wide:true})+'</div>'+
     '</div>'+
     keyMetrics()+
     blueprintInteractions()+

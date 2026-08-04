@@ -37,7 +37,8 @@ const MODULES = [
   "17-images-and-onboarding.js.html",// past-life art layer, blueprint dashboard, IMAGE LAYER, onboarding
   "18-fools-journey.js.html",        // Fool's Journey: chapters, sigils, badges, deck skins
   "19-payments-supabase-stripe.js.html", // accounts, entitlements, Stripe Checkout
-  "20-engines-render-and-init.js.html" // Pneuma/Logos engines, results render, init; closes tags
+  "20-progress-and-funnels.js.html", // XP -> level -> sigils spine, milestone funnels
+  "21-engines-render-and-init.js.html" // Pneuma/Logos engines, results render, init; closes tags
 ];
 
 const srcDir = path.join(__dirname, "src");

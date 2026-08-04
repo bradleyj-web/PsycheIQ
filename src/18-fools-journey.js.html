@@ -317,6 +317,10 @@ function finishChapter(){
   /* sigils: 10 a chapter, +5 on a streak of three or more */
   let earned = 10 + (j.streak >= 3 ? 5 : 0);
   j.sigils += earned;
+  /* the chapter result screen already reports the sigils, so XP stays quiet
+     here and only speaks up if it triggers a level */
+  awardXP("chapter", {quiet:true});
+  if (j.streak >= 3) awardXP("streak", {quiet:true});
 
   const newBadges = [];
   if (j.done.length >= 1 && awardBadge("first")) newBadges.push("first");

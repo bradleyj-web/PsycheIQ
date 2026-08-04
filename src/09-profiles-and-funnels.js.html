@@ -108,7 +108,15 @@ function afterTest(id){
     go("results");
     /* extra celebration on a freshly completed assessment */
     setTimeout(() => burstCentre({count:44, spread:280, life:1400}), 120);
-    setTimeout(() => conversionFunnel(id), 1400);
+    /* XP is silent here — the milestone or paywall modal is the moment,
+       and a "+100 XP" toast underneath it is just noise. */
+    awardXP("assessment", {quiet:true});
+    setTimeout(() => {
+      /* A milestone beat takes precedence over the paywall so the user
+         never gets two modals stacked on one result. */
+      if (progressFunnel(id)) return;
+      conversionFunnel(id);
+    }, 1400);
   });
 }
 function conversionFunnel(id){
@@ -121,7 +129,7 @@ function conversionFunnel(id){
     if (State.funnelSeen) return;
     State.funnelSeen = true;
     modal('<p class="eyebrow center">Unlocked</p><h2 class="dsp h-md center" style="color:var(--ink)">'+esc(t.name)+' Is Open in Full</h2>'+orn+
-      '<p style="font-size:14.5px">Adept opens the other five instruments at the same depth, adds cross-test analytics, a second profile, and removes the ads — for the price of thirteen single unlocks a year.</p>'+
+      '<p style="font-size:14.5px">Adept opens the other seven assessments at the same depth, adds cross-test analytics, a second profile, the twenty-two week Journey, and removes the ads.</p>'+
       '<button class="btn btn--gold btn--wide js-trial">Start the 3-day trial</button>'+
       '<button class="btn btn--wide" id="fx-no" style="margin-top:10px">Keep reading</button>');
     $("#fx-no").onclick = closeModal;
