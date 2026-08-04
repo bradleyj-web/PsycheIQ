@@ -53,7 +53,7 @@ if (placeholder.length) {
 
 /* sanity-check the shapes before spending a round trip on the API */
 const warn = [];
-if (!/^sk_(test|live)_/.test(secrets.STRIPE_SECRET_KEY)) warn.push("STRIPE_SECRET_KEY does not start with sk_test_ or sk_live_");
+if (! /^(sk|rk)_(test|live)_/.test(secrets.STRIPE_SECRET_KEY)) warn.push("STRIPE_SECRET_KEY does not start with sk_test_, sk_live_, rk_test_, or rk_live_");
 if (!/^price_/.test(secrets.STRIPE_CORE_PRICE_ID)) warn.push("STRIPE_CORE_PRICE_ID does not start with price_");
 if (!/^price_/.test(secrets.STRIPE_MEMBER_PRICE_ID)) warn.push("STRIPE_MEMBER_PRICE_ID does not start with price_");
 if (!/^whsec_/.test(secrets.STRIPE_WEBHOOK_SECRET)) warn.push("STRIPE_WEBHOOK_SECRET does not start with whsec_");
@@ -64,7 +64,7 @@ if (warn.length) {
   process.exit(1);
 }
 
-const mode = secrets.STRIPE_SECRET_KEY.startsWith("sk_live_") ? "LIVE" : "TEST";
+const mode = secrets.STRIPE_SECRET_KEY.startsWith("sk_live_") || secrets.STRIPE_SECRET_KEY.startsWith("rk_live_") ? "LIVE" : "TEST";
 console.log("Pushing " + Object.keys(secrets).length + " secrets in " + mode + " mode.");
 if (mode === "LIVE") console.log("  These are live keys. Real cards will be charged.");
 

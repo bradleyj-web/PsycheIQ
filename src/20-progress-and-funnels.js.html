@@ -212,6 +212,7 @@ function progressFunnel(id){
   /* --- beat 3: a baseline in all three dimensions --- */
   if (dims === 3 && !funnelFired("journey")){
     markFunnel("journey");
+    pqTrack("funnel_shown", {beat:"journey"});
     const nxt = chapterOf(0);
     modal(
       '<p class="eyebrow center">Baseline complete</p>'+
@@ -237,6 +238,7 @@ function progressFunnel(id){
   /* --- beat 2: the Blueprint becomes worth looking at --- */
   if (done >= 3 && !funnelFired("blueprint")){
     markFunnel("blueprint");
+    pqTrack("funnel_shown", {beat:"blueprint"});
     modal(
       '<p class="eyebrow center">Three assessments in</p>'+
       '<h2 class="dsp h-md center" style="color:var(--ink)">They Talk to Each Other Now</h2>'+orn+
@@ -252,6 +254,7 @@ function progressFunnel(id){
   /* --- beat 1: orient them straight after the first result --- */
   if (done === 1 && !funnelFired("first")){
     markFunnel("first");
+    pqTrack("funnel_shown", {beat:"first"});
     const nxt = nextSuggested();
     modal(
       '<p class="eyebrow center">First result saved</p>'+

@@ -236,6 +236,11 @@ function go(name){
   else if (name === "oracle"){ renderOracle(); }
   else if (name === "essays"){ renderEssayList(); }
   if (!VIEWS.includes(name)) name = "home";
+  /* funnel analytics — view changes, plus first entry into any instrument.
+     pqTrack is defined in module 19 and is a safe no-op offline. */
+  pqTrack("view", {name}, {once: name});
+  if (typeof TESTS !== "undefined" && TESTS.some(t => t.id === name && !t.done()))
+    pqTrack("assessment_start", {id: name}, {once: name});
   State.view = name;
   VIEWS.forEach(v => { const el = $("#view-"+v); if (el) el.hidden = (v !== name); });
   $$("[data-go]").forEach(b => {

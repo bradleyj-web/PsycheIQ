@@ -31,6 +31,7 @@ function applyPromo(raw){
   TESTIDS.forEach(id => State.unlocked.add(id));
   persistProfiles();
   Store.set("pq:entitlement", {lifetime:State.lifetime, code:code});
+  pqTrack("promo_redeemed", {code});
   refreshFoundersPanel();
   return {ok:true, msg:hit.label+" unlocked. Every assessment, every profile, no ads — permanently."};
 }

@@ -35,9 +35,11 @@ function syncFromProfile(){
 }
 function saveResult(id, data){
   const p = activeP();
+  const first = !p.results[id];
   p.results[id] = data;
   if (!p.slots.includes(id)) p.slots.push(id);
   State[id] = data;
+  pqTrack("assessment_complete", {id, kind: isReading(id) ? "reading" : "assessment", first});
   persistProfiles();
 }
 function clearResult(id){

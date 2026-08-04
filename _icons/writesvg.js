@@ -1,0 +1,24 @@
+const fs = require("fs");
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="PsycheIQ">
+  <title>PsycheIQ</title>
+  <!-- Maskable-safe: the mark sits inside the central 80% so a platform can
+       crop to a circle or squircle without clipping it. -->
+  <rect width="512" height="512" rx="112" fill="#070A1C"/>
+  <rect x="18" y="18" width="476" height="476" rx="96" fill="none" stroke="#E3BE6D" stroke-width="3" opacity=".28"/>
+  <g transform="translate(106 106) scale(1.5)" fill="none" stroke="#E3BE6D"
+     stroke-linecap="round" stroke-linejoin="round">
+    <path d="M100 18q58 0 58 58v58q0 36-58 36q-58 0-58-36V76q0-58 58-58z" stroke-width="7.5"/>
+    <path d="M100 33q45 0 45 45v54q0 25-45 25q-45 0-45-25V78q0-45 45-45z" stroke-width="2.2" opacity=".5"/>
+    <path d="M50 100q50-46 100 0q-50 46-100 0z" stroke-width="6.5"/>
+    <circle cx="100" cy="100" r="17" fill="#E3BE6D" stroke="none"/>
+    <circle cx="100" cy="100" r="29" stroke-width="2.4" opacity=".65"/>
+    <path d="M100 52v13M68 60l6 11M132 60l-6 11" stroke-width="3.4" opacity=".8"/>
+    <path d="M100 146v26" stroke-width="5.5"/>
+    <path d="M86 166h28" stroke-width="4"/>
+    <path d="M58 54q-13-17-2-32q15 11 12 27" stroke-width="4" opacity=".85"/>
+    <path d="M142 54q13-17 2-32q-15 11-12 27" stroke-width="4" opacity=".85"/>
+  </g>
+</svg>
+`;
+fs.writeFileSync("C:/Users/plzdo/Downloads/psycheiq-repo/assets/icon.svg", svg, "utf8");
+console.log("wrote icon.svg, " + Buffer.byteLength(svg) + " bytes");
