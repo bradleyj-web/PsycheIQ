@@ -21,3 +21,4 @@ secrets.env
 secrets.env.*
 helpers/node_modules/
 helpers/package-lock.json
+_icons/
